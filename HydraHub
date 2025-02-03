@@ -3715,7 +3715,7 @@ function UILibrary.Window:ChangeCategory(new)
             Object.Content.Image,
             TI,
             {
-                ImageColor3 = Color3.fromRGB(83, 87, 158)
+                ImageColor3 = Color3.fromRGB(160, 160, 160)
             }
         ):Play()
 
@@ -3723,7 +3723,7 @@ function UILibrary.Window:ChangeCategory(new)
             Object.Content.Title,
             TI,
             {
-                TextColor3 = Color3.fromRGB(83, 87, 158)
+                TextColor3 = Color3.fromRGB(160, 160, 160)
             }
         ):Play()
 
@@ -3811,7 +3811,7 @@ function UILibrary.Window:ChangeCategorySelection(name)
             Object.InnerContent.Image,
             TI,
             {
-                ImageColor3 = Color3.fromRGB(83, 87, 158)
+                ImageColor3 = Color3.fromRGB(160, 160, 160)
             }
         ):Play()
 
@@ -3819,7 +3819,7 @@ function UILibrary.Window:ChangeCategorySelection(name)
             Object.InnerContent.Title,
             TI,
             {
-                TextColor3 = Color3.fromRGB(83, 87, 158)
+                TextColor3 = Color3.fromRGB(160, 160, 160)
             }
         ):Play()
 
