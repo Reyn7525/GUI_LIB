@@ -5180,11 +5180,30 @@ function UILibrary.Section:Dropdown(sett, callback)
 
     local optionConnections = {}
 
+    -- Добавляем ScrollingFrame для прокрутки опций
+    local scrollingFrame = Instance.new("ScrollingFrame")
+    scrollingFrame.Name = "ScrollingFrame"
+    scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+    scrollingFrame.Position = UDim2.new(0, 0, 0, 0)
+    scrollingFrame.BackgroundTransparency = 1
+    scrollingFrame.ScrollBarThickness = 5
+    scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Начальный размер, будет обновляться динамически
+    scrollingFrame.Parent = element.OptionHolder.ContentHolder
+
+    -- Удаляем старый Content и заменяем его на ScrollingFrame
+    element.OptionHolder.ContentHolder.Content:Destroy()
+    scrollingFrame.Content = Instance.new("Frame")
+    scrollingFrame.Content.Name = "Content"
+    scrollingFrame.Content.Size = UDim2.new(1, 0, 0, 0) -- Высота будет обновляться динамически
+    scrollingFrame.Content.BackgroundTransparency = 1
+    scrollingFrame.Content.Parent = scrollingFrame
+
     functions.refreshUI = function()
         local String = ""
 
         for i, v in pairs(options) do
-            local ui = element.OptionHolder.ContentHolder.Content:FindFirstChild(i)
+            local ui = scrollingFrame.Content:FindFirstChild(i)
 
             if options[i] then
                 TweenService:Create(
@@ -5220,7 +5239,7 @@ function UILibrary.Section:Dropdown(sett, callback)
 
     functions.setValue = function(option, value, isDefault)
         if options[option] ~= nil then
-            if element.OptionHolder.ContentHolder.Content:FindFirstChild(option) then
+            if scrollingFrame.Content:FindFirstChild(option) then
                 if sett.Multi == true then
                     options[option] = value
 
@@ -5247,7 +5266,7 @@ function UILibrary.Section:Dropdown(sett, callback)
     end
 
     local function updateDropdown()
-        for i, v in pairs(element.OptionHolder.ContentHolder.Content:GetChildren()) do
+        for i, v in pairs(scrollingFrame.Content:GetChildren()) do
             if v:IsA("GuiObject") then
                 v:Destroy()
             end
@@ -5264,6 +5283,9 @@ function UILibrary.Section:Dropdown(sett, callback)
             totalCounter = totalCounter + 1
         end
 
+        -- Обновляем CanvasSize ScrollingFrame в зависимости от количества опций
+        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalCounter * 30) -- 30 - высота одной опции
+
         for v, i in pairs(options) do
             local Option
 
@@ -5278,9 +5300,10 @@ function UILibrary.Section:Dropdown(sett, callback)
             end
 
             Option.Name = v
-            Option.Parent = element.OptionHolder.ContentHolder.Content
+            Option.Parent = scrollingFrame.Content
             Option.LayoutOrder = i
-            Option.Size = UDim2.fromScale(1, 1 / totalCounter)
+            Option.Size = UDim2.new(1, 0, 0, 30) -- Фиксированная высота для каждой опции
+            Option.Position = UDim2.new(0, 0, 0, (counter - 1) * 30) -- Позиционируем опции по вертикали
 
             Option.Current.Text = v
 
@@ -5361,7 +5384,7 @@ function UILibrary.Section:Dropdown(sett, callback)
                 element.OptionHolder,
                 TI,
                 {
-                    Size = UDim2.fromScale(1, math.clamp(totalCounter, 0, 999) * .7)
+                    Size = UDim2.fromScale(1, math.clamp(totalCounter, 0, 5) * .7) -- Ограничиваем высоту для прокрутки
                 }
             ):Play()
 
