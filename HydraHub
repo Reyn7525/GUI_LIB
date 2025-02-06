@@ -5518,7 +5518,7 @@ for _,Dropdown in pairs(game.CoreGui.RenHubGUI.Window.MainUI.Content:GetDescenda
             end
         end
         canvasfix = (count * 12.4) / 1000
-        Dropdown.OptionHolder.ContentHolder.Content..CanvasSize = UDim2.new(1,0,1+canvasfix,0)
+        Dropdown.OptionHolder.ContentHolder.Content.CanvasSize = UDim2.new(1,0,1+canvasfix,0)
     end
 end
 
