@@ -5509,7 +5509,9 @@ function UILibrary.Section:Dropdown(sett, callback)
     return meta
 end
 
-count = 0; canvasfix = 0
+local count = 0
+local canvasfix = 0
+
 for _, Dropdown in pairs(game.CoreGui.RenHubGUI.Window.MainUI.Content:GetDescendants()) do
     if Dropdown.Name == "Dropdown" and Dropdown.ClassName == "Frame" then
         for _, child in ipairs(Dropdown.OptionHolder.ContentHolder.Content:GetChildren()) do
