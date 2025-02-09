@@ -5511,6 +5511,7 @@ end
 
 makefolder("RenHub")
 makefolder("RenHub".."/".."configs")
+makefolder("RenHub".."/".."configs".."/"..game.PlaceId)
 
 return UILibrary
 
