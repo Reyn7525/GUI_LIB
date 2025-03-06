@@ -1,8 +1,5 @@
-for _,GUI in pairs(game.CoreGui:GetChildren()) do
-    if GUI.Name == "RenHubGUI" then
-        GUI:Destroy()
-    end
-end
+if game.CoreGui:FindFirstChild("RenHubGUI") then game.CoreGui.RenHubGUI:Destroy() end
+if game.Lighting:FindFirstChild("RenHubBlur") then game.Lighting.RenHubBlur:Destroy() end
 
 local UILibrary = {}
 --// Modules
