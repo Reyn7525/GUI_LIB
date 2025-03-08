@@ -1,4 +1,5 @@
 if game.CoreGui:FindFirstChild("RenHubGUI") then game.CoreGui.RenHubGUI:Destroy() end
+if game.CoreGui:FindFirstChild("GirlScreenGui") then game.CoreGui.GirlScreenGui:Destroy() end
 if game.Lighting:FindFirstChild("RenHubBlur") then game.Lighting.RenHubBlur:Destroy() end
 
 local UILibrary = {}
