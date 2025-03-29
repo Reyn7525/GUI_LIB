@@ -1653,7 +1653,6 @@ local function getObjGen()
             Gui.Textbox_2.Text = "2, 39, 20"
             Gui.Textbox_2.TextColor3 = Color3.fromRGB(255, 255, 255)
             Gui.Textbox_2.TextSize = 14.000
-            Gui.Textbox_2.ClearTextOnFocus = false
 
             Gui.DropShadowHolder_11.Name = "DropShadowHolder"
             Gui.DropShadowHolder_11.Parent = Gui.RGB
