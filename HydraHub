@@ -1,9 +1,10 @@
 if game.CoreGui:FindFirstChild("RenHubGUI") then game.CoreGui.RenHubGUI:Destroy() end
-if game.CoreGui:FindFirstChild("GirlScreenGui") then game.CoreGui.GirlScreenGui:Destroy() end
-if game.CoreGui:FindFirstChild("BackgroundScreenGui") then game.CoreGui.BackgroundScreenGui:Destroy() end
-if game.CoreGui:FindFirstChild("RenHubWatermark") then game.CoreGui.RenHubWatermark:Destroy() end
-if game.CoreGui:FindFirstChild("RenHubWatermarkCrossLines") then game.CoreGui.RenHubWatermarkCrossLines:Destroy() end
+if game.CoreGui:FindFirstChild("CursorGui") then game.CoreGui.CursorGui:Destroy() end
 if game.Lighting:FindFirstChild("RenHubBlur") then game.Lighting.RenHubBlur:Destroy() end
+if game.CoreGui:FindFirstChild("GirlScreenGui") then game.CoreGui.GirlScreenGui:Destroy() end
+if game.CoreGui:FindFirstChild("RenHubWatermark") then game.CoreGui.RenHubWatermark:Destroy() end
+if game.CoreGui:FindFirstChild("BackgroundScreenGui") then game.CoreGui.BackgroundScreenGui:Destroy() end
+if game.CoreGui:FindFirstChild("RenHubWatermarkCrossLines") then game.CoreGui.RenHubWatermarkCrossLines:Destroy() end
 
 local UILibrary = {}
 --// Modules
