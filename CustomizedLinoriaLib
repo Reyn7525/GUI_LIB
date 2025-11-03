@@ -1444,51 +1444,6 @@ do
                 Parent = Outer;
             });
 
-            Library:Create('UIStroke', {
-                Color = Color3.new(0, 0, 0);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-                Thickness = 1;
-                ZIndex = 5;
-                Parent = Outer;
-            });
-
-            Library:Create('UIStroke', {
-                Color = Color3.new(61, 61, 61);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-                Thickness = 2;
-                ZIndex = 4;
-                Parent = Outer;
-            });
-
-            Library:Create('UIStroke', {
-                Color = Color3.new(43, 43, 43);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-                Thickness = 4;
-                ZIndex = 3;
-                Parent = Outer;
-            });
-
-            Library:Create('UIStroke', {
-                Color = Color3.new(61, 61, 61);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-                Thickness = 5;
-                ZIndex = 2;
-                Parent = Outer;
-            });
-
-            Library:Create('UIStroke', {
-                Color = Color3.new(0, 0, 0);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-                Thickness = 6;
-                ZIndex = 1;
-                Parent = Outer;
-            });
-
             local Label = Library:CreateLabel({
                 Size = UDim2.new(1, 0, 1, 0);
                 TextSize = 14;
