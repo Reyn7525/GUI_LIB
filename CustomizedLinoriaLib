@@ -3616,7 +3616,7 @@ function Library:CreateWindow(...)
 
     Window.Holder = Outer;
 
-    local 1UIStroke = Instance.new(UIStroke,Outer)
+    local 1UIStroke = Instance.new(UIStroke)
 
     return Window;
 end;
