@@ -217,7 +217,7 @@ function Library:AddToolTip(InfoStr, HoverInstance)
 
     Library:AddToRegistry(Tooltip, {
         BackgroundColor3 = 'MainColor';
-        Color3 = 'OutlineColor';
+        BorderColor3 = 'OutlineColor';
     });
 
     Library:AddToRegistry(Label, {
