@@ -3616,42 +3616,6 @@ function Library:CreateWindow(...)
 
     Window.Holder = Outer;
 
-print("zdes sdohlo")
-    Local 1UIStroke = Instance.new(UIStroke,Inner)
-    1UIStroke.Color = Color3.fromRGB(0, 0, 0);
-    1UIStroke.LineJoinMode = Enum.LineJoinMode.Miter;
-    1UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-    1UIStroke.Thickness = 1;
-    1UIStroke.ZIndex = 5;
-
-    Local 2UIStroke = Instance.new(UIStroke,Inner)
-    2UIStroke.Color = Color3.fromRGB(61, 61, 61);
-    2UIStroke.LineJoinMode = Enum.LineJoinMode.Miter;
-    2UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-    2UIStroke.Thickness = 2;
-    2UIStroke.ZIndex = 4;
-
-    Local 3UIStroke = Instance.new(UIStroke,Inner)
-    3UIStroke.Color = Color3.fromRGB(43, 43, 43);
-    3UIStroke.LineJoinMode = Enum.LineJoinMode.Miter;
-    3UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-    3UIStroke.Thickness = 4;
-    3UIStroke.ZIndex = 3;
-
-    Local 4UIStroke = Instance.new(UIStroke,Inner)
-    4UIStroke.Color = Color3.fromRGB(61, 61, 61);
-    4UIStroke.LineJoinMode = Enum.LineJoinMode.Miter;
-    4UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-    4UIStroke.Thickness = 5;
-    4UIStroke.ZIndex = 2;
-
-    Local 5UIStroke = Instance.new(UIStroke,Inner)
-    5UIStroke.Color = Color3.fromRGB(0, 0, 0);
-    5UIStroke.LineJoinMode = Enum.LineJoinMode.Miter;
-    5UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-    5UIStroke.Thickness = 6;
-    5UIStroke.ZIndex = 1;
-
     return Window;
 end;
 
