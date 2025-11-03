@@ -1444,7 +1444,7 @@ do
                 Parent = Outer;
             });
 
-            local 1UIStroke = Library:Create('UIStroke', {
+            Library:Create('UIStroke', {
                 Color = Color3.new(0, 0, 0);
                 LineJoinMode = Enum.LineJoinMode.Miter;
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
@@ -1453,7 +1453,7 @@ do
                 Parent = Outer;
             });
 
-            local 2UIStroke = Library:Create('UIStroke', {
+            Library:Create('UIStroke', {
                 Color = Color3.new(61, 61, 61);
                 LineJoinMode = Enum.LineJoinMode.Miter;
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
@@ -1462,7 +1462,7 @@ do
                 Parent = Outer;
             });
 
-            local 3UIStroke = Library:Create('UIStroke', {
+            Library:Create('UIStroke', {
                 Color = Color3.new(43, 43, 43);
                 LineJoinMode = Enum.LineJoinMode.Miter;
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
@@ -1471,7 +1471,7 @@ do
                 Parent = Outer;
             });
 
-            local 4UIStroke = Library:Create('UIStroke', {
+            Library:Create('UIStroke', {
                 Color = Color3.new(61, 61, 61);
                 LineJoinMode = Enum.LineJoinMode.Miter;
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
@@ -1480,7 +1480,7 @@ do
                 Parent = Outer;
             });
 
-            local 5UIStroke = Library:Create('UIStroke', {
+            Library:Create('UIStroke', {
                 Color = Color3.new(0, 0, 0);
                 LineJoinMode = Enum.LineJoinMode.Miter;
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
