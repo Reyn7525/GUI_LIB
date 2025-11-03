@@ -3616,35 +3616,35 @@ function Library:CreateWindow(...)
 
     Window.Holder = Outer;
 
-    Local UIStroke1 = Instance.new("UIStroke",Outer.Frame)
+    local UIStroke1 = Instance.new("UIStroke",Outer.Frame)
     UIStroke1.Color = Color3.fromRGB(0, 0, 0);
     UIStroke1.LineJoinMode = Enum.LineJoinMode.Miter;
     UIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
     UIStroke1.Thickness = 1;
     UIStroke1.ZIndex = 5;
 
-    Local UIStroke2 = Instance.new("UIStroke",Outer.Frame)
+    local UIStroke2 = Instance.new("UIStroke",Outer.Frame)
     UIStroke2.Color = Color3.fromRGB(61, 61, 61);
     UIStroke2.LineJoinMode = Enum.LineJoinMode.Miter;
     UIStroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
     UIStroke2.Thickness = 2;
     UIStroke2.ZIndex = 4;
 
-    Local UIStroke3 = Instance.new("UIStroke",Outer.Frame)
+    local UIStroke3 = Instance.new("UIStroke",Outer.Frame)
     UIStroke3.Color = Color3.fromRGB(43, 43, 43);
     UIStroke3.LineJoinMode = Enum.LineJoinMode.Miter;
     UIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
     UIStroke3.Thickness = 4;
     UIStroke3.ZIndex = 3;
 
-    Local UIStroke4 = Instance.new("UIStroke",Outer.Frame)
+    local UIStroke4 = Instance.new("UIStroke",Outer.Frame)
     UIStroke4.Color = Color3.fromRGB(61, 61, 61);
     UIStroke4.LineJoinMode = Enum.LineJoinMode.Miter;
     UIStroke4.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
     UIStroke4.Thickness = 5;
     UIStroke4.ZIndex = 2;
 
-    Local UIStroke5 = Instance.new("UIStroke",Outer.Frame)
+    local UIStroke5 = Instance.new("UIStroke",Outer.Frame)
     UIStroke5.Color = Color3.fromRGB(0, 0, 0);
     UIStroke5.LineJoinMode = Enum.LineJoinMode.Miter;
     UIStroke5.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
