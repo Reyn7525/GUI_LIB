@@ -136,7 +136,7 @@ end;
 function Library:ApplyTextStroke(Inst)
     Inst.TextStrokeTransparency = 1;
 
-    Library:Create('', {
+    Library:Create('UIStroke', {
         Color = Color3.new(0, 0, 0);
         Thickness = 1;
         LineJoinMode = Enum.LineJoinMode.Miter;
@@ -1441,6 +1441,51 @@ do
                 BorderMode = Enum.BorderMode.Inset;
                 Size = UDim2.new(1, 0, 1, 0);
                 ZIndex = 6;
+                Parent = Outer;
+            });
+
+            Library:Create('UIStroke', {
+                Color = Color3.new(0, 0, 0);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+                Thickness = 1;
+                ZIndex = 5;
+                Parent = Outer;
+            });
+
+            Library:Create('UIStroke', {
+                Color = Color3.new(61, 61, 61);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+                Thickness = 2;
+                ZIndex = 4;
+                Parent = Outer;
+            });
+
+            Library:Create('UIStroke', {
+                Color = Color3.new(43, 43, 43);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+                Thickness = 4;
+                ZIndex = 3;
+                Parent = Outer;
+            });
+
+            Library:Create('UIStroke', {
+                Color = Color3.new(61, 61, 61);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+                Thickness = 5;
+                ZIndex = 2;
+                Parent = Outer;
+            });
+
+            Library:Create('UIStroke', {
+                Color = Color3.new(0, 0, 0);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+                Thickness = 6;
+                ZIndex = 1;
                 Parent = Outer;
             });
 
@@ -2969,6 +3014,51 @@ function Library:CreateWindow(...)
         Visible = false;
         ZIndex = 1;
         Parent = ScreenGui;
+    });
+
+    Library:Create('UIStroke', {
+        Color = Color3.fromRGB(0, 0, 0);
+        LineJoinMode = Enum.LineJoinMode.Miter;
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+        Thickness = 1;
+        ZIndex = 5;
+        Parent = Inner;
+    });
+
+    Library:Create('UIStroke', {
+        Color = Color3.fromRGB(61, 61, 61);
+        LineJoinMode = Enum.LineJoinMode.Miter;
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+        Thickness = 2;
+        ZIndex = 4;
+        Parent = Inner;
+    });
+
+    Library:Create('UIStroke', {
+        Color = Color3.fromRGB(43, 43, 43);
+        LineJoinMode = Enum.LineJoinMode.Miter;
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+        Thickness = 4;
+        ZIndex = 3;
+        Parent = Inner;
+    });
+
+    Library:Create('UIStroke', {
+        Color = Color3.fromRGB(61, 61, 61);
+        LineJoinMode = Enum.LineJoinMode.Miter;
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+        Thickness = 5;
+        ZIndex = 2;
+        Parent = Inner;
+    });
+
+    Library:Create('UIStroke', {
+        Color = Color3.fromRGB(0, 0, 0);
+        LineJoinMode = Enum.LineJoinMode.Miter;
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
+        Thickness = 6;
+        ZIndex = 1;
+        Parent = Inner;
     });
 
     Library:MakeDraggable(Outer, 25);
