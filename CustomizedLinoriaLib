@@ -136,7 +136,7 @@ end;
 function Library:ApplyTextStroke(Inst)
     Inst.TextStrokeTransparency = 1;
 
-    Library:Create('UIStroke', {
+    Library:Create('', {
         Color = Color3.new(0, 0, 0);
         Thickness = 1;
         LineJoinMode = Enum.LineJoinMode.Miter;
@@ -1444,46 +1444,41 @@ do
                 Parent = Outer;
             });
 
-            Library:Create('UIStroke', {
+            local 1UIStroke = Library:Create('UIStroke', {
                 Color = Color3.new(0, 0, 0);
                 LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
                 Thickness = 1;
                 ZIndex = 5;
                 Parent = Outer;
             });
 
-            Library:Create('UIStroke', {
+            local 2UIStroke = Library:Create('UIStroke', {
                 Color = Color3.new(61, 61, 61);
                 LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
                 Thickness = 2;
                 ZIndex = 4;
                 Parent = Outer;
             });
 
-            Library:Create('UIStroke', {
+            local 3UIStroke = Library:Create('UIStroke', {
                 Color = Color3.new(43, 43, 43);
                 LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
                 Thickness = 4;
                 ZIndex = 3;
                 Parent = Outer;
             });
 
-            Library:Create('UIStroke', {
+            local 4UIStroke = Library:Create('UIStroke', {
                 Color = Color3.new(61, 61, 61);
                 LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
                 Thickness = 5;
                 ZIndex = 2;
                 Parent = Outer;
             });
 
-            Library:Create('UIStroke', {
+            local 5UIStroke = Library:Create('UIStroke', {
                 Color = Color3.new(0, 0, 0);
                 LineJoinMode = Enum.LineJoinMode.Miter;
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
                 Thickness = 6;
                 ZIndex = 1;
                 Parent = Outer;
