@@ -3620,35 +3620,35 @@ function Library:CreateWindow(...)
     Stroke1.BorderSizePixel = 0;
     Stroke1.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
     Stroke1.Size = UDim2.new(1,2,1,2);
-    Stroke1.Position = UDim2.new(1,-1,1,-1)
+    Stroke1.Position = UDim2.new(0,-1,0,-1)
     Stroke1.ZIndex = -1;
 
     local Stroke2 = Instance.new("Frame",Outer)
     Stroke2.BorderSizePixel = 0;
     Stroke2.BackgroundColor3 = Color3.fromRGB(61, 61, 61);
     Stroke2.Size = UDim2.new(1,4,1,4);
-    Stroke2.Position = UDim2.new(1,-2,1,-2)
+    Stroke2.Position = UDim2.new(0,-2,0,-2)
     Stroke2.ZIndex = -2;
 
     local Stroke3 = Instance.new("Frame",Outer)
     Stroke3.BorderSizePixel = 0;
     Stroke3.BackgroundColor3 = Color3.fromRGB(43, 43, 43);
     Stroke3.Size = UDim2.new(1,8,1,8);
-    Stroke3.Position = UDim2.new(1,-4,1,-4)
+    Stroke3.Position = UDim2.new(0,-4,0,-4)
     Stroke3.ZIndex = -3;
 
     local Stroke4 = Instance.new("Frame",Outer)
     Stroke4.BorderSizePixel = 0;
     Stroke4.BackgroundColor3 = Color3.fromRGB(61, 61, 61);
     Stroke4.Size = UDim2.new(1,10,1,10);
-    Stroke4.Position = UDim2.new(1,-5,1,-5)
+    Stroke4.Position = UDim2.new(0,-5,0,-5)
     Stroke4.ZIndex = -4;
 
     local Stroke5 = Instance.new("Frame",Outer)
     Stroke5.BorderSizePixel = 0;
     Stroke5.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
     Stroke5.Size = UDim2.new(1,12,1,12);
-    Stroke5.Position = UDim2.new(1,-6,1,-6)
+    Stroke5.Position = UDim2.new(0,-6,0,-6)
     Stroke5.ZIndex = -5;
 
     return Window;
