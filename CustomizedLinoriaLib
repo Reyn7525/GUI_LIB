@@ -1444,46 +1444,6 @@ do
                 Parent = Outer;
             });
 
-            local 1UIStroke = Library:Create('UIStroke', {
-                Color = Color3.new(0, 0, 0);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                Thickness = 1;
-                ZIndex = 5;
-                Parent = Outer;
-            });
-
-            local 2UIStroke = Library:Create('UIStroke', {
-                Color = Color3.new(61, 61, 61);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                Thickness = 2;
-                ZIndex = 4;
-                Parent = Outer;
-            });
-
-            local 3UIStroke = Library:Create('UIStroke', {
-                Color = Color3.new(43, 43, 43);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                Thickness = 4;
-                ZIndex = 3;
-                Parent = Outer;
-            });
-
-            local 4UIStroke = Library:Create('UIStroke', {
-                Color = Color3.new(61, 61, 61);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                Thickness = 5;
-                ZIndex = 2;
-                Parent = Outer;
-            });
-
-            local 5UIStroke = Library:Create('UIStroke', {
-                Color = Color3.new(0, 0, 0);
-                LineJoinMode = Enum.LineJoinMode.Miter;
-                Thickness = 6;
-                ZIndex = 1;
-                Parent = Outer;
-            });
-
             local Label = Library:CreateLabel({
                 Size = UDim2.new(1, 0, 1, 0);
                 TextSize = 14;
@@ -3011,50 +2971,45 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
     });
 
-    Library:Create('UIStroke', {
-        Color = Color3.fromRGB(0, 0, 0);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-        Thickness = 1;
-        ZIndex = 5;
-        Parent = Inner;
-    });
+            local 1UIStroke = Library:Create('UIStroke', {
+                Color = Color3.new(0, 0, 0);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                Thickness = 1;
+                ZIndex = 5;
+                Parent = Outer;
+            });
 
-    Library:Create('UIStroke', {
-        Color = Color3.fromRGB(61, 61, 61);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-        Thickness = 2;
-        ZIndex = 4;
-        Parent = Inner;
-    });
+            local 2UIStroke = Library:Create('UIStroke', {
+                Color = Color3.new(61, 61, 61);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                Thickness = 2;
+                ZIndex = 4;
+                Parent = Outer;
+            });
 
-    Library:Create('UIStroke', {
-        Color = Color3.fromRGB(43, 43, 43);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-        Thickness = 4;
-        ZIndex = 3;
-        Parent = Inner;
-    });
+            local 3UIStroke = Library:Create('UIStroke', {
+                Color = Color3.new(43, 43, 43);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                Thickness = 4;
+                ZIndex = 3;
+                Parent = Outer;
+            });
 
-    Library:Create('UIStroke', {
-        Color = Color3.fromRGB(61, 61, 61);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-        Thickness = 5;
-        ZIndex = 2;
-        Parent = Inner;
-    });
+            local 4UIStroke = Library:Create('UIStroke', {
+                Color = Color3.new(61, 61, 61);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                Thickness = 5;
+                ZIndex = 2;
+                Parent = Outer;
+            });
 
-    Library:Create('UIStroke', {
-        Color = Color3.fromRGB(0, 0, 0);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual;
-        Thickness = 6;
-        ZIndex = 1;
-        Parent = Inner;
-    });
+            local 5UIStroke = Library:Create('UIStroke', {
+                Color = Color3.new(0, 0, 0);
+                LineJoinMode = Enum.LineJoinMode.Miter;
+                Thickness = 6;
+                ZIndex = 1;
+                Parent = Outer;
+            });
 
     Library:MakeDraggable(Outer, 25);
 
