@@ -2971,41 +2971,6 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
     });
 
-    local 1UIStroke = Library:Create('UIStroke', {
-        Color = Color3.new(0, 0, 0);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        Thickness = 1;
-        Parent = Outer;
-    });
-
-    local 2UIStroke = Library:Create('UIStroke', {
-        Color = Color3.new(61, 61, 61);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        Thickness = 2;
-        Parent = Outer;
-    });
-
-    local 3UIStroke = Library:Create('UIStroke', {
-        Color = Color3.new(43, 43, 43);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        Thickness = 4;
-        Parent = Outer;
-    });
-
-    local 4UIStroke = Library:Create('UIStroke', {
-        Color = Color3.new(61, 61, 61);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        Thickness = 5;
-        Parent = Outer;
-    });
-
-    local 5UIStroke = Library:Create('UIStroke', {
-        Color = Color3.new(0, 0, 0);
-        LineJoinMode = Enum.LineJoinMode.Miter;
-        Thickness = 6;
-        Parent = Outer;
-    });
-
     Library:MakeDraggable(Outer, 25);
 
     local Inner = Library:Create('Frame', {
