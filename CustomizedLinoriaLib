@@ -3625,10 +3625,10 @@ function Library:CreateWindow(...)
     Line.ZIndex = 1;
 
     local Line2 = Instance.new("Frame",Outer);
-    Line2.Name = "Line";
+    Line2.Name = "Line2";
     Line2.BorderSizePixel = 0;
     Line2.BackgroundTransparency = 0.53;
-    Line2.BackgroundColor3 = Library.AccentColor;
+    Line2.BackgroundColor3 = Color3.new(0,0,0);
     Line2.Size = UDim2.new(1,0,0,2);
     Line2.Position = UDim2.new(0,0,0,2)
     Line2.ZIndex = 1;
