@@ -3624,7 +3624,7 @@ function Library:CreateWindow(...)
     Line.Position = UDim2.new(0,0,0,0)
     Line.ZIndex = 1;
 
-    local MainGradient = Instance.new("UIGradient",Outer);
+    local MainGradient = Instance.new("UIGradient",Line);
     MainGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
 
     local Line2 = Instance.new("Frame",Outer);
