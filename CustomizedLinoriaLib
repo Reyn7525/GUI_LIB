@@ -3640,38 +3640,6 @@ function Library:CreateWindow(...)
     Line2.Position = UDim2.new(0,1,0,3)
     Line2.ZIndex = 1;
 
-    local Stroke1 = Instance.new("Frame",Outer);
-    Stroke1.Name = "Stroke1";
-    Stroke1.BorderSizePixel = 0;
-    Stroke1.BackgroundColor3 = Color3.fromRGB(61, 61, 61);
-    Stroke1.Size = UDim2.new(1,2,1,2);
-    Stroke1.Position = UDim2.new(0,-1,0,-1)
-    Stroke1.ZIndex = -1;
-
-    local Stroke2 = Instance.new("Frame",Outer);
-    Stroke2.Name = "Stroke2";
-    Stroke2.BorderSizePixel = 0;
-    Stroke2.BackgroundColor3 = Color3.fromRGB(43, 43, 43);
-    Stroke2.Size = UDim2.new(1,6,1,6);
-    Stroke2.Position = UDim2.new(0,-3,0,-3)
-    Stroke2.ZIndex = -2;
-
-    local Stroke3 = Instance.new("Frame",Outer);
-    Stroke3.Name = "Stroke3";
-    Stroke3.BorderSizePixel = 0;
-    Stroke3.BackgroundColor3 = Color3.fromRGB(61, 61, 61);
-    Stroke3.Size = UDim2.new(1,8,1,8);
-    Stroke3.Position = UDim2.new(0,-4,0,-4)
-    Stroke3.ZIndex = -3;
-
-    local Stroke4 = Instance.new("Frame",Outer);
-    Stroke4.Name = "Stroke4";
-    Stroke4.BorderSizePixel = 0;
-    Stroke4.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-    Stroke4.Size = UDim2.new(1,10,1,10);
-    Stroke4.Position = UDim2.new(0,-5,0,-5)
-    Stroke4.ZIndex = -4;
-
     return Window;
 end;
 
