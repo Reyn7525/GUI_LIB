@@ -2707,8 +2707,7 @@ do
 
     local WatermarkInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
-        BorderColor3 = Library.AccentColor;
-        BorderMode = Enum.BorderMode.Inset;
+        BorderSizePixel = 0;
         Size = UDim2.new(1, 0, 1, 0);
         ZIndex = 201;
         Parent = WatermarkOuter;
@@ -2716,6 +2715,18 @@ do
 
     Library:AddToRegistry(WatermarkInner, {
         BorderColor3 = 'AccentColor';
+    });
+
+    local WatermarkLine = Instance.new("Frame",WatermarkOuter);
+    WatermarkLine.Name = "WatermarkLine";
+    WatermarkLine.BorderSizePixel = 0;
+    WatermarkLine.BackgroundColor3 = Library.AccentColor;
+    WatermarkLine.Size = UDim2.new(1,-2,0,4);
+    WatermarkLine.Position = UDim2.new(0,1,0,1)
+    WatermarkLine.ZIndex = 1;
+
+    Library:AddToRegistry(WatermarkLine, {
+        BackgroundColor3 = 'AccentColor';
     });
 
     local InnerFrame = Library:Create('Frame', {
