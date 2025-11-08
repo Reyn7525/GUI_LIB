@@ -2721,8 +2721,8 @@ do
     WatermarkLine.Name = "WatermarkLine";
     WatermarkLine.BorderSizePixel = 0;
     WatermarkLine.BackgroundColor3 = Library.AccentColor;
-    WatermarkLine.Size = UDim2.new(1,-2,0,4);
-    WatermarkLine.Position = UDim2.new(0,1,0,1)
+    WatermarkLine.Size = UDim2.new(1,0,0,2);
+    WatermarkLine.Position = UDim2.new(0,0,0,0)
     WatermarkLine.ZIndex = 1;
 
     Library:AddToRegistry(WatermarkLine, {
