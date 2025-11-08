@@ -2729,6 +2729,10 @@ do
         BackgroundColor3 = 'AccentColor';
     });
 
+    local MainGradient = Instance.new("UIGradient",WatermarkLine);
+    MainGradient.Enabled = false;
+    MainGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
+
     local InnerFrame = Library:Create('Frame', {
         BackgroundColor3 = Color3.new(1, 1, 1);
         BorderSizePixel = 0;
@@ -3640,6 +3644,7 @@ function Library:CreateWindow(...)
     });
 
     local MainGradient = Instance.new("UIGradient",Line);
+    MainGradient.Enabled = false;
     MainGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
 
     local Line2 = Instance.new("Frame",Outer);
