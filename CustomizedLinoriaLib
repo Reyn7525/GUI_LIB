@@ -2723,7 +2723,7 @@ do
     WatermarkLine.BackgroundColor3 = Library.AccentColor;
     WatermarkLine.Size = UDim2.new(1,0,0,2);
     WatermarkLine.Position = UDim2.new(0,0,0,0)
-    WatermarkLine.ZIndex = 1;
+    WatermarkLine.ZIndex = 202;
 
     Library:AddToRegistry(WatermarkLine, {
         BackgroundColor3 = 'AccentColor';
