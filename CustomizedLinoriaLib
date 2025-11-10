@@ -22,6 +22,7 @@ ScreenGui.Parent = CoreGui;
 
 local Blur = Instance.new("BlurEffect",game.Lighting)
 Blur.Name = "RenHubBlur"
+Blur.Size = 24
 Blur.Enabled = true
 
 local Toggles = {};
@@ -3548,7 +3549,7 @@ function Library:CreateWindow(...)
             if Blur then
                 local startTime = tick()
                 local startSize = Blur.Size
-                local targetSize = Config.BlurSize or 10
+                local targetSize = Config.BlurSize
                 
                 task.spawn(function()
                     while Toggled and tick() - startTime < FadeTime do
