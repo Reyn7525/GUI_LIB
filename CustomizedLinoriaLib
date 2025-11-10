@@ -1,4 +1,4 @@
-print("Version 0.205")
+print("Version 0.206 | Hot Fix")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -29,7 +29,7 @@ Blur.Enabled = false
 local Toggles = {};
 local Options = {};
 
-getgenv().s = s;
+getgenv().Toggles = Toggles;
 getgenv().Options = Options;
 
 local Library = {
