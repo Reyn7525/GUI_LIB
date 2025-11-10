@@ -1,4 +1,4 @@
-print("Version 0.207 | hot fixed")
+print("Version 0.208")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -422,6 +422,7 @@ function Library:Unload()
 
     ScreenGui:Destroy()
     Blur:Destroy()
+    BackgroundScreenGui:Destroy()
 end
 
 function Library:OnUnload(Callback)
