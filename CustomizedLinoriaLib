@@ -1,4 +1,4 @@
-print("Version 0.203")
+print("Version 0.204")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3549,7 +3549,7 @@ function Library:CreateWindow(...)
             if Blur then
                 local startTime = tick()
                 local startSize = Blur.Size
-                local targetSize = Blur.BlurSize
+                local targetSize = Blur.Size
                 
                 task.spawn(function()
                     while Toggled and tick() - startTime < FadeTime do
