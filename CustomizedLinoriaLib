@@ -1,4 +1,4 @@
-print("Version 0.2")
+print("Version 0.201")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -19,6 +19,10 @@ ProtectGui(ScreenGui);
 
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
 ScreenGui.Parent = CoreGui;
+
+local Blur = Instance.new("BlurEffect",game.Lighting)
+Blur.Name = "RenHubBlur"
+Blur.Enabled = true
 
 local Toggles = {};
 local Options = {};
@@ -395,6 +399,7 @@ function Library:Unload()
     end
 
     ScreenGui:Destroy()
+    Blur:Destroy()
 end
 
 function Library:OnUnload(Callback)
@@ -3693,10 +3698,6 @@ function Library:CreateWindow(...)
     Line2.Size = UDim2.new(1,-2,0,2);
     Line2.Position = UDim2.new(0,1,0,3)
     Line2.ZIndex = 1;
-
-    local Blur = Instance.new("BlurEffect",game.Lighting)
-    Blur.Name = "RenHubBlur"
-    Blur.Enabled = true
 
     return Window;
 end;
