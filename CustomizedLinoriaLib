@@ -616,6 +616,7 @@ do
         });
 
         local HueBox = Library:Create('TextBox', {
+            ClearTextOnFocus = false;
             BackgroundTransparency = 1;
             Position = UDim2.new(0, 5, 0, 0);
             Size = UDim2.new(1, -5, 1, 0);
@@ -640,6 +641,7 @@ do
         });
 
         local RgbBox = Library:Create(RgbBoxBase.Frame:FindFirstChild('TextBox'), {
+            ClearTextOnFocus = false;
             Text = '255, 255, 255',
             PlaceholderText = 'RGB color',
             TextColor3 = Library.FontColor
