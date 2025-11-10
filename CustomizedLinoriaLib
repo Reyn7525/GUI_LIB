@@ -1,4 +1,4 @@
-print("Version 0.206 | Hot Fix")
+print("Version 0.207")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -27,7 +27,6 @@ Blur.Size = 24
 Blur.Enabled = false
 
 local BackgroundScreenGui = Instance.new("ScreenGui", game.CoreGui)
-BackgroundScreenGui:SetAttribute("Enabled",true)
 BackgroundScreenGui.Name = "BackgroundScreenGui"
 BackgroundScreenGui.Enabled = false
 BackgroundScreenGui.DisplayOrder = -1
@@ -37,10 +36,14 @@ BackgroundLabel.Size = UDim2.new(1, 0, 1.1, 0)
 BackgroundLabel.Position = UDim2.new(0, 0, -0.1, 0)
 BackgroundLabel.Text = ""
 BackgroundLabel.BackgroundColor3 = Color3.new(1, 1, 1)
-BackgroundLabel.BackgroundTransparency = 0
+BackgroundLabel:SetAttribute("Transparency",0.5)
+BackgroundLabel.BackgroundTransparency = 0.5
 local BackgroundGradient = Instance.new("UIGradient", BackgroundLabel)
 BackgroundGradient.Name = "BackgroundGradient"
 BackgroundGradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.new(0, 0, 0)),ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))})
+BackgroundGradient:SetAttribute("Animation",false)
+BackgroundGradient:SetAttribute("Speed",7)
+BackgroundGradient:SetAttribute("Rotation",0)
 BackgroundGradient.Rotation = 0
 
 local Toggles = {};
