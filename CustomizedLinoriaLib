@@ -3657,6 +3657,10 @@ function Library:CreateWindow(...)
     Line2.Position = UDim2.new(0,1,0,3)
     Line2.ZIndex = 1;
 
+    local Blur = Instance.new("BlurEffect",game.Lighting)
+    Blur.Name = "RenHubBlur"
+    Blur.Enabled = blurenabled
+
     return Window;
 end;
 
