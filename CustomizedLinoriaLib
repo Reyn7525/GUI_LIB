@@ -3549,7 +3549,7 @@ function Library:CreateWindow(...)
             if Blur then
                 local startTime = tick()
                 local startSize = Blur.Size
-                local targetSize = Config.BlurSize
+                local targetSize = Blur.BlurSize
                 
                 task.spawn(function()
                     while Toggled and tick() - startTime < FadeTime do
