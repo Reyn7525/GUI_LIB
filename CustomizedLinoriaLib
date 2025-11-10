@@ -3583,6 +3583,23 @@ function Library:CreateWindow(...)
                     end
                 end)
             end
+            
+            if BackgroundLabel then
+                local startTime = tick()
+                local startTransparency = BackgroundLabel.BackgroundTransparency
+                local targetTransparency = BackgroundLabel:GetAttribute("Transparency")
+                
+                task.spawn(function()
+                    while Toggled and tick() - startTime < FadeTime do
+                        local alpha = (tick() - startTime) / FadeTime
+                        BackgroundLabel.BackgroundTransparency = startTransparency + (targetTransparency - startTransparency) * alpha
+                        RenderStepped:Wait()
+                    end
+                    if Toggled then
+                        BackgroundLabel.BackgroundTransparency = targetTransparency
+                    end
+                end)
+            end
     
             task.spawn(function()
                 -- TODO: add cursor fade?
@@ -3635,6 +3652,23 @@ function Library:CreateWindow(...)
                     end
                     if not Toggled then
                         Blur.Size = 0
+                    end
+                end)
+            end
+            
+            if BackgroundLabel then
+                local startTime = tick()
+                local startTransparency = BackgroundLabel.BackgroundTransparency
+                local targetTransparency = 1
+                
+                task.spawn(function()
+                    while not Toggled and tick() - startTime < FadeTime do
+                        local alpha = (tick() - startTime) / FadeTime
+                        BackgroundLabel.BackgroundTransparency = startTransparency + (targetTransparency - startTransparency) * alpha
+                        RenderStepped:Wait()
+                    end
+                    if not Toggled then
+                        BackgroundLabel.BackgroundTransparency = targetTransparency
                     end
                 end)
             end
