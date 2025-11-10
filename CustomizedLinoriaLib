@@ -21,6 +21,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
 ScreenGui.Parent = CoreGui;
 
 local Blur = Instance.new("BlurEffect",game.Lighting)
+Blur:SetAttribute("Size",24)
 Blur.Name = "RenHubBlur"
 Blur.Size = 24
 Blur.Enabled = false
@@ -28,7 +29,7 @@ Blur.Enabled = false
 local Toggles = {};
 local Options = {};
 
-getgenv().Toggles = Toggles;
+getgenv().s = s;
 getgenv().Options = Options;
 
 local Library = {
@@ -3548,7 +3549,7 @@ function Library:CreateWindow(...)
             if Blur then
                 local startTime = tick()
                 local startSize = Blur.Size
-                local targetSize = Blur.Size
+                local targetSize = Blur:GetAttribute("Size")
                 
                 task.spawn(function()
                     while Toggled and tick() - startTime < FadeTime do
