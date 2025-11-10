@@ -1,4 +1,4 @@
-print("Version 0.209 | background toggle")
+print("Version 0.21")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -20,6 +20,29 @@ ProtectGui(ScreenGui);
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
 ScreenGui.Parent = CoreGui;
 
+local Library = {
+    Registry = {};
+    RegistryMap = {};
+
+    HudRegistry = {};
+
+    FontColor = Color3.fromRGB(205, 205, 205);
+    MainColor = Color3.fromRGB(20, 20, 20);
+    BackgroundColor = Color3.fromRGB(35, 35, 35);
+    AccentColor = Color3.fromRGB(0, 85, 255);
+    OutlineColor = Color3.fromRGB(50, 50, 50);
+    RiskColor = Color3.fromRGB(255, 50, 50),
+
+    Black = Color3.new(0, 0, 0);
+    Font = Enum.Font.Code,
+
+    OpenedFrames = {};
+    DependencyBoxes = {};
+
+    Signals = {};
+    ScreenGui = ScreenGui;
+};
+
 local Blur = Instance.new("BlurEffect",game.Lighting)
 Blur:SetAttribute("Size",24)
 Blur.Name = "RenHubBlur"
@@ -40,7 +63,7 @@ BackgroundLabel:SetAttribute("Transparency",0.5)
 BackgroundLabel.BackgroundTransparency = 0.5
 local BackgroundGradient = Instance.new("UIGradient", BackgroundLabel)
 BackgroundGradient.Name = "BackgroundGradient"
-BackgroundGradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.new(0, 0, 0)),ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))})
+BackgroundGradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Library.MainColor),ColorSequenceKeypoint.new(1, Library.AccentColor)})
 BackgroundGradient:SetAttribute("Animation",false)
 BackgroundGradient:SetAttribute("Speed",7)
 BackgroundGradient:SetAttribute("Rotation",0)
@@ -51,29 +74,6 @@ local Options = {};
 
 getgenv().Toggles = Toggles;
 getgenv().Options = Options;
-
-local Library = {
-    Registry = {};
-    RegistryMap = {};
-
-    HudRegistry = {};
-
-    FontColor = Color3.fromRGB(205, 205, 205);
-    MainColor = Color3.fromRGB(20, 20, 20);
-    BackgroundColor = Color3.fromRGB(20, 20, 20);
-    AccentColor = Color3.fromRGB(0, 85, 255);
-    OutlineColor = Color3.fromRGB(50, 50, 50);
-    RiskColor = Color3.fromRGB(255, 50, 50),
-
-    Black = Color3.new(0, 0, 0);
-    Font = Enum.Font.Code,
-
-    OpenedFrames = {};
-    DependencyBoxes = {};
-
-    Signals = {};
-    ScreenGui = ScreenGui;
-};
 
 local RainbowStep = 0
 local Hue = 0
