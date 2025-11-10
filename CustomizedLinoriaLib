@@ -1,4 +1,4 @@
-print("Version 0.202")
+print("Version 0.203")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -23,7 +23,7 @@ ScreenGui.Parent = CoreGui;
 local Blur = Instance.new("BlurEffect",game.Lighting)
 Blur.Name = "RenHubBlur"
 Blur.Size = 24
-Blur.Enabled = true
+Blur.Enabled = false
 
 local Toggles = {};
 local Options = {};
@@ -3699,6 +3699,8 @@ function Library:CreateWindow(...)
     Line2.Size = UDim2.new(1,-2,0,2);
     Line2.Position = UDim2.new(0,1,0,3)
     Line2.ZIndex = 1;
+
+    Blur.Enabled = true
 
     return Window;
 end;
