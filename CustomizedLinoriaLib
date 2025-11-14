@@ -1,4 +1,4 @@
-print("Version 0.286")
+print("Version 0.29")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -134,6 +134,10 @@ function cprint(value, color)
 end
 
 function DownloadFromGithub(assetname)
+    if isfile("RenHub/assets/"..assetname) then
+        cprint("RenHub | "..assetname.." already exists, skipping download.", Color3.fromRGB(100, 150, 255))
+        return true
+    end
     downloaderscreengui = Instance.new('ScreenGui',game.CoreGui)
     downloaderscreengui.Name = "DownloaderScreenGui"..assetname
     downloader = Instance.new('TextLabel',game.CoreGui["DownloaderScreenGui"..assetname])
