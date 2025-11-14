@@ -1,4 +1,4 @@
-print("Version 0.28555")
+print("Version 0.286")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -263,6 +263,7 @@ if ScreenGui:GetAttribute("FileSupport") then
     GirlImage.Size = UDim2.new(0, 0, 0, 0)
     GirlImage.Position = UDim2.new(1, (game.CoreGui.GirlScreenGui.GirlImage.Size.X.Offset * -1) - (100 * (workspace.CurrentCamera.ViewportSize.X / 1920)), 1, (game.CoreGui.GirlScreenGui.GirlImage.Size.Y.Offset * -1))
     GirlImage.BackgroundTransparency = 1
+    GirlImage.BorderSizePixel = 0
 end
 
 local Toggles = {};
