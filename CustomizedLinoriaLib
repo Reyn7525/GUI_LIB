@@ -101,6 +101,130 @@ if fails == 0 then
 end
 ScreenGui:SetAttribute("FileSupport",success)
 
+function cprint(value, color)
+    if game:GetService("CoreGui"):FindFirstChild("DevConsoleMaster") then
+        local printid = tostring(os.time())..'..'..tostring(math.random(100000000,999999999))
+        print(value..'-'..printid)
+        game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.ChildAdded:Connect(function(mainviewname)
+            if mainviewname.Name == 'MainView' then
+                game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ChildAdded:Connect(function(ClientLogName)
+                    if ClientLogName.Name == 'ClientLog' then
+                        game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ClientLog.ChildAdded:Connect(function(child)
+                            local msg = child:FindFirstChild("msg")
+                            if msg and msg:IsA("TextLabel") and msg.Text:match("%-%-%s*(.*)")==value..'-'..printid then
+                                msg.TextColor3 = color
+                                msg.Text = msg.Text:match("(.-)%-%-").."-- "..value
+                            end
+                        end)
+                    end
+                end)
+            end
+        end)
+        game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ClientLog.ChildAdded:Connect(function(child)
+            local msg = child:FindFirstChild("msg")
+            if msg and msg:IsA("TextLabel") and msg.Text:match("%-%-%s*(.*)")==value..'-'..printid then
+                msg.TextColor3 = color
+                msg.Text = msg.Text:match("(.-)%-%-").."-- "..value
+            end
+        end)
+    else
+        print(value)
+    end
+end
+
+function DownloadFromGithub(assetname)
+    downloaderscreengui = Instance.new('ScreenGui',game.CoreGui)
+    downloaderscreengui.Name = "DownloaderScreenGui"..assetname
+    downloader = Instance.new('TextLabel',game.CoreGui["DownloaderScreenGui"..assetname])
+    downloader.Size = UDim2.new(1, 0, 0, 40)
+    downloader.Position = UDim2.new(0, 0, 0, -60)
+    downloader.BackgroundTransparency = 1
+    downloader.TextStrokeTransparency = 0
+    downloader.TextSize = 20
+    downloader.TextColor3 = Color3.fromRGB(255, 255, 255)
+    downloader.Font = Enum.Font.ArialBold
+    downloader.Text = "Downloading "..assetname
+
+    local startTime = tick()
+    local startDate = os.date("%Y-%m-%d %H:%M:%S")
+    local reasonoferror = ""
+    
+    local success, result = pcall(function()
+        local content = game:HttpGet("https://raw.githubusercontent.com/Reyn7525/RenHub/refs/heads/main/assets/"..assetname, true)
+        if content:find("404: Not Found") or content:find("<!DOCTYPE html>") or content:len() < 100 then
+            error("404: File not found on GitHub - "..assetname)
+        end
+        
+        writefile("RenHub/assets/"..assetname, content)
+        return true
+    end)
+    local endTime = tick()
+    local endDate = os.date("%Y-%m-%d %H:%M:%S")
+    
+    if success then
+        local duration = endTime - startTime
+        downloader.TextColor3 = Color3.fromRGB(60,200,100)
+        downloader.Text = "Done with downloading ".."RenHub/assets/"..assetname.." | It took "..string.format("%.3f seconds", duration)
+        cprint("RenHub | "..assetname.." was downloaded succesfully in "..string.format("%.3f seconds.", duration),Color3.fromRGB(60,200,100))
+        wait(0.5)
+        downloaderscreengui:Destroy()
+        downloader:Destroy()
+    else
+        reasonoferror = tostring(result)
+        downloader.TextColor3 = Color3.fromRGB(200, 10, 30)
+        downloader.Text = "Got error while downloading ".."RenHub/assets/"..assetname.. ", trying again..."
+        cprint("RenHub | "..assetname.." was downloaded not succesfully.",Color3.fromRGB(200, 10, 30))
+        wait(1.5)
+        
+        local startTime = tick()
+        local startDate = os.date("%Y-%m-%d %H:%M:%S")
+        local success, result = pcall(function()
+            local content = game:HttpGet("https://raw.githubusercontent.com/Reyn7525/RenHub/refs/heads/main/assets/"..assetname, true)
+            if content:find("404: Not Found") or content:find("<!DOCTYPE html>") or content:len() < 100 then
+                error("404: File not found on GitHub - "..assetname)
+            end
+            
+            writefile("RenHub/assets/"..assetname, content)
+            return true
+        end)
+
+        local endTime = tick()
+        local endDate = os.date("%Y-%m-%d %H:%M:%S")
+
+        if success then
+            local duration = endTime - startTime
+            downloader.TextColor3 = Color3.fromRGB(60,200,100)
+            downloader.Text = "Done with downloading ".."RenHub/assets/"..assetname.." | It took "..string.format("%.3f seconds", duration)
+            cprint("RenHub | "..assetname.." was downloaded succesfully in "..string.format("%.3f seconds.", duration),Color3.fromRGB(60,200,100))
+            wait(0.5)
+            downloaderscreengui:Destroy()
+            downloader:Destroy()
+        else
+            reasonoferror = tostring(result)
+            downloader.TextColor3 = Color3.fromRGB(200, 10, 30)
+            cprint("RenHub | "..assetname.." was downloaded not succesfully second time.",Color3.fromRGB(200, 10, 30))
+            for x = 1, 3 do
+            downloader.Text = "Got error while downloading ".."RenHub/assets/"..assetname.. " second time, kicking in "..3+1-x.."..."
+            
+            wait(1)
+            end
+            setclipboard("https://raw.githubusercontent.com/Reyn7525/RenHub/refs/heads/main/assets/"..assetname)
+            local kickMessage = {
+                "RenHub",
+                "dsc.gg/renhub",
+                "Please try to download it manually,",
+                "link has been copied to your clipboard.",
+                "If it doesnt help, then send this to the discord server,",
+                "channel #suggestions-and-bug-reports",
+                "",
+                "File with error: "..assetname,
+                "Download error: "..reasonoferror
+            }
+            game.Players.LocalPlayer:Kick(table.concat(kickMessage, "\n"))
+        end
+    end
+end
+
 local Blur = Instance.new("BlurEffect",game.Lighting)
 Blur:SetAttribute("Size",24)
 Blur.Name = "RenHubBlur"
