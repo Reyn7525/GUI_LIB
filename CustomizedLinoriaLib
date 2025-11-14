@@ -1,4 +1,4 @@
-print("Version 0.23")
+print("Version 0.23 | fixed")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -119,13 +119,15 @@ function cprint(value, color)
                 end)
             end
         end)
-        game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ClientLog.ChildAdded:Connect(function(child)
-            local msg = child:FindFirstChild("msg")
-            if msg and msg:IsA("TextLabel") and msg.Text:match("%-%-%s*(.*)")==value..'-'..printid then
-                msg.TextColor3 = color
-                msg.Text = msg.Text:match("(.-)%-%-").."-- "..value
-            end
-        end)
+        if game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI:FindFirstChild("MainView") then
+            game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ClientLog.ChildAdded:Connect(function(child)
+                local msg = child:FindFirstChild("msg")
+                if msg and msg:IsA("TextLabel") and msg.Text:match("%-%-%s*(.*)")==value..'-'..printid then
+                    msg.TextColor3 = color
+                    msg.Text = msg.Text:match("(.-)%-%-").."-- "..value
+                end
+            end)
+        end
     else
         print(value)
     end
