@@ -1,4 +1,4 @@
-print("Version 0.22")
+print("Version 0.23")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -88,18 +88,17 @@ end)
 
 task.wait(1/2)
 
-local path = "RenHub/configs/" .. game.PlaceId .. ".RenHub"
 if fails == 0 then
     local success, fileContent = pcall(function()
-        return readfile(path)
+        return readfile(".tests/readfile.txt")
     end)
 
     if success then
         local loadedFunction, errorMessage = loadstring(fileContent, path)
         delfile(".tests")
     end
+    game.CoreGui.RenHub:SetAttribute("FileSupport",success)
 end
-ScreenGui:SetAttribute("FileSupport",success)
 
 function cprint(value, color)
     if game:GetService("CoreGui"):FindFirstChild("DevConsoleMaster") then
