@@ -3754,7 +3754,7 @@ function Library:CreateWindow(...)
         if Fading then
             return;
         end;
-    
+        
         local FadeTime = Config.MenuFadeTime;
         Fading = true;
         Toggled = (not Toggled);
@@ -3794,6 +3794,23 @@ function Library:CreateWindow(...)
                     end
                     if Toggled then
                         BackgroundLabel.BackgroundTransparency = targetTransparency
+                    end
+                end)
+            end
+    
+            if GirlImage then
+                local startTime = tick()
+                local startTransparency = GirlImage.ImageTransparency
+                local targetTransparency = 0
+                
+                task.spawn(function()
+                    while Toggled and tick() - startTime < FadeTime do
+                        local alpha = (tick() - startTime) / FadeTime
+                        GirlImage.ImageTransparency = startTransparency + (targetTransparency - startTransparency) * alpha
+                        RenderStepped:Wait()
+                    end
+                    if Toggled then
+                        GirlImage.ImageTransparency = targetTransparency
                     end
                 end)
             end
@@ -3866,6 +3883,23 @@ function Library:CreateWindow(...)
                     end
                     if not Toggled then
                         BackgroundLabel.BackgroundTransparency = targetTransparency
+                    end
+                end)
+            end
+    
+            if GirlImage then
+                local startTime = tick()
+                local startTransparency = GirlImage.ImageTransparency
+                local targetTransparency = 1
+                
+                task.spawn(function()
+                    while not Toggled and tick() - startTime < FadeTime do
+                        local alpha = (tick() - startTime) / FadeTime
+                        GirlImage.ImageTransparency = startTransparency + (targetTransparency - startTransparency) * alpha
+                        RenderStepped:Wait()
+                    end
+                    if not Toggled then
+                        GirlImage.ImageTransparency = targetTransparency
                     end
                 end)
             end
