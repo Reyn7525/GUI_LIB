@@ -1,4 +1,4 @@
-print("Version 0.27")
+print("Version 0.27 | fixed")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -253,10 +253,10 @@ BackgroundGradient:SetAttribute("Rotation",0)
 BackgroundGradient.Rotation = 0
 
 if ScreenGui:GetAttribute("FileSupport") then
-    local GirlScreenGui = Instance.new("ScreenGui", game.CoreGui)
+    GirlScreenGui = Instance.new("ScreenGui", game.CoreGui)
     GirlScreenGui.Name = "GirlScreenGui"
     GirlScreenGui.DisplayOrder = 0
-    local GirlImage = Instance.new("ImageLabel", GirlScreenGui)
+    GirlImage = Instance.new("ImageLabel", GirlScreenGui)
     GirlImage:SetAttribute("Image","Megumin")
     GirlImage:SetAttribute("Side","Right")
     GirlImage.Name = "GirlImage"
