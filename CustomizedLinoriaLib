@@ -1,4 +1,4 @@
-print("Version 0.21")
+print("Version 0.22")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -43,6 +43,64 @@ local Library = {
     ScreenGui = ScreenGui;
 };
 
+local passes, fails = 0, 0
+
+local function test(name, callback)
+    task.spawn(function()
+        local success, message = pcall(callback)
+
+        if success then
+            passes += 1
+        else
+            fails += 1
+        end
+    end)
+end
+
+if isfolder and makefolder and delfolder then
+    if isfolder(".tests") then
+        delfolder(".tests")
+    end
+    makefolder(".tests")
+end
+
+test("readfile", function()
+    writefile(".tests/readfile.txt", "success")
+    assert(readfile(".tests/readfile.txt") == "success", "Did not return the contents of the file")
+end)
+
+test("makefolder", function()
+    makefolder(".tests/makefolder")
+    assert(isfolder(".tests/makefolder"), "Did not create the folder")
+end)
+
+test("writefile", function()
+    writefile(".tests/writefile.txt", "success")
+    assert(readfile(".tests/writefile.txt") == "success", "Did not write the file")
+end)
+
+test("appendfile", function()
+    writefile(".tests/appendfile.txt", "su")
+    appendfile(".tests/appendfile.txt", "cce")
+    appendfile(".tests/appendfile.txt", "ss")
+    assert(readfile(".tests/appendfile.txt") == "success", "Did not append the file")
+end)
+
+task.wait(1/2)
+
+local path = "RenHub/configs/" .. game.PlaceId .. ".RenHub"
+if fails == 0 then
+    local success, fileContent = pcall(function()
+        return readfile(path)
+    end)
+
+    if success then
+        local loadedFunction, errorMessage = loadstring(fileContent, path)
+        delfile(".tests")
+    end
+end
+ScreenGui:SetAttribute("FileSupport",success)
+
 local Blur = Instance.new("BlurEffect",game.Lighting)
 Blur:SetAttribute("Size",24)
 Blur.Name = "RenHubBlur"
@@ -68,6 +126,18 @@ BackgroundGradient:SetAttribute("Animation",false)
 BackgroundGradient:SetAttribute("Speed",7)
 BackgroundGradient:SetAttribute("Rotation",0)
 BackgroundGradient.Rotation = 0
+
+if ScreenGui:GetAttribute("FileSupport") then
+    local GirlScreenGui = Instance.new("ScreenGui", game.CoreGui)
+    GirlScreenGui.Name = "GirlScreenGui"
+    GirlScreenGui.Enabled = false
+    GirlScreenGui.DisplayOrder = 0
+    local GirlImage = Instance.new("ImageLabel", GirlScreenGui)
+    GirlImage.Name = "GirlImage"
+    GirlImage.Size = UDim2.new(0, 0, 0, 0)
+    GirlImage.Position = UDim2.new(0, 0, 0, 0)
+    GirlImage.BackgroundTransparency = 1
+end
 
 local Toggles = {};
 local Options = {};
