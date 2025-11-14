@@ -1,4 +1,4 @@
-print("Version 0.24")
+print("Version 0.25")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -618,6 +618,7 @@ function Library:Unload()
     ScreenGui:Destroy()
     Blur:Destroy()
     BackgroundScreenGui:Destroy()
+    GirlScreenGui:Destroy()
 end
 
 function Library:OnUnload(Callback)
