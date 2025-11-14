@@ -1,4 +1,4 @@
-print("Version 0.29")
+print("Version 0.30")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -262,8 +262,11 @@ if ScreenGui:GetAttribute("FileSupport") then
     GirlScreenGui.Name = "GirlScreenGui"
     GirlScreenGui.DisplayOrder = 0
     GirlImage = Instance.new("ImageLabel", GirlScreenGui)
+    GirlImage:SetAttribute("Mirrored",false)
     GirlImage:SetAttribute("Image","Megumin")
     GirlImage:SetAttribute("Side","Right")
+    GirlImage:SetAttribute("Offset",100)
+    GirlImage:SetAttribute("Size",1)
     GirlImage.Name = "GirlImage"
     GirlImage.Size = UDim2.new(0, 0, 0, 0)
     GirlImage.Position = UDim2.new(1, (game.CoreGui.GirlScreenGui.GirlImage.Size.X.Offset * -1) - (100 * (workspace.CurrentCamera.ViewportSize.X / 1920)), 1, (game.CoreGui.GirlScreenGui.GirlImage.Size.Y.Offset * -1))
