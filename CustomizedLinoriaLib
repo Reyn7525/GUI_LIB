@@ -1,4 +1,4 @@
-print("Version 0.30")
+print("Version 0.31")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3086,6 +3086,10 @@ end;
 
 function Library:SetWatermarkVisibility(Bool)
     Library.Watermark.Visible = Bool;
+end;
+
+function Library:SetWatermarkSolidStyle(Bool)
+    Library.Watermark:SetAttribute("Solid",Bool)
 end;
 
 function Library:SetWatermark(Text)
