@@ -1,4 +1,4 @@
-print("Version 0.32")
+print("Version 0.33")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2260,7 +2260,7 @@ do
         });
 
         local SliderGradient = Instance.new("UIGradient",Fill);
-        SliderGradient:SetAttirbute("SkeetGradient",true)
+        SliderGradient.Name = "SkeetGradient"
         SliderGradient.Enabled = false;
         SliderGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
 
@@ -2974,7 +2974,7 @@ do
     });
 
     local MainGradient = Instance.new("UIGradient",WatermarkLine);
-    MainGradient:SetAttirbute("SkeetGradient",true)
+    MainGradient.Name = "SkeetGradient"
     MainGradient.Enabled = false;
     MainGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
 
@@ -3053,7 +3053,7 @@ do
     });
 
     local ColorFrameGradient = Instance.new("UIGradient",ColorFrame);
-    ColorFrameGradient:SetAttirbute("SkeetGradient",true)
+    ColorFrameGradient.Name = "SkeetGradient"
     ColorFrameGradient.Enabled = false;
     ColorFrameGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
 
@@ -3487,7 +3487,7 @@ function Library:CreateWindow(...)
             });
 
             local GroupBoxGradient = Instance.new("UIGradient",Highlight);
-            GroupBoxGradient:SetAttirbute("SkeetGradient",true)
+            GroupBoxGradient.Name = "SkeetGradient"
             GroupBoxGradient.Enabled = false;
             GroupBoxGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
 
@@ -4000,7 +4000,7 @@ function Library:CreateWindow(...)
     });
 
     local MainGradient = Instance.new("UIGradient",Line);
-    MainGradient:SetAttirbute("SkeetGradient",true)
+    MainGradient.Name = "SkeetGradient"
     MainGradient.Enabled = false;
     MainGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
 
