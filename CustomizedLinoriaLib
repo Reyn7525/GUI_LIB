@@ -1,4 +1,4 @@
-print("Version 0.34 | пасхалко + ватермарк фикс №1")
+print("Version 0.35")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2258,11 +2258,6 @@ do
             ZIndex = 7;
             Parent = SliderInner;
         });
-
-        local SliderGradient = Instance.new("UIGradient",Fill);
-        SliderGradient.Name = "SkeetGradient"
-        SliderGradient.Enabled = false;
-        SliderGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
 
         Library:AddToRegistry(Fill, {
             BackgroundColor3 = 'AccentColor';
