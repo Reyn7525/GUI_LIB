@@ -1,4 +1,4 @@
-print("Version 0.35")
+print("Version 0.36")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3479,6 +3479,12 @@ function Library:CreateWindow(...)
                 ZIndex = 5;
                 Parent = BoxInner;
             });
+
+            local TabGradient = Instance.new("UIGradient",WatermarkLine);
+            TabGradient.Name = "SkeetGradient"
+            TabGradient.Enabled = false;
+            TabGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(97, 150, 212)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(146, 111, 209)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(198, 88, 190)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(200, 146, 153)), ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 176, 86))}
+
 
             local GroupBoxGradient = Instance.new("UIGradient",Highlight);
             GroupBoxGradient.Name = "SkeetGradient"
