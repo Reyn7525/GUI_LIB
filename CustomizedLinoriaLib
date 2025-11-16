@@ -1,4 +1,4 @@
-print("Version 0.38")
+print("Version 0.39")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2037,6 +2037,16 @@ do
         Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
         Box.FocusLost:Connect(Update)
         Box.Focused:Connect(Update)
+
+        ScreenGui:GetAttributeChangedSignal("Font"):Connect(function()
+            Box.Font = ScreenGui:GetAttribute("Font")
+            Update()
+        end)
+
+        ScreenGui:GetAttributeChangedSignal("Font"):Connect(function()
+            Box.Font = ScreenGui:GetAttribute("Font")
+            Update()
+        end)
 
         Library:AddToRegistry(Box, {
             TextColor3 = 'FontColor';
