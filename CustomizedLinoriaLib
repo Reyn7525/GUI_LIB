@@ -1,4 +1,4 @@
-print("Version 0.37")
+print("Version 0.38")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -42,6 +42,8 @@ local Library = {
     Signals = {};
     ScreenGui = ScreenGui;
 };
+
+ScreenGui:SetAttribute("Font",Library.Font)
 
 local passes, fails = 0, 0
 
