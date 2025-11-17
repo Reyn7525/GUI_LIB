@@ -1,4 +1,4 @@
-print("Version 0.40")
+print("Version 0.39")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2343,52 +2343,19 @@ do
 
         function Slider:SetValue(Str)
             local Num = tonumber(Str);
-            if not Num then return end;
+
+            if (not Num) then
+                return;
+            end;
 
             Num = math.clamp(Num, Slider.Min, Slider.Max);
 
             Slider.Value = Num;
             Slider:Display();
-            InputBox.Text = tostring(Slider.Value); -- Added to update the InputBox text
 
             Library:SafeCallback(Slider.Callback, Slider.Value);
             Library:SafeCallback(Slider.Changed, Slider.Value);
-        end;e);
         end;
-
-        local InputBox = Library:Create('TextBox', {
-            Size = UDim2.new(1, 0, 1, 0);
-            Position = UDim2.new(0, 0, 0, 0);
-            Text = tostring(Slider.Value);
-            TextSize = 14;
-            TextColor3 = Library.FontColor;
-            BackgroundColor3 = Library.BackgroundColor;
-            TextXAlignment = Enum.TextXAlignment.Center;
-            Visible = false;
-            Font = ScreenGui:GetAttribute("Font");
-            Parent = SliderOuter;
-        });
-
-        InputBox.FocusLost:Connect(function(EnterPressed)
-            if EnterPressed then
-                local newValue = tonumber(InputBox.Text)
-                if newValue then
-                    Slider:SetValue(newValue)
-                end
-            end
-            InputBox.Visible = false
-            DisplayLabel.Visible = true
-        end)
-
-        SliderOuter.InputBegan:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 and InputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-                DisplayLabel.Visible = false
-                InputBox.Text = tostring(Slider.Value)
-                InputBox.Visible = true
-                InputBox:CaptureFocus()
-                return
-            end
-        end)
 
         SliderInner.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
