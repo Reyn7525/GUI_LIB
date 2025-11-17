@@ -1,4 +1,4 @@
-print("Version 0.40")
+print("Version 0.405")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2354,7 +2354,7 @@ do
 	
 	            Library:SafeCallback(Slider.Callback, Slider.Value);
 	            Library:SafeCallback(Slider.Changed, Slider.Value);
-	        end;n SliderToTextbox()
+	        end; SliderToTextbox()
 	        -- Hide slider elements
 	        Fill.Visible = false
 	        DisplayLabel.Visible = false
