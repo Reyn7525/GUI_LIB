@@ -2357,7 +2357,6 @@ do
             Library:SafeCallback(Slider.Callback, Slider.Value);
             Library:SafeCallback(Slider.Changed, Slider.Value);
         end;
-        end;
 
         local InputBox = Library:Create('TextBox', {
             Size = UDim2.new(1, 0, 1, 0);
