@@ -1,4 +1,4 @@
-print("Version 0.39")
+print("Version 0.40")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2334,56 +2334,111 @@ do
             end;
 
 
-            return tonumber(string.format('%.' .. Slider.Rounding .. 'f', Value))
-        end;
+ 	        function Slider:GetValueFromXOffset(X)
+	            local Percentage = X / Slider.MaxSize;
+	            local Value = Round(Library:MapValue(Percentage, 0, 1, Slider.Min, Slider.Max));
+	
+	            return Value;
+	        end;
+	
+	        function Slider:SetValue(Num)
+	            if (not Num) then
+	                return;
+	            end;
+	
+	            Num = math.clamp(Num, Slider.Min, Slider.Max);
+	            Num = Round(Num) -- Ensure the value is rounded before setting
+	
+	            Slider.Value = Num;
+	            Slider:Display();
+	
+	            Library:SafeCallback(Slider.Callback, Slider.Value);
+	            Library:SafeCallback(Slider.Changed, Slider.Value);
+	        end;n SliderToTextbox()
+	        -- Hide slider elements
+	        Fill.Visible = false
+	        DisplayLabel.Visible = false
+	        
+	        -- Create and configure the Textbox
+	        local TextBox = Library:Create('TextBox', {
+	            BackgroundColor3 = Library.MainColor;
+	            BorderColor3 = Library.OutlineColor;
+	            BorderMode = Enum.BorderMode.Inset;
+	            Size = UDim2.new(1, 0, 1, 0);
+	            ZIndex = 10;
+	            Text = tostring(Slider.Value);
+	            TextSize = 14;
+	            TextColor3 = Library.FontColor;
+	            TextXAlignment = Enum.TextXAlignment.Center;
+	            TextYAlignment = Enum.TextYAlignment.Center;
+	            TextWrapped = true;
+	            ClearTextOnFocus = false;
+	            Parent = SliderInner;
+	        });
 
-        function Slider:GetValueFromXOffset(X)
-            return Round(Library:MapValue(X, 0, Slider.MaxSize, Slider.Min, Slider.Max));
-        end;
+	        Library:AddToRegistry(TextBox, {
+	            BackgroundColor3 = 'MainColor';
+	            BorderColor3 = 'OutlineColor';
+	            TextColor3 = 'FontColor';
+	        });
 
-        function Slider:SetValue(Str)
-            local Num = tonumber(Str);
+	        TextBox.FocusLost:Connect(function(enterPressed)
+	            if enterPressed then
+	                local newValue = tonumber(TextBox.Text)
+	                local originalValue = Slider.Value
+	                
+	                if newValue and newValue >= Slider.Min and newValue <= Slider.Max then
+	                    -- Valid input, update value
+	                    Slider:SetValue(newValue)
+	                else
+	                    -- Invalid input or out of range, revert to original value
+	                    Slider:SetValue(originalValue)
+	                end
+	            end
+	            
+	            -- Revert to slider display
+	            TextBox:Destroy()
+	            Fill.Visible = true
+	            DisplayLabel.Visible = true
+	        end)
 
-            if (not Num) then
-                return;
-            end;
+	        TextBox:CaptureFocus()
+	    end
 
-            Num = math.clamp(Num, Slider.Min, Slider.Max);
+	    SliderInner.InputBegan:Connect(function(Input)
+	        if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+	            if InputService:IsKeyDown(Enum.KeyCode.LeftControl) or InputService:IsKeyDown(Enum.KeyCode.RightControl) then
+	                -- Control + Click detected, switch to textbox
+	                SliderToTextbox()
+	                return
+	            end
 
-            Slider.Value = Num;
-            Slider:Display();
+	            -- Original slider dragging logic
+	            local mPos = Mouse.X;
+	            local gPos = Fill.Size.X.Offset;
+	            local Diff = mPos - (Fill.AbsolutePosition.X + gPos);
 
-            Library:SafeCallback(Slider.Callback, Slider.Value);
-            Library:SafeCallback(Slider.Changed, Slider.Value);
-        end;
+	            while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+	                local nMPos = Mouse.X;
+	                local nX = math.clamp(gPos + (nMPos - mPos) + Diff, 0, Slider.MaxSize);
 
-        SliderInner.InputBegan:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
-                local mPos = Mouse.X;
-                local gPos = Fill.Size.X.Offset;
-                local Diff = mPos - (Fill.AbsolutePosition.X + gPos);
+	                local nValue = Slider:GetValueFromXOffset(nX);
+	                local OldValue = Slider.Value;
+	                Slider.Value = nValue;
 
-                while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-                    local nMPos = Mouse.X;
-                    local nX = math.clamp(gPos + (nMPos - mPos) + Diff, 0, Slider.MaxSize);
+	                Slider:Display();
 
-                    local nValue = Slider:GetValueFromXOffset(nX);
-                    local OldValue = Slider.Value;
-                    Slider.Value = nValue;
+	                if nValue ~= OldValue then
+	                    Library:SafeCallback(Slider.Callback, Slider.Value);
+	                    Library:SafeCallback(Slider.Changed, Slider.Value);
+	                end;
 
-                    Slider:Display();
+	                RenderStepped:Wait();
+	            end;
 
-                    if nValue ~= OldValue then
-                        Library:SafeCallback(Slider.Callback, Slider.Value);
-                        Library:SafeCallback(Slider.Changed, Slider.Value);
-                    end;
-
-                    RenderStepped:Wait();
-                end;
-
-                Library:AttemptSave();
-            end;
-        end);
+	            Library:AttemptSave();
+	        end;
+	    end);
 
         Slider:Display();
         Groupbox:AddBlank(Info.BlankSize or 6);
