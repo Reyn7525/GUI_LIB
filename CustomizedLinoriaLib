@@ -2043,11 +2043,6 @@ do
             Update()
         end)
 
-        ScreenGui:GetAttributeChangedSignal("Font"):Connect(function()
-            Box.Font = ScreenGui:GetAttribute("Font")
-            Update()
-        end)
-
         Library:AddToRegistry(Box, {
             TextColor3 = 'FontColor';
         });
@@ -2190,7 +2185,7 @@ do
 
         Toggle:Display();
         Groupbox:AddBlank(Info.BlankSize or 5 + 2);
-        Groupbox:Resize();
+        Groupbox:();
 
         Toggle.TextLabel = ToggleLabel;
         Toggle.Container = Container;
@@ -2392,7 +2387,7 @@ do
 
         Slider:Display();
         Groupbox:AddBlank(Info.BlankSize or 6);
-        Groupbox:Resize();
+        Groupbox:();
 
         Options[Idx] = Slider;
 
