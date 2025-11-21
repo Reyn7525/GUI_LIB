@@ -2316,6 +2316,9 @@ do
             local CurrentValue = Slider.Value
             local Suffix = Info.Suffix or ''
             
+            local originalTextStrokeTransparency = DisplayLabel.TextStrokeTransparency
+            local originalTextStrokeColor3 = DisplayLabel.TextStrokeColor3
+            
             DisplayLabel.Visible = false
             
             local InputBox = Library:Create('TextBox', {
@@ -2332,8 +2335,9 @@ do
                 TextYAlignment = Enum.TextYAlignment.Center
             })
             
+            local InputBoxOutline
             if ScreenGui:GetAttribute("TextOutline") then
-                local InputBoxOutline = Library:Create('TextLabel', {
+                InputBoxOutline = Library:Create('TextLabel', {
                     Size = UDim2.new(1, 0, 1, 0),
                     BackgroundTransparency = 1,
                     TextColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0),
@@ -2347,13 +2351,9 @@ do
                     TextStrokeTransparency = 0,
                     TextStrokeColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
                 })
-    
+
                 InputBox:GetPropertyChangedSignal('Text'):Connect(function()
                     InputBoxOutline.Text = InputBox.Text
-                end)
-                
-                InputBox.FocusLost:Connect(function()
-                    InputBoxOutline:Destroy()
                 end)
             end
             
@@ -2361,6 +2361,19 @@ do
             InputBox.Text = ""
             task.wait(0.05)
             InputBox.Text = tostring(CurrentValue)
+            
+            local function CloseInputDialog()
+                DisplayLabel.Visible = true
+                DisplayLabel.TextStrokeTransparency = originalTextStrokeTransparency
+                DisplayLabel.TextStrokeColor3 = originalTextStrokeColor3
+                
+                InputBox:Destroy()
+                if InputBoxOutline then
+                    InputBoxOutline:Destroy()
+                end
+                
+                Slider:Display()
+            end
             
             local function SubmitValue()
                 local Text = InputBox.Text
@@ -2374,25 +2387,20 @@ do
                     Slider:SetValue(Num)
                 end
                 
-                DisplayLabel.Visible = true
-                InputBox:Destroy()
+                CloseInputDialog()
             end
             
             InputBox.FocusLost:Connect(function(enterPressed)
                 if enterPressed then
                     SubmitValue()
                 else
-                    DisplayLabel.Visible = true
-                    InputBox:Destroy()
-                    Slider:Display()
+                    CloseInputDialog()
                 end
             end)
             
             InputBox.InputBegan:Connect(function(Input)
                 if Input.KeyCode == Enum.KeyCode.Escape then
-                    DisplayLabel.Visible = true
-                    InputBox:Destroy()
-                    Slider:Display()
+                    CloseInputDialog()
                 end
             end)
         end
