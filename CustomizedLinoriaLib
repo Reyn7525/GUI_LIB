@@ -2233,7 +2233,7 @@ do
                 Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
             });
     
-            Label.TextStrokeTransparency = ScreenGui:GetAttribute("TextOutline") or true and 0 or 1
+            Label.TextStrokeTransparency = ScreenGui:GetAttribute("TextOutline") and 0 or 1
             Label.TextStrokeColor3 = ScreenGui and ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
     
             Groupbox:AddBlank(3);
