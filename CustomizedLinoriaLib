@@ -2222,7 +2222,7 @@ do
         local Container = Groupbox.Container;
     
         if not Info.Compact then
-            Library:CreateLabel({
+            local Label = Library:CreateLabel({
                 Size = UDim2.new(1, 0, 0, 10);
                 TextSize = 14;
                 Text = Info.Text;
@@ -2231,9 +2231,10 @@ do
                 ZIndex = 5;
                 Parent = Container;
                 Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
-                TextOutline = ScreenGui:GetAttribute("TextOutline") or true,
-                TextOutlineColor = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
             });
+    
+            Label.TextStrokeTransparency = ScreenGui:GetAttribute("TextOutline") or true and 0 or 1
+            Label.TextStrokeColor3 = ScreenGui and ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
     
             Groupbox:AddBlank(3);
         end
@@ -2297,9 +2298,10 @@ do
             ZIndex = 9;
             Parent = SliderInner;
             Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
-            TextOutline = ScreenGui:GetAttribute("TextOutline") or true,
-            TextOutlineColor = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
         });
+    
+        DisplayLabel.TextStrokeTransparency = ScreenGui:GetAttribute("TextOutline") or true and 0 or 1
+        DisplayLabel.TextStrokeColor3 = ScreenGui and ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
     
         Library:OnHighlight(SliderOuter, SliderOuter,
             { BorderColor3 = 'AccentColor' },
@@ -2315,7 +2317,7 @@ do
             local Suffix = Info.Suffix or ''
             
             DisplayLabel.Visible = false
-    
+            
             local InputBox = Library:Create('TextBox', {
                 Size = UDim2.new(1, 0, 1, 0),
                 BackgroundTransparency = 1,
@@ -2329,21 +2331,23 @@ do
                 TextXAlignment = Enum.TextXAlignment.Center,
                 TextYAlignment = Enum.TextYAlignment.Center
             })
-    
+            
             if TextOutline then
                 local InputBoxOutline = Library:Create('TextLabel', {
                     Size = UDim2.new(1, 0, 1, 0),
                     BackgroundTransparency = 1,
-                    TextColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0),
+                    TextColor3 = ScreenGui and ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0),
                     TextSize = 14,
                     Text = tostring(CurrentValue),
                     Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
                     ZIndex = 9,
                     Parent = SliderInner,
                     TextXAlignment = Enum.TextXAlignment.Center,
-                    TextYAlignment = Enum.TextYAlignment.Center
+                    TextYAlignment = Enum.TextYAlignment.Center,
+                    TextStrokeTransparency = 0,
+                    TextStrokeColor3 = ScreenGui and ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
                 })
-                
+    
                 InputBox:GetPropertyChangedSignal('Text'):Connect(function()
                     InputBoxOutline.Text = InputBox.Text
                 end)
