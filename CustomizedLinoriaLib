@@ -44,6 +44,7 @@ local Library = {
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
+ScreenGui:SetAttribute("TextOutline",true)
 
 local passes, fails = 0, 0
 
