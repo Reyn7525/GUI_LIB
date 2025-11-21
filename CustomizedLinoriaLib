@@ -3976,6 +3976,17 @@ function Library:CreateWindow(...)
         task.wait(FadeTime);
     
         Outer.Visible = Toggled;
+
+        if not Toggled then
+            for _, Frame in next, Library.OpenedFrames do
+                if Frame.Name == 'ColorPickerOuter' then
+                    Frame.Visible = false;
+                elseif Frame.Name == 'ListOuter' then
+                    Frame.Visible = false;
+                end;
+            end;
+            Library.OpenedFrames = {};
+        end;
     
         Fading = false;
     end
