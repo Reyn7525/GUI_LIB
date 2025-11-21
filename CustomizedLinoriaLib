@@ -1,4 +1,4 @@
-print("Version 0.435")
+print("Version 0.44 | Better slider customize!")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2301,7 +2301,7 @@ do
         });
     
         DisplayLabel.TextStrokeTransparency = ScreenGui:GetAttribute("TextOutline") and 0 or 1
-        DisplayLabel.TextStrokeColor3 = ScreenGui and ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
+        DisplayLabel.TextStrokeColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
     
         Library:OnHighlight(SliderOuter, SliderOuter,
             { BorderColor3 = 'AccentColor' },
@@ -2332,11 +2332,11 @@ do
                 TextYAlignment = Enum.TextYAlignment.Center
             })
             
-            if TextOutline then
+            if ScreenGui:GetAttribute("TextOutline") then
                 local InputBoxOutline = Library:Create('TextLabel', {
                     Size = UDim2.new(1, 0, 1, 0),
                     BackgroundTransparency = 1,
-                    TextColor3 = ScreenGui and ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0),
+                    TextColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0),
                     TextSize = 14,
                     Text = tostring(CurrentValue),
                     Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
@@ -2345,7 +2345,7 @@ do
                     TextXAlignment = Enum.TextXAlignment.Center,
                     TextYAlignment = Enum.TextYAlignment.Center,
                     TextStrokeTransparency = 0,
-                    TextStrokeColor3 = ScreenGui and ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
+                    TextStrokeColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
                 })
     
                 InputBox:GetPropertyChangedSignal('Text'):Connect(function()
