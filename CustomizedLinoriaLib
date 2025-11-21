@@ -1,4 +1,4 @@
-print("Version 0.43")
+print("Version 0.435")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2359,7 +2359,7 @@ do
             
             InputBox:CaptureFocus()
             InputBox.Text = ""
-            task.wait(0.1)
+            task.wait(0.05)
             InputBox.Text = tostring(CurrentValue)
             
             local function SubmitValue()
