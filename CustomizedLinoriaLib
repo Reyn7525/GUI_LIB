@@ -1,4 +1,4 @@
-print("Version 0.44 | Better slider customize!")
+print("Version 0.45")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2463,7 +2463,7 @@ do
     
         SliderInner.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
-                if InputService:IsKeyDown(Enum.KeyCode.LeftShift) or InputService:IsKeyDown(Enum.KeyCode.RightShift) then
+                if InputService:IsKeyDown(Enum.KeyCode.LeftControl) or InputService:IsKeyDown(Enum.KeyCode.RightControl) then
                     OpenInputDialog()
                     return
                 end
