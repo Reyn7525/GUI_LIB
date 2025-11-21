@@ -1,4 +1,4 @@
-print("Version 0.39")
+print("Version 0.40")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -267,7 +267,8 @@ if ScreenGui:GetAttribute("FileSupport") then
     GirlImage:SetAttribute("Mirrored",false)
     GirlImage:SetAttribute("Image","Megumin")
     GirlImage:SetAttribute("Side","Right")
-    GirlImage:SetAttribute("Offset",100)
+    GirlImage:SetAttribute("OffsetX",100)
+    GirlImage:SetAttribute("OffsetY",0)
     GirlImage:SetAttribute("Size",1)
     GirlImage.Name = "GirlImage"
     GirlImage.Size = UDim2.new(0, 0, 0, 0)
