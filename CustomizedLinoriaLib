@@ -1,4 +1,4 @@
-print("Version 0.41")
+print("Version 0.42")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
