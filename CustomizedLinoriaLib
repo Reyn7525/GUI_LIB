@@ -1,4 +1,4 @@
-print("Version 0.40")
+print("Version 0.41")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2230,6 +2230,9 @@ do
                 TextYAlignment = Enum.TextYAlignment.Bottom;
                 ZIndex = 5;
                 Parent = Container;
+                Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
+                TextOutline = ScreenGui:GetAttribute("TextOutline") or true,
+                TextOutlineColor = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
             });
     
             Groupbox:AddBlank(3);
@@ -2293,6 +2296,9 @@ do
             Text = 'Infinite';
             ZIndex = 9;
             Parent = SliderInner;
+            Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
+            TextOutline = ScreenGui:GetAttribute("TextOutline") or true,
+            TextOutlineColor = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
         });
     
         Library:OnHighlight(SliderOuter, SliderOuter,
@@ -2304,40 +2310,67 @@ do
             Library:AddToolTip(Info.Tooltip, SliderOuter)
         end
     
-        -- Функция для ввода значения с клавиатуры
         local function OpenInputDialog()
             local CurrentValue = Slider.Value
             local Suffix = Info.Suffix or ''
             
-            -- Создаем текстовое окно для ввода
+            DisplayLabel.Visible = false
+    
             local InputBox = Library:Create('TextBox', {
                 Size = UDim2.new(1, 0, 1, 0),
                 BackgroundTransparency = 1,
                 TextColor3 = Color3.new(1, 1, 1),
                 TextSize = 14,
                 Text = tostring(CurrentValue),
-                Font = Enum.Font.Code,
+                Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
                 ZIndex = 10,
                 Parent = SliderInner,
-                ClearTextOnFocus = false
+                ClearTextOnFocus = false,
+                TextXAlignment = Enum.TextXAlignment.Center,
+                TextYAlignment = Enum.TextYAlignment.Center
             })
+    
+            if TextOutline then
+                local InputBoxOutline = Library:Create('TextLabel', {
+                    Size = UDim2.new(1, 0, 1, 0),
+                    BackgroundTransparency = 1,
+                    TextColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0),
+                    TextSize = 14,
+                    Text = tostring(CurrentValue),
+                    Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code,
+                    ZIndex = 9,
+                    Parent = SliderInner,
+                    TextXAlignment = Enum.TextXAlignment.Center,
+                    TextYAlignment = Enum.TextYAlignment.Center
+                })
+                
+                InputBox:GetPropertyChangedSignal('Text'):Connect(function()
+                    InputBoxOutline.Text = InputBox.Text
+                end)
+                
+                InputBox.FocusLost:Connect(function()
+                    InputBoxOutline:Destroy()
+                end)
+            end
             
             InputBox:CaptureFocus()
+            InputBox.Text = ""
+            task.wait(0.1)
+            InputBox.Text = tostring(CurrentValue)
             
             local function SubmitValue()
                 local Text = InputBox.Text
-                -- Удаляем суффикс если он есть в тексте
                 if Suffix ~= '' and string.sub(Text, -#Suffix) == Suffix then
                     Text = string.sub(Text, 1, -#Suffix - 1)
                 end
                 
                 local Num = tonumber(Text)
                 if Num then
-                    -- Ограничиваем значение минимальным и максимальным
                     Num = math.clamp(Num, Slider.Min, Slider.Max)
                     Slider:SetValue(Num)
                 end
                 
+                DisplayLabel.Visible = true
                 InputBox:Destroy()
             end
             
@@ -2345,15 +2378,17 @@ do
                 if enterPressed then
                     SubmitValue()
                 else
+                    DisplayLabel.Visible = true
                     InputBox:Destroy()
-                    Slider:Display() -- Восстанавливаем отображение значения
+                    Slider:Display()
                 end
             end)
             
             InputBox.InputBegan:Connect(function(Input)
                 if Input.KeyCode == Enum.KeyCode.Escape then
+                    DisplayLabel.Visible = true
                     InputBox:Destroy()
-                    Slider:Display() -- Восстанавливаем отображение значения
+                    Slider:Display()
                 end
             end)
         end
@@ -2404,9 +2439,8 @@ do
                 return;
             end;
     
-            -- Ограничиваем значение минимальным и максимальным
             Num = math.clamp(Num, Slider.Min, Slider.Max);
-            Num = Round(Num); -- Применяем округление
+            Num = Round(Num);
     
             Slider.Value = Num;
             Slider:Display();
@@ -2417,7 +2451,6 @@ do
     
         SliderInner.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
-                -- Проверяем зажат ли Shift
                 if InputService:IsKeyDown(Enum.KeyCode.LeftShift) or InputService:IsKeyDown(Enum.KeyCode.RightShift) then
                     OpenInputDialog()
                     return
