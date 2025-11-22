@@ -1,4 +1,4 @@
-print("Version 0.46")
+print("Version 0.465")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -99,7 +99,7 @@ if fails == 0 then
 
     if success then
         local loadedFunction, errorMessage = loadstring(fileContent, path)
-        delfile(".tests")
+        delfile(".tests");writefile("RenHub");writefile("RenHub/assets");writefile("RenHub/assets/custom")
     end
     game.CoreGui.RenHub:SetAttribute("FileSupport",success)
 end
