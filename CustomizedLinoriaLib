@@ -1,4 +1,4 @@
-print("Version 0.47 | hitman?")
+print("Version 0.48")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
