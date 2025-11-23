@@ -1,4 +1,4 @@
-print("Version 0.467 | SIX SEEEEVEN")
+print("Version 0.46767 | SIX SEEEEVEN #2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3277,6 +3277,7 @@ function Library:Notify(Text, Time)
         Position = UDim2.new(0, 4, 0, 0);
         Size = UDim2.new(1, -4, 1, 0);
         Text = Text;
+        Font = ScreenGui:GetAttribute("Font");
         TextXAlignment = Enum.TextXAlignment.Left;
         TextSize = 14;
         ZIndex = 103;
