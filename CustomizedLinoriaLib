@@ -3905,8 +3905,24 @@ function Library:CreateWindow(...)
         ModalElement.Modal = Toggled;
     
         if Toggled then
-            -- A bit scuffed, but if we're going from not toggled -> toggled we want to show the frame immediately so that the fade is visible.
+            -- Показываем фрейм сразу для видимости анимации
             Outer.Visible = true;
+    
+            -- Добавляем прозрачность для всего меню
+            local startTime = tick()
+            local startTransparency = Outer.BackgroundTransparency
+            local targetTransparency = Outer:GetAttribute("Transparency") or 0 -- Значение по умолчанию
+            
+            task.spawn(function()
+                while Toggled and tick() - startTime < FadeTime do
+                    local alpha = (tick() - startTime) / FadeTime
+                    Outer.BackgroundTransparency = startTransparency + (targetTransparency - startTransparency) * alpha
+                    RenderStepped:Wait()
+                end
+                if Toggled then
+                    Outer.BackgroundTransparency = targetTransparency
+                end
+            end)
     
             if Blur then
                 local startTime = tick()
@@ -3998,6 +4014,22 @@ function Library:CreateWindow(...)
                 CursorOutline:Remove();
             end);
         else
+            -- Анимация прозрачности при закрытии меню
+            local startTime = tick()
+            local startTransparency = Outer.BackgroundTransparency
+            local targetTransparency = 1
+            
+            task.spawn(function()
+                while not Toggled and tick() - startTime < FadeTime do
+                    local alpha = (tick() - startTime) / FadeTime
+                    Outer.BackgroundTransparency = startTransparency + (targetTransparency - startTransparency) * alpha
+                    RenderStepped:Wait()
+                end
+                if not Toggled then
+                    Outer.BackgroundTransparency = targetTransparency
+                end
+            end)
+    
             if Blur then
                 local startTime = tick()
                 local startSize = Blur.Size
