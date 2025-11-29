@@ -4135,7 +4135,7 @@ function Library:CreateWindow(...)
 
     local MainShadow = Instance.new("ImageLabel",Outer);
     MainShadow.Name = "Shadow"
-    MainShadow.Enabled = false;
+    MainShadow.Visible = false;
     MainShadow.Image = "rbxassetid://6015897843"
     MainShadow.Position = UDim2.new(0, -27, 0, 27)
     MainShadow.Size = UDim2.new(1, 45, 1, 45)
