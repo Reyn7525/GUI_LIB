@@ -1,4 +1,4 @@
-print("Version 0.49")
+print("Version 0.5")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4137,13 +4137,11 @@ function Library:CreateWindow(...)
     MainShadow.Name = "Shadow"
     MainShadow.Visible = false;
     MainShadow.Image = "rbxassetid://6015897843"
-    MainShadow.Position = UDim2.new(0, -27, 0, 27)
+    MainShadow.Position = UDim2.new(0, -27, 0, -27)
     MainShadow.Size = UDim2.new(1, 45, 1, 45)
     MainShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
     MainShadow.BackgroundTransparency = 1
     MainShadow.ImageTransparency = 0.500
-    MainShadow.ScaleType = Enum.ScaleType.Slice
-    MainShadow.SliceCenter = Rect.new(49, 49, 450, 450)
 
     local Line = Instance.new("Frame",Outer);
     Line.Name = "Line";
