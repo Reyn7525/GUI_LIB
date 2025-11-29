@@ -4142,7 +4142,7 @@ function Library:CreateWindow(...)
     MainShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
     MainShadow.BackgroundTransparency = 1;
     MainShadow.ImageTransparency = 0.500;
-    Line.ZIndex = -1;
+    MainShadow.ZIndex = -1;
 
     local Line = Instance.new("Frame",Outer);
     Line.Name = "Line";
