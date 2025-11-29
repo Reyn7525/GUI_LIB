@@ -4134,14 +4134,15 @@ function Library:CreateWindow(...)
     Window.Holder = Outer;
 
     local MainShadow = Instance.new("ImageLabel",Outer);
-    MainShadow.Name = "Shadow"
+    MainShadow.Name = "Shadow";
     MainShadow.Visible = false;
-    MainShadow.Image = "rbxassetid://6015897843"
-    MainShadow.Position = UDim2.new(0, -27, 0, -27)
-    MainShadow.Size = UDim2.new(1, 45, 1, 45)
-    MainShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    MainShadow.BackgroundTransparency = 1
-    MainShadow.ImageTransparency = 0.500
+    MainShadow.Image = "rbxassetid://6015897843";
+    MainShadow.Position = UDim2.new(0, -25, 0, -25);
+    MainShadow.Size = UDim2.new(1, 50, 1, 50);
+    MainShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
+    MainShadow.BackgroundTransparency = 1;
+    MainShadow.ImageTransparency = 0.500;
+    Line.ZIndex = -1;
 
     local Line = Instance.new("Frame",Outer);
     Line.Name = "Line";
