@@ -1,4 +1,4 @@
-print("Version 0.5075")
+print("Version 0.505 backup")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4136,7 +4136,7 @@ function Library:CreateWindow(...)
     local MainShadow = Instance.new("ImageLabel",Outer);
     MainShadow.Name = "Shadow";
     MainShadow.Visible = false;
-    MainShadow.Image = "rbxassetid://14327339767";
+    MainShadow.Image = "rbxassetid://6015897843";
     MainShadow.Position = UDim2.new(0, -50, 0, -50);
     MainShadow.Size = UDim2.new(1, 100, 1, 100);
     MainShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
