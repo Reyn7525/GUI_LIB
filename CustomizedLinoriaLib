@@ -1,4 +1,4 @@
-print("Version 0.51")
+print("Version 0.515")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3077,8 +3077,8 @@ do
     WatermarkShadow.Name = "Shadow";
     WatermarkShadow.Visible = false;
     WatermarkShadow.Image = "rbxassetid://6015897843";
-    WatermarkShadow.Position = UDim2.new(0, -25, 0, -25);
-    WatermarkShadow.Size = UDim2.new(1, 50, 1, 50);
+    WatermarkShadow.Position = UDim2.new(0, -5, 0, -5);
+    WatermarkShadow.Size = UDim2.new(1, 10, 1, 10);
     WatermarkShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
     WatermarkShadow.BackgroundTransparency = 1;
     WatermarkShadow.ImageTransparency = 0.500;
@@ -3179,8 +3179,8 @@ do
     KeybindShadow.Name = "Shadow";
     KeybindShadow.Visible = false;
     KeybindShadow.Image = "rbxassetid://6015897843";
-    KeybindShadow.Position = UDim2.new(0, -25, 0, -25);
-    KeybindShadow.Size = UDim2.new(1, 50, 1, 50);
+    KeybindShadow.Position = UDim2.new(0, -5, 0, -5);
+    KeybindShadow.Size = UDim2.new(1, 10, 1, 10);
     KeybindShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
     KeybindShadow.BackgroundTransparency = 1;
     KeybindShadow.ImageTransparency = 0.500;
@@ -4159,8 +4159,8 @@ function Library:CreateWindow(...)
     MainShadow.Name = "Shadow";
     MainShadow.Visible = false;
     MainShadow.Image = "rbxassetid://6015897843";
-    MainShadow.Position = UDim2.new(0, -25, 0, -25);
-    MainShadow.Size = UDim2.new(1, 50, 1, 50);
+    MainShadow.Position = UDim2.new(0, -30, 0, -30);
+    MainShadow.Size = UDim2.new(1, 60, 1, 60);
     MainShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
     MainShadow.BackgroundTransparency = 1;
     MainShadow.ImageTransparency = 0.500;
