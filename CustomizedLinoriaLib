@@ -1,4 +1,4 @@
-print("Version 0.545")
+print("Version 0.56")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -45,6 +45,8 @@ local Library = {
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
+ScreenGui:SetAttribute("GlowIntensivity",0.6)
+ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
 ScreenGui:SetAttribute("TextOutlineColor",Color3.new(0,0,0))
 
@@ -3080,9 +3082,9 @@ do
     WatermarkShadow.Image = "rbxassetid://93412751773936";
     WatermarkShadow.Position = UDim2.new(0, -50, 0, -50);
     WatermarkShadow.Size = UDim2.new(0, 409, 0, 124);
-    WatermarkShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
+    WatermarkShadow.ImageColor3 = Library.AccentColor
     WatermarkShadow.BackgroundTransparency = 1;
-    WatermarkShadow.ImageTransparency = 0.500;
+    WatermarkShadow.ImageTransparency = 1-ScreenGui:GetAttribute("GlowIntensivity");
     WatermarkShadow.ZIndex = -1;
 
     local WatermarkLine = Instance.new("Frame",WatermarkOuter);
@@ -3183,9 +3185,9 @@ do
     KeybindShadow.Image = "rbxassetid://119372237330734";
     KeybindShadow.Position = UDim2.new(0, -50, 0, -50);
     KeybindShadow.Size = UDim2.new(0, 350, 0, 143);
-    KeybindShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
+    KeybindShadow.ImageColor3 = Library.AccentColor
     KeybindShadow.BackgroundTransparency = 1;
-    KeybindShadow.ImageTransparency = 0.500;
+    KeybindShadow.ImageTransparency = 1-ScreenGui:GetAttribute("GlowIntensivity");
     KeybindShadow.ZIndex = -1;
 
     local ColorFrameGradient = Instance.new("UIGradient",ColorFrame);
@@ -4165,9 +4167,9 @@ function Library:CreateWindow(...)
     MainShadow.Image = "rbxassetid://126634986656153";
     MainShadow.Position = UDim2.new(0, -50, 0, -50);
     MainShadow.Size = UDim2.new(0, 650, 0, 700);
-    MainShadow.ImageColor3 = Color3.fromRGB(0, 0, 0);
+    MainShadow.ImageColor3 = Library.AccentColor
     MainShadow.BackgroundTransparency = 1;
-    MainShadow.ImageTransparency = 0.500;
+    MainShadow.ImageTransparency = 1-ScreenGui:GetAttribute("GlowIntensivity");
     MainShadow.ZIndex = -1;
 
     local Line = Instance.new("Frame",Outer);
