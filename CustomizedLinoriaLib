@@ -1,4 +1,4 @@
-print("Version 0.53333")
+print("Version 0.534")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1417,7 +1417,7 @@ do
             end;
 
             Library.KeybindFrame.Size = UDim2.new(0, math.max(XSize + 10, 210), 0, YSize + 23)
-            KeybindShadow.Size = UDim2.new(0, Library.KeybindFrame.Size.X.Offset+100, 0, Library.KeybindFrame.Size.X.Offset+100)
+            KeybindShadow.Size = UDim2.new(0, Library.KeybindFrame.Size.X.Offset+100, 0, Library.KeybindFrame.Size.Y.Offset+100)
         end;
 
         function KeyPicker:GetState()
@@ -3237,6 +3237,7 @@ end;
 function Library:SetWatermark(Text)
     local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
     Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3);
+    WatermarkShadow.Size = UDim2.new(0, Library.Watermark.Size.X.Offset+100, 0, Library.Watermark.Size.Y.Offset+100);
 
     Library.WatermarkText.Text = Text;
 end;
