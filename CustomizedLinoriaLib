@@ -1,4 +1,4 @@
-print("Version 0.537777777777")
+print("Version 0.54")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3139,6 +3139,7 @@ do
     });
 
     Library.Watermark = WatermarkOuter;
+    Library.WatermarkShadow = WatermarkShadow;
     Library.WatermarkText = WatermarkLabel;
     Library:MakeDraggable(Library.Watermark);
 
@@ -3238,7 +3239,7 @@ end;
 function Library:SetWatermark(Text)
     local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
     Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3);
-    WatermarkShadow.Size = UDim2.new(0, Library.Watermark.Size.X.Offset+100, 0, Library.Watermark.Size.Y.Offset+100);
+    Library.WatermarkShadow.Size = UDim2.new(0, Library.Watermark.Size.X.Offset+100, 0, Library.Watermark.Size.Y.Offset+100);
 
     Library.WatermarkText.Text = Text;
 end;
