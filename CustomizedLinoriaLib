@@ -1,4 +1,4 @@
-print("Version 0.534")
+print("Version 0.536")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3226,6 +3226,7 @@ do
     })
 
     Library.KeybindFrame = KeybindOuter;
+    Library.KeybindShadow = KeybindShadow;
     Library.KeybindContainer = KeybindContainer;
     Library:MakeDraggable(KeybindOuter);
 end;
