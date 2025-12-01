@@ -1,4 +1,4 @@
-print("Version 0.564")
+print("Version 0.5645")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -45,7 +45,7 @@ local Library = {
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
-ScreenGui:SetAttribute("GlowIntensivity",0.6)
+ScreenGui:SetAttribute("GlowIntensivity",0.4)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
 ScreenGui:SetAttribute("TextOutlineColor",Color3.new(0,0,0))
