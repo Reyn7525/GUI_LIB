@@ -1,4 +1,4 @@
-print("Version 0.565")
+print("Version 0.5666")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3079,7 +3079,7 @@ do
     local WatermarkShadow = Instance.new("ImageLabel",WatermarkOuter);
     WatermarkShadow.Name = "Shadow";
     WatermarkShadow.Visible = false;
-    WatermarkShadow.Image = "rbxassetid://87177021865180";
+    WatermarkShadow.Image = "rbxassetid://77943359001214";
     WatermarkShadow.Position = UDim2.new(0, -50, 0, -50);
     WatermarkShadow.Size = UDim2.new(0, 409, 0, 124);
     WatermarkShadow.ImageColor3 = Library.AccentColor
@@ -3182,7 +3182,7 @@ do
     local KeybindShadow = Instance.new("ImageLabel",KeybindOuter);
     KeybindShadow.Name = "Shadow";
     KeybindShadow.Visible = false;
-    KeybindShadow.Image = "rbxassetid://126154997558918";
+    KeybindShadow.Image = "rbxassetid://73866778642588";
     KeybindShadow.Position = UDim2.new(0, -50, 0, -50);
     KeybindShadow.Size = UDim2.new(0, 350, 0, 143);
     KeybindShadow.ImageColor3 = Library.AccentColor
@@ -4164,7 +4164,7 @@ function Library:CreateWindow(...)
     local MainShadow = Instance.new("ImageLabel",Outer);
     MainShadow.Name = "Shadow";
     MainShadow.Visible = false;
-    MainShadow.Image = "rbxassetid://83057618489054";
+    MainShadow.Image = "rbxassetid://135199846610274";
     MainShadow.Position = UDim2.new(0, -50, 0, -50);
     MainShadow.Size = UDim2.new(0, 650, 0, 700);
     MainShadow.ImageColor3 = Library.AccentColor
