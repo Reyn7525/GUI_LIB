@@ -1,4 +1,4 @@
-print("Version 0.5666")
+print("Version 0.567")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4001,6 +4001,26 @@ function Library:CreateWindow(...)
                 end)
             end
     
+            local glowIntensivity = ScreenGui:GetAttribute("GlowIntensivity") or 0
+            local shadowTransparency = 1 - glowIntensivity
+            
+            if Outer:FindFirstChild("Shadow") then
+                local startTime = tick()
+                local startTransparency = Outer.Shadow.ImageTransparency
+                local targetTransparency = shadowTransparency
+                
+                task.spawn(function()
+                    while Toggled and tick() - startTime < FadeTime do
+                        local alpha = (tick() - startTime) / FadeTime
+                        Outer.Shadow.ImageTransparency = startTransparency + (targetTransparency - startTransparency) * alpha
+                        RenderStepped:Wait()
+                    end
+                    if Toggled then
+                        Outer.Shadow.ImageTransparency = targetTransparency
+                    end
+                end)
+            end
+    
             task.spawn(function()
                 -- TODO: add cursor fade?
                 local State = InputService.MouseIconEnabled;
@@ -4101,6 +4121,23 @@ function Library:CreateWindow(...)
                     end
                     if not Toggled then
                         GirlImage.ImageTransparency = targetTransparency
+                    end
+                end)
+            end
+    
+            if Outer:FindFirstChild("Shadow") then
+                local startTime = tick()
+                local startTransparency = Outer.Shadow.ImageTransparency
+                local targetTransparency = 1
+                
+                task.spawn(function()
+                    while not Toggled and tick() - startTime < FadeTime do
+                        local alpha = (tick() - startTime) / FadeTime
+                        Outer.Shadow.ImageTransparency = startTransparency + (targetTransparency - startTransparency) * alpha
+                        RenderStepped:Wait()
+                    end
+                    if not Toggled then
+                        Outer.Shadow.ImageTransparency = targetTransparency
                     end
                 end)
             end
