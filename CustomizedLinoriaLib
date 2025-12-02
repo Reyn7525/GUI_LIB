@@ -1,4 +1,4 @@
-print("Version 0.57")
+print("Version 0.57111")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3251,22 +3251,26 @@ function Library:Notify(Text, Time)
     local XSize, YSize = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
     YSize = YSize + 7
     
+    local NotificationSide = ScreenGui:GetAttribute("NotificationSide") or "LeftUp"
+    
+    -- Определяем начальную позицию в зависимости от стороны
     local InitialPosition
     local ExpandDirection
     
-    if ScreenGui:GetAttribute("NotificationSide") == "LeftUp" then
+    if NotificationSide == "LeftUp" then
         InitialPosition = UDim2.new(0, 100, 0, 10)
-        ExpandDirection = "Right"
-    elseif ScreenGui:GetAttribute("NotificationSide") == "LeftDown" then
+        ExpandDirection = "Right" -- Расширяется вправо
+    elseif NotificationSide == "LeftDown" then
         InitialPosition = UDim2.new(0, 100, 1, -10 - YSize)
-        ExpandDirection = "Right"
-    elseif ScreenGui:GetAttribute("NotificationSide") == "RightUp" then
+        ExpandDirection = "Right" -- Расширяется вправо
+    elseif NotificationSide == "RightUp" then
         InitialPosition = UDim2.new(1, -100, 0, 10)
-        ExpandDirection = "Left"
-    elseif ScreenGui:GetAttribute("NotificationSide") == "RightDown" then
+        ExpandDirection = "Left" -- Расширяется влево
+    elseif NotificationSide == "RightDown" then
         InitialPosition = UDim2.new(1, -100, 1, -10 - YSize)
-        ExpandDirection = "Left"
+        ExpandDirection = "Left" -- Расширяется влево
     else
+        -- По умолчанию LeftUp
         InitialPosition = UDim2.new(0, 100, 0, 10)
         ExpandDirection = "Right"
     end
@@ -3332,12 +3336,15 @@ function Library:Notify(Text, Time)
         Parent = InnerFrame;
     });
 
+    -- Позиция цветной полоски в зависимости от стороны
     local LeftColorPosition, LeftColorSize
     
     if ExpandDirection == "Right" then
+        -- Для левой стороны: полоска слева
         LeftColorPosition = UDim2.new(0, -1, 0, -1)
         LeftColorSize = UDim2.new(0, 3, 1, 2)
     else
+        -- Для правой стороны: полоска справа
         LeftColorPosition = UDim2.new(1, -2, 0, -1) -- 1, -2 чтобы была видна граница
         LeftColorSize = UDim2.new(0, 3, 1, 2)
     end
@@ -3355,11 +3362,16 @@ function Library:Notify(Text, Time)
         BackgroundColor3 = 'AccentColor';
     }, true);
 
-    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true);
+    -- Анимация появления с учетом направления
+    local TargetSize = UDim2.new(0, XSize + 8 + 4, 0, YSize)
+    pcall(NotifyOuter.TweenSize, NotifyOuter, TargetSize, 'Out', 'Quad', 0.4, true);
 
     task.spawn(function()
         wait(Time or 5);
-        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
+
+        -- Анимация исчезновения с учетом направления
+        local HideSize = UDim2.new(0, 0, 0, YSize)
+        pcall(NotifyOuter.TweenSize, NotifyOuter, HideSize, 'Out', 'Quad', 0.4, true);
 
         wait(0.4);
         NotifyOuter:Destroy();
