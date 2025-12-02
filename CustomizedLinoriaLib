@@ -1,4 +1,4 @@
-print("Version 0.567")
+print("Version 0.56767676767")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1419,7 +1419,6 @@ do
             end;
 
             Library.KeybindFrame.Size = UDim2.new(0, math.max(XSize + 10, 210), 0, YSize + 23)
-            Library.KeybindShadow.Size = UDim2.new(0, Library.KeybindFrame.Size.X.Offset+100, 0, Library.KeybindFrame.Size.Y.Offset+100)
         end;
 
         function KeyPicker:GetState()
@@ -3081,7 +3080,7 @@ do
     WatermarkShadow.Visible = false;
     WatermarkShadow.Image = "rbxassetid://77943359001214";
     WatermarkShadow.Position = UDim2.new(0, -50, 0, -50);
-    WatermarkShadow.Size = UDim2.new(0, 409, 0, 124);
+    WatermarkShadow.Size = UDim2.new(1, 100, 1, 100);
     WatermarkShadow.ImageColor3 = Library.AccentColor
     WatermarkShadow.BackgroundTransparency = 1;
     WatermarkShadow.ImageTransparency = 1-ScreenGui:GetAttribute("GlowIntensivity");
@@ -3141,7 +3140,6 @@ do
     });
 
     Library.Watermark = WatermarkOuter;
-    Library.WatermarkShadow = WatermarkShadow;
     Library.WatermarkText = WatermarkLabel;
     Library:MakeDraggable(Library.Watermark);
 
@@ -3184,7 +3182,7 @@ do
     KeybindShadow.Visible = false;
     KeybindShadow.Image = "rbxassetid://73866778642588";
     KeybindShadow.Position = UDim2.new(0, -50, 0, -50);
-    KeybindShadow.Size = UDim2.new(0, 350, 0, 143);
+    KeybindShadow.Size = UDim2.new(1, 100, 1, 100);
     KeybindShadow.ImageColor3 = Library.AccentColor
     KeybindShadow.BackgroundTransparency = 1;
     KeybindShadow.ImageTransparency = 1-ScreenGui:GetAttribute("GlowIntensivity");
@@ -3229,7 +3227,6 @@ do
     })
 
     Library.KeybindFrame = KeybindOuter;
-    Library.KeybindShadow = KeybindShadow;
     Library.KeybindContainer = KeybindContainer;
     Library:MakeDraggable(KeybindOuter);
 end;
@@ -3241,7 +3238,6 @@ end;
 function Library:SetWatermark(Text)
     local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
     Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3);
-    Library.WatermarkShadow.Size = UDim2.new(0, Library.Watermark.Size.X.Offset+100, 0, Library.Watermark.Size.Y.Offset+100);
 
     Library.WatermarkText.Text = Text;
 end;
