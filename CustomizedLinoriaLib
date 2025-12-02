@@ -1,4 +1,4 @@
-print("Version 0.57")
+print("Version 0.567")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3248,33 +3248,12 @@ end;
 
 function Library:Notify(Text, Time)
     local XSize, YSize = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
+
     YSize = YSize + 7
-
-    local NotificationSide = ScreenGui:GetAttribute("NotificationSide") or "LeftUp"
-
-    local InitialPosition
-    local ExpandDirection
-    
-    if NotificationSide == "LeftUp" then
-        InitialPosition = UDim2.new(0, 10, 0, 10)
-        ExpandDirection = "Right"
-    elseif NotificationSide == "LeftDown" then
-        InitialPosition = UDim2.new(0, 10, 1, -10 - YSize)
-        ExpandDirection = "Right"
-    elseif NotificationSide == "RightUp" then
-        InitialPosition = UDim2.new(1, -10, 0, 10)
-        ExpandDirection = "Left"
-    elseif NotificationSide == "RightDown" then
-        InitialPosition = UDim2.new(1, -10, 1, -10 - YSize)
-        ExpandDirection = "Left"
-    else
-        InitialPosition = UDim2.new(0, 10, 0, 10)
-        ExpandDirection = "Right"
-    end
 
     local NotifyOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0);
-        Position = InitialPosition; -- Используем динамическую позицию
+        Position = UDim2.new(0, 100, 0, 10);
         Size = UDim2.new(0, 0, 0, YSize);
         ClipsDescendants = true;
         ZIndex = 100;
@@ -3333,18 +3312,10 @@ function Library:Notify(Text, Time)
         Parent = InnerFrame;
     });
 
-    local LeftColorPosition
-    
-    if ExpandDirection == "Right" then
-        LeftColorPosition = UDim2.new(0, -1, 0, -1)
-    else
-        LeftColorPosition = UDim2.new(1, -2, 0, -1)
-    end
-
     local LeftColor = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor;
         BorderSizePixel = 0;
-        Position = LeftColorPosition; -- Используем динамическую позицию
+        Position = UDim2.new(0, -1, 0, -1);
         Size = UDim2.new(0, 3, 1, 2);
         ZIndex = 104;
         Parent = NotifyOuter;
@@ -3354,26 +3325,12 @@ function Library:Notify(Text, Time)
         BackgroundColor3 = 'AccentColor';
     }, true);
 
-    local TargetSize = UDim2.new(0, XSize + 8 + 4, 0, YSize)
-
-    if ExpandDirection == "Left" then
-        local TargetPosition = UDim2.new(InitialPosition.X.Scale, InitialPosition.X.Offset - TargetSize.X.Offset, InitialPosition.Y.Scale, InitialPosition.Y.Offset)
-        pcall(NotifyOuter.TweenSizeAndPosition, NotifyOuter, TargetSize, TargetPosition, 'Out', 'Quad', 0.4, true);
-    else
-        pcall(NotifyOuter.TweenSize, NotifyOuter, TargetSize, 'Out', 'Quad', 0.4, true);
-    end
+    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true);
 
     task.spawn(function()
         wait(Time or 5);
 
-        local HideSize = UDim2.new(0, 0, 0, YSize)
-        
-        if ExpandDirection == "Left" then
-            local HidePosition = InitialPosition
-            pcall(NotifyOuter.TweenSizeAndPosition, NotifyOuter, HideSize, HidePosition, 'Out', 'Quad', 0.4, true);
-        else
-            pcall(NotifyOuter.TweenSize, NotifyOuter, HideSize, 'Out', 'Quad', 0.4, true);
-        end
+        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
 
         wait(0.4);
 
