@@ -1,4 +1,4 @@
-print("Version 0.567")
+print("Version 0.57")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -45,6 +45,7 @@ local Library = {
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
+ScreenGui:SetAttribute("NotificationSide","LeftUp")
 ScreenGui:SetAttribute("GlowIntensivity",0.4)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
@@ -3248,12 +3249,31 @@ end;
 
 function Library:Notify(Text, Time)
     local XSize, YSize = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
-
     YSize = YSize + 7
+    
+    local InitialPosition
+    local ExpandDirection
+    
+    if ScreenGui:GetAttribute("NotificationSide") == "LeftUp" then
+        InitialPosition = UDim2.new(0, 100, 0, 10)
+        ExpandDirection = "Right"
+    elseif ScreenGui:GetAttribute("NotificationSide") == "LeftDown" then
+        InitialPosition = UDim2.new(0, 100, 1, -10 - YSize)
+        ExpandDirection = "Right"
+    elseif ScreenGui:GetAttribute("NotificationSide") == "RightUp" then
+        InitialPosition = UDim2.new(1, -100, 0, 10)
+        ExpandDirection = "Left"
+    elseif ScreenGui:GetAttribute("NotificationSide") == "RightDown" then
+        InitialPosition = UDim2.new(1, -100, 1, -10 - YSize)
+        ExpandDirection = "Left"
+    else
+        InitialPosition = UDim2.new(0, 100, 0, 10)
+        ExpandDirection = "Right"
+    end
 
     local NotifyOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0);
-        Position = UDim2.new(0, 100, 0, 10);
+        Position = InitialPosition;
         Size = UDim2.new(0, 0, 0, YSize);
         ClipsDescendants = true;
         ZIndex = 100;
@@ -3312,11 +3332,21 @@ function Library:Notify(Text, Time)
         Parent = InnerFrame;
     });
 
+    local LeftColorPosition, LeftColorSize
+    
+    if ExpandDirection == "Right" then
+        LeftColorPosition = UDim2.new(0, -1, 0, -1)
+        LeftColorSize = UDim2.new(0, 3, 1, 2)
+    else
+        LeftColorPosition = UDim2.new(1, -2, 0, -1) -- 1, -2 чтобы была видна граница
+        LeftColorSize = UDim2.new(0, 3, 1, 2)
+    end
+
     local LeftColor = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor;
         BorderSizePixel = 0;
-        Position = UDim2.new(0, -1, 0, -1);
-        Size = UDim2.new(0, 3, 1, 2);
+        Position = LeftColorPosition;
+        Size = LeftColorSize;
         ZIndex = 104;
         Parent = NotifyOuter;
     });
@@ -3329,11 +3359,9 @@ function Library:Notify(Text, Time)
 
     task.spawn(function()
         wait(Time or 5);
-
         pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
 
         wait(0.4);
-
         NotifyOuter:Destroy();
     end);
 end;
