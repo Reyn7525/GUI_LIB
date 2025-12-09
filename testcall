@@ -1,4 +1,4 @@
-print("Version 0.67")
+print("Version 0.66667777777")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -42,6 +42,11 @@ local Library = {
 
     Signals = {};
     ScreenGui = ScreenGui;
+    
+    -- Система масштабирования GUI
+    OriginalSizes = {}; -- Хранит оригинальные размеры элементов
+    CurrentScale = 1; -- Текущий масштаб (1 = 100%)
+    ScaleInitialized = false; -- Флаг инициализации оригинальных размеров
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
@@ -367,9 +372,30 @@ function Library:Create(Class, Properties)
     if type(Class) == 'string' then
         _Instance = Instance.new(Class);
     end;
+    
+    -- Сохраняем оригинальные размеры из Properties ДО применения свойств
+    local originalSize = Properties.Size
+    local originalPosition = Properties.Position
+    local originalTextSize = Properties.TextSize
 
     for Property, Value in next, Properties do
         _Instance[Property] = Value;
+    end;
+    
+    -- Автоматически сохраняем оригинальные размеры для GUI элементов
+    if _Instance:IsA("GuiObject") or _Instance:IsA("TextLabel") or _Instance:IsA("TextButton") or _Instance:IsA("TextBox") then
+        -- Сохраняем оригинальные размеры (из Properties или текущие значения)
+        local originalData = {
+            Size = originalSize or _Instance.Size,
+            Position = originalPosition or _Instance.Position,
+            TextSize = originalTextSize or ((_Instance:IsA("TextLabel") or _Instance:IsA("TextButton") or _Instance:IsA("TextBox")) and _Instance.TextSize or nil),
+        }
+        Library.OriginalSizes[_Instance] = originalData
+        
+        -- Если масштаб уже установлен, применяем его к новому элементу
+        if Library.ScaleInitialized and Library.CurrentScale ~= 1 then
+            ApplyScaleToInstance(_Instance, Library.CurrentScale)
+        end
     end;
 
     return _Instance;
@@ -430,63 +456,6 @@ function Library:MakeDraggable(Instance, Cutoff)
             end;
         end;
     end)
-end;
-
-function Library:MakeResizable(Instance, MinSize)
-    MinSize = MinSize or Vector2.new(300, 200);
-    local ResizeHandleSize = 8;
-    
-    local function CreateResizeHandle(Position, Size, AnchorPoint, ResizeX, ResizeY)
-        local Handle = Library:Create('Frame', {
-            BackgroundTransparency = 1;
-            Position = Position;
-            Size = Size;
-            AnchorPoint = AnchorPoint;
-            ZIndex = 100;
-            Parent = Instance;
-            Active = true;
-        });
-        
-        Handle.InputBegan:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                local StartMousePos = Vector2.new(Mouse.X, Mouse.Y);
-                local StartSize = Instance.Size;
-                
-                while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-                    local CurrentMousePos = Vector2.new(Mouse.X, Mouse.Y);
-                    local Delta = CurrentMousePos - StartMousePos;
-                    
-                    local NewSizeX = StartSize.X.Offset;
-                    local NewSizeY = StartSize.Y.Offset;
-                    
-                    if ResizeX == 1 then
-                        NewSizeX = math.max(MinSize.X, StartSize.X.Offset + Delta.X);
-                    elseif ResizeX == -1 then
-                        NewSizeX = math.max(MinSize.X, StartSize.X.Offset - Delta.X);
-                    end
-                    
-                    if ResizeY == 1 then
-                        NewSizeY = math.max(MinSize.Y, StartSize.Y.Offset + Delta.Y);
-                    elseif ResizeY == -1 then
-                        NewSizeY = math.max(MinSize.Y, StartSize.Y.Offset - Delta.Y);
-                    end
-                    
-                    Instance.Size = UDim2.new(StartSize.X.Scale, NewSizeX, StartSize.Y.Scale, NewSizeY);
-                    
-                    RenderStepped:Wait();
-                end;
-            end;
-        end);
-        
-        return Handle;
-    end;
-    
-    -- Углы (только правый нижний для изменения размера без изменения позиции)
-    CreateResizeHandle(UDim2.new(1, 0, 1, 0), UDim2.new(0, ResizeHandleSize, 0, ResizeHandleSize), Vector2.new(1, 1), 1, 1); -- Правый нижний
-    
-    -- Края (только правый и нижний для изменения размера без изменения позиции)
-    CreateResizeHandle(UDim2.new(0.5, 0, 1, 0), UDim2.new(1, -ResizeHandleSize * 2, 0, ResizeHandleSize), Vector2.new(0.5, 1), 0, 1); -- Нижний
-    CreateResizeHandle(UDim2.new(1, 0, 0.5, 0), UDim2.new(0, ResizeHandleSize, 1, -ResizeHandleSize * 2), Vector2.new(1, 0.5), 1, 0); -- Правый
 end;
 
 function Library:AddToolTip(InfoStr, HoverInstance)
@@ -701,9 +670,94 @@ function Library:OnUnload(Callback)
     Library.OnUnload = Callback
 end
 
+-- Функция для сохранения оригинальных размеров элемента
+local function SaveOriginalSize(instance)
+    if not instance then return end
+    
+    local originalData = {
+        Size = instance.Size,
+        Position = instance.Position,
+        TextSize = (instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox")) and instance.TextSize or nil,
+    }
+    
+    Library.OriginalSizes[instance] = originalData
+end
+
+-- Рекурсивная функция для сохранения оригинальных размеров всех элементов
+local function InitializeOriginalSizes(parent)
+    for _, child in ipairs(parent:GetDescendants()) do
+        if child:IsA("GuiObject") or child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+            SaveOriginalSize(child)
+        end
+    end
+end
+
+-- Функция для применения масштаба к элементу
+local function ApplyScaleToInstance(instance, scale)
+    if not instance or not Library.OriginalSizes[instance] then return end
+    
+    local original = Library.OriginalSizes[instance]
+    
+    -- Масштабируем Size
+    if original.Size then
+        local originalSize = original.Size
+        instance.Size = UDim2.new(
+            originalSize.X.Scale,
+            originalSize.X.Offset * scale,
+            originalSize.Y.Scale,
+            originalSize.Y.Offset * scale
+        )
+    end
+    
+    -- Масштабируем Position
+    if original.Position then
+        local originalPos = original.Position
+        instance.Position = UDim2.new(
+            originalPos.X.Scale,
+            originalPos.X.Offset * scale,
+            originalPos.Y.Scale,
+            originalPos.Y.Offset * scale
+        )
+    end
+    
+    -- Масштабируем TextSize
+    if original.TextSize and (instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox")) then
+        instance.TextSize = original.TextSize * scale
+    end
+end
+
+-- Функция для масштабирования GUI
+function Library:SetGUIScale(scalePercent)
+    -- scalePercent: процент масштаба (100 = 100%, 80 = 80%, 120 = 120%)
+    local scale = scalePercent / 100
+    
+    -- Если оригинальные размеры еще не сохранены, сохраняем их
+    if not Library.ScaleInitialized then
+        InitializeOriginalSizes(ScreenGui)
+        Library.ScaleInitialized = true
+    end
+    
+    -- Обновляем текущий масштаб
+    Library.CurrentScale = scale
+    
+    -- Применяем масштаб ко всем элементам
+    for instance, _ in pairs(Library.OriginalSizes) do
+        if instance and instance.Parent then
+            ApplyScaleToInstance(instance, scale)
+        else
+            -- Удаляем ссылки на уничтоженные элементы
+            Library.OriginalSizes[instance] = nil
+        end
+    end
+end
+
 Library:GiveSignal(ScreenGui.DescendantRemoving:Connect(function(Instance)
     if Library.RegistryMap[Instance] then
         Library:RemoveFromRegistry(Instance);
+    end;
+    -- Очищаем оригинальные размеры при удалении элемента
+    if Library.OriginalSizes[Instance] then
+        Library.OriginalSizes[Instance] = nil;
     end;
 end))
 
@@ -821,7 +875,7 @@ do
             AnchorPoint = Vector2.new(0.5, 0.5);
             Size = UDim2.new(0, 6, 0, 6);
             BackgroundTransparency = 1;
-            Image = 'rbxassetid://6282522798';
+            Image = 'http://www.roblox.com/asset/?id=9619665977';
             ImageColor3 = Color3.new(0, 0, 0);
             ZIndex = 19;
             Parent = SatVibMap;
@@ -831,7 +885,7 @@ do
             Size = UDim2.new(0, CursorOuter.Size.X.Offset - 2, 0, CursorOuter.Size.Y.Offset - 2);
             Position = UDim2.new(0, 1, 0, 1);
             BackgroundTransparency = 1;
-            Image = 'rbxassetid://6282522798';
+            Image = 'http://www.roblox.com/asset/?id=9619665977';
             ZIndex = 20;
             Parent = CursorOuter;
         })
@@ -3472,7 +3526,6 @@ function Library:CreateWindow(...)
     });
 
     Library:MakeDraggable(Outer, 25);
-    Library:MakeResizable(Outer, Vector2.new(300, 200));
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
