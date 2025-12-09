@@ -1,4 +1,4 @@
-print("Version 0.57")
+print("Version govna kysok ebat")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -459,25 +459,20 @@ function Library:MakeResizable(Instance, MinSize)
                     
                     local NewSizeX = StartSize.X.Offset;
                     local NewSizeY = StartSize.Y.Offset;
-                    local NewPosX = StartPos.X.Offset;
-                    local NewPosY = StartPos.Y.Offset;
                     
                     if ResizeX == 1 then
                         NewSizeX = math.max(MinSize.X, StartSize.X.Offset + Delta.X);
                     elseif ResizeX == -1 then
                         NewSizeX = math.max(MinSize.X, StartSize.X.Offset - Delta.X);
-                        NewPosX = StartPos.X.Offset + (StartSize.X.Offset - NewSizeX);
                     end
                     
                     if ResizeY == 1 then
                         NewSizeY = math.max(MinSize.Y, StartSize.Y.Offset + Delta.Y);
                     elseif ResizeY == -1 then
                         NewSizeY = math.max(MinSize.Y, StartSize.Y.Offset - Delta.Y);
-                        NewPosY = StartPos.Y.Offset + (StartSize.Y.Offset - NewSizeY);
                     end
                     
                     Instance.Size = UDim2.new(StartSize.X.Scale, NewSizeX, StartSize.Y.Scale, NewSizeY);
-                    Instance.Position = UDim2.new(StartPos.X.Scale, NewPosX, StartPos.Y.Scale, NewPosY);
                     
                     RenderStepped:Wait();
                 end;
@@ -832,7 +827,7 @@ do
             AnchorPoint = Vector2.new(0.5, 0.5);
             Size = UDim2.new(0, 6, 0, 6);
             BackgroundTransparency = 1;
-            Image = 'http://www.roblox.com/asset/?id=9619665977';
+            Image = 'rbxassetid://6282522798';
             ImageColor3 = Color3.new(0, 0, 0);
             ZIndex = 19;
             Parent = SatVibMap;
@@ -842,7 +837,7 @@ do
             Size = UDim2.new(0, CursorOuter.Size.X.Offset - 2, 0, CursorOuter.Size.Y.Offset - 2);
             Position = UDim2.new(0, 1, 0, 1);
             BackgroundTransparency = 1;
-            Image = 'http://www.roblox.com/asset/?id=9619665977';
+            Image = 'rbxassetid://6282522798';
             ZIndex = 20;
             Parent = CursorOuter;
         })
