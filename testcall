@@ -1,4 +1,4 @@
-print("Version govna kysok ebat")
+print("Version 0.67")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -451,7 +451,6 @@ function Library:MakeResizable(Instance, MinSize)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
                 local StartMousePos = Vector2.new(Mouse.X, Mouse.Y);
                 local StartSize = Instance.Size;
-                local StartPos = Instance.Position;
                 
                 while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                     local CurrentMousePos = Vector2.new(Mouse.X, Mouse.Y);
@@ -482,16 +481,11 @@ function Library:MakeResizable(Instance, MinSize)
         return Handle;
     end;
     
-    -- Углы (ResizeX, ResizeY: 1 = увеличивать, -1 = уменьшать с левой/верхней стороны)
-    CreateResizeHandle(UDim2.new(0, 0, 0, 0), UDim2.new(0, ResizeHandleSize, 0, ResizeHandleSize), Vector2.new(0, 0), -1, -1); -- Левый верхний
-    CreateResizeHandle(UDim2.new(1, 0, 0, 0), UDim2.new(0, ResizeHandleSize, 0, ResizeHandleSize), Vector2.new(1, 0), 1, -1); -- Правый верхний
-    CreateResizeHandle(UDim2.new(0, 0, 1, 0), UDim2.new(0, ResizeHandleSize, 0, ResizeHandleSize), Vector2.new(0, 1), -1, 1); -- Левый нижний
+    -- Углы (только правый нижний для изменения размера без изменения позиции)
     CreateResizeHandle(UDim2.new(1, 0, 1, 0), UDim2.new(0, ResizeHandleSize, 0, ResizeHandleSize), Vector2.new(1, 1), 1, 1); -- Правый нижний
     
-    -- Края
-    CreateResizeHandle(UDim2.new(0.5, 0, 0, 0), UDim2.new(1, -ResizeHandleSize * 2, 0, ResizeHandleSize), Vector2.new(0.5, 0), 0, -1); -- Верхний
+    -- Края (только правый и нижний для изменения размера без изменения позиции)
     CreateResizeHandle(UDim2.new(0.5, 0, 1, 0), UDim2.new(1, -ResizeHandleSize * 2, 0, ResizeHandleSize), Vector2.new(0.5, 1), 0, 1); -- Нижний
-    CreateResizeHandle(UDim2.new(0, 0, 0.5, 0), UDim2.new(0, ResizeHandleSize, 1, -ResizeHandleSize * 2), Vector2.new(0, 0.5), -1, 0); -- Левый
     CreateResizeHandle(UDim2.new(1, 0, 0.5, 0), UDim2.new(0, ResizeHandleSize, 1, -ResizeHandleSize * 2), Vector2.new(1, 0.5), 1, 0); -- Правый
 end;
 
