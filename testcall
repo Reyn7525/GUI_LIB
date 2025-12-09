@@ -1,4 +1,4 @@
-print("Version xuyaka v rotyaru")
+print("Version EDY ZA SOLAROY")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -598,6 +598,60 @@ end;
 function Library:GetTextBounds(Text, Font, Size, Resolution)
     local Bounds = TextService:GetTextSize(Text, Size, Font, Resolution or Vector2.new(1920, 1080))
     return Bounds.X, Bounds.Y
+end
+
+-- Функция для автоматической подгонки размера текста чтобы он помещался в контейнер
+function Library:FitTextToContainer(TextLabel, MaxWidth, MinTextSize)
+    -- TextLabel: TextLabel элемент для подгонки
+    -- MaxWidth: максимальная ширина в пикселях
+    -- MinTextSize: минимальный размер текста (по умолчанию 8)
+    MinTextSize = MinTextSize or 8
+    
+    if not TextLabel or (not TextLabel:IsA("TextLabel") and not TextLabel:IsA("TextButton") and not TextLabel:IsA("TextBox")) then
+        return
+    end
+    
+    -- Получаем оригинальный размер текста
+    local originalData = Library.OriginalSizes[TextLabel]
+    local originalTextSize = originalData and originalData.TextSize
+    if not originalTextSize then
+        -- Если оригинальный размер не сохранен, сохраняем текущий
+        if not Library.OriginalSizes[TextLabel] then
+            Library.OriginalSizes[TextLabel] = {}
+        end
+        originalTextSize = TextLabel.TextSize
+        Library.OriginalSizes[TextLabel].TextSize = originalTextSize
+    end
+    
+    local font = TextLabel.Font
+    local text = TextLabel.Text
+    
+    if not text or text == "" then
+        return
+    end
+    
+    -- Получаем текущий DPI масштаб
+    local dpiScale = Library.CurrentDPI or 1
+    local baseTextSize = originalTextSize / dpiScale -- Оригинальный размер без DPI
+    
+    -- Начинаем с размера с учетом DPI
+    local currentTextSize = math.floor(baseTextSize * dpiScale + 0.5)
+    local maxAttempts = 30
+    local attempts = 0
+    
+    -- Уменьшаем размер текста пока он не поместится
+    while attempts < maxAttempts do
+        local textBounds = TextService:GetTextSize(text, currentTextSize, font, Vector2.new(MaxWidth, math.huge))
+        
+        if textBounds.X <= MaxWidth then
+            break
+        end
+        
+        currentTextSize = math.max(currentTextSize - 1, MinTextSize)
+        attempts = attempts + 1
+    end
+    
+    TextLabel.TextSize = currentTextSize
 end;
 
 function Library:GetDarkerColor(Color)
@@ -799,6 +853,22 @@ function Library:SetDPIScale(dpiScale)
             Library.OriginalSizes[instance] = nil
         end
     end
+    
+    -- Автоматически подгоняем текст в watermark и keybinds после применения DPI
+    if Library.WatermarkText and Library.WatermarkText.Parent then
+        local watermarkWidth = Library.Watermark.AbsoluteSize.X - 10
+        Library:FitTextToContainer(Library.WatermarkText, watermarkWidth, 8)
+    end
+    
+    if Library.KeybindContainer then
+        local maxKeybindWidth = workspace.CurrentCamera.ViewportSize.X * 0.3
+        for _, child in ipairs(Library.KeybindContainer:GetChildren()) do
+            if child:IsA("TextLabel") and child.Visible then
+                local availableWidth = maxKeybindWidth - 15
+                Library:FitTextToContainer(child, availableWidth, 8)
+            end
+        end
+    end
 end
 
 -- Функция для автоматического применения DPI на основе разрешения экрана
@@ -828,6 +898,24 @@ end
 Library:GiveSignal(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
     if Library.ScaleInitialized then
         Library:ApplyAutoDPI()
+        
+        -- Автоматически подгоняем текст в watermark и keybinds после изменения размера экрана
+        task.wait(0.1) -- Небольшая задержка для применения изменений
+        
+        if Library.WatermarkText and Library.WatermarkText.Parent and Library.WatermarkText.Text ~= "" then
+            local watermarkWidth = Library.Watermark.AbsoluteSize.X - 10
+            Library:FitTextToContainer(Library.WatermarkText, watermarkWidth, 8)
+        end
+        
+        if Library.KeybindContainer then
+            local maxKeybindWidth = workspace.CurrentCamera.ViewportSize.X * 0.3
+            for _, child in ipairs(Library.KeybindContainer:GetChildren()) do
+                if child:IsA("TextLabel") and child.Visible then
+                    local availableWidth = maxKeybindWidth - 15
+                    Library:FitTextToContainer(child, availableWidth, 8)
+                end
+            end
+        end
     end
 end))
 
@@ -1600,17 +1688,25 @@ do
 
             local YSize = 0
             local XSize = 0
+            local maxKeybindWidth = workspace.CurrentCamera.ViewportSize.X * 0.3 -- Максимальная ширина keybind frame (30% экрана)
 
             for _, Label in next, Library.KeybindContainer:GetChildren() do
                 if Label:IsA('TextLabel') and Label.Visible then
                     YSize = YSize + 18;
+                    
+                    -- Автоматически подгоняем размер текста для каждого label
+                    local availableWidth = maxKeybindWidth - 15 -- Учитываем padding
+                    Library:FitTextToContainer(Label, availableWidth, 8)
+                    
                     if (Label.TextBounds.X > XSize) then
                         XSize = Label.TextBounds.X
                     end
                 end;
             end;
 
-            Library.KeybindFrame.Size = UDim2.new(0, math.max(XSize + 10, 210), 0, YSize + 23)
+            -- Ограничиваем размер keybind frame максимальной шириной
+            local frameWidth = math.min(math.max(XSize + 10, 210), maxKeybindWidth)
+            Library.KeybindFrame.Size = UDim2.new(0, frameWidth, 0, YSize + 23)
         end;
 
         function KeyPicker:GetState()
@@ -3428,10 +3524,24 @@ function Library:SetWatermarkVisibility(Bool)
 end;
 
 function Library:SetWatermark(Text)
-    local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
-    Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3);
-
+    local font = ScreenGui:GetAttribute("Font")
+    local baseTextSize = 14
+    local dpiScale = Library.CurrentDPI or 1
+    local textSize = math.floor(baseTextSize * dpiScale + 0.5)
+    
+    -- Получаем размер текста с учетом DPI
+    local X, Y = Library:GetTextBounds(Text, font, textSize);
+    
+    -- Ограничиваем максимальную ширину watermark (например, 80% от ширины экрана)
+    local maxWidth = workspace.CurrentCamera.ViewportSize.X * 0.8
+    local watermarkWidth = math.min(X + 15, maxWidth)
+    
+    Library.Watermark.Size = UDim2.new(0, watermarkWidth, 0, (Y * 1.5) + 3);
     Library.WatermarkText.Text = Text;
+    
+    -- Автоматически подгоняем размер текста если он не помещается
+    local availableWidth = watermarkWidth - 10 -- Учитываем padding
+    Library:FitTextToContainer(Library.WatermarkText, availableWidth, 8)
 end;
 
 -- Library:Notify("Hello world!", 5, "RightDown")
