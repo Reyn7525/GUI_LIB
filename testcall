@@ -1,4 +1,4 @@
-print("Version 0.66667777777")
+print("Version xuyaka v rotyaru")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -43,9 +43,11 @@ local Library = {
     Signals = {};
     ScreenGui = ScreenGui;
     
-    -- Система масштабирования GUI
+    -- Система масштабирования GUI на основе DPI
     OriginalSizes = {}; -- Хранит оригинальные размеры элементов
-    CurrentScale = 1; -- Текущий масштаб (1 = 100%)
+    OriginalFonts = {}; -- Хранит оригинальные размеры шрифтов
+    CurrentDPI = 1; -- Текущий DPI масштаб (1 = 100%)
+    BaseResolution = Vector2.new(1920, 1080); -- Базовое разрешение для расчета DPI
     ScaleInitialized = false; -- Флаг инициализации оригинальных размеров
 };
 
@@ -389,12 +391,13 @@ function Library:Create(Class, Properties)
             Size = originalSize or _Instance.Size,
             Position = originalPosition or _Instance.Position,
             TextSize = originalTextSize or ((_Instance:IsA("TextLabel") or _Instance:IsA("TextButton") or _Instance:IsA("TextBox")) and _Instance.TextSize or nil),
+            Font = ((_Instance:IsA("TextLabel") or _Instance:IsA("TextButton") or _Instance:IsA("TextBox")) and _Instance.Font) or nil,
         }
         Library.OriginalSizes[_Instance] = originalData
         
-        -- Если масштаб уже установлен, применяем его к новому элементу
-        if Library.ScaleInitialized and Library.CurrentScale ~= 1 then
-            ApplyScaleToInstance(_Instance, Library.CurrentScale)
+        -- Если DPI масштаб уже установлен, применяем его к новому элементу
+        if Library.ScaleInitialized and Library.CurrentDPI ~= 1 then
+            ApplyDPIToInstance(_Instance, Library.CurrentDPI)
         end
     end;
 
@@ -404,12 +407,30 @@ end;
 function Library:ApplyTextStroke(Inst)
     Inst.TextStrokeTransparency = 1;
 
-    Library:Create('UIStroke', {
+    local stroke = Library:Create('UIStroke', {
         Color = Color3.new(0, 0, 0);
         Thickness = 1;
         LineJoinMode = Enum.LineJoinMode.Miter;
         Parent = Inst;
     });
+    
+    -- Сохраняем оригинальную толщину обводки для DPI масштабирования
+    if Library.ScaleInitialized then
+        if not Library.OriginalSizes[stroke] then
+            Library.OriginalSizes[stroke] = {
+                Thickness = 1
+            }
+        end
+        -- Применяем текущий DPI масштаб
+        if Library.CurrentDPI ~= 1 then
+            stroke.Thickness = 1 * Library.CurrentDPI
+        end
+    else
+        -- Сохраняем для будущего масштабирования
+        Library.OriginalSizes[stroke] = {
+            Thickness = 1
+        }
+    end
 end;
 
 function Library:CreateLabel(Properties, IsHud)
@@ -678,6 +699,7 @@ local function SaveOriginalSize(instance)
         Size = instance.Size,
         Position = instance.Position,
         TextSize = (instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox")) and instance.TextSize or nil,
+        Font = (instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox")) and instance.Font or nil,
     }
     
     Library.OriginalSizes[instance] = originalData
@@ -689,11 +711,20 @@ local function InitializeOriginalSizes(parent)
         if child:IsA("GuiObject") or child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
             SaveOriginalSize(child)
         end
+        
+        -- Сохраняем размеры UIStroke (обводка текста)
+        if child:IsA("UIStroke") then
+            if not Library.OriginalSizes[child] then
+                Library.OriginalSizes[child] = {
+                    Thickness = child.Thickness
+                }
+            end
+        end
     end
 end
 
--- Функция для применения масштаба к элементу
-local function ApplyScaleToInstance(instance, scale)
+-- Функция для применения DPI масштаба к элементу
+local function ApplyDPIToInstance(instance, dpiScale)
     if not instance or not Library.OriginalSizes[instance] then return end
     
     local original = Library.OriginalSizes[instance]
@@ -703,9 +734,9 @@ local function ApplyScaleToInstance(instance, scale)
         local originalSize = original.Size
         instance.Size = UDim2.new(
             originalSize.X.Scale,
-            originalSize.X.Offset * scale,
+            originalSize.X.Offset * dpiScale,
             originalSize.Y.Scale,
-            originalSize.Y.Offset * scale
+            originalSize.Y.Offset * dpiScale
         )
     end
     
@@ -714,22 +745,41 @@ local function ApplyScaleToInstance(instance, scale)
         local originalPos = original.Position
         instance.Position = UDim2.new(
             originalPos.X.Scale,
-            originalPos.X.Offset * scale,
+            originalPos.X.Offset * dpiScale,
             originalPos.Y.Scale,
-            originalPos.Y.Offset * scale
+            originalPos.Y.Offset * dpiScale
         )
     end
     
-    -- Масштабируем TextSize
+    -- Масштабируем TextSize (размер шрифта)
     if original.TextSize and (instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox")) then
-        instance.TextSize = original.TextSize * scale
+        instance.TextSize = math.floor(original.TextSize * dpiScale + 0.5) -- Округляем до целого
+    end
+    
+    -- Масштабируем UIStroke (обводка текста)
+    if instance:IsA("UIStroke") and original.Thickness then
+        instance.Thickness = original.Thickness * dpiScale
     end
 end
 
--- Функция для масштабирования GUI
-function Library:SetGUIScale(scalePercent)
-    -- scalePercent: процент масштаба (100 = 100%, 80 = 80%, 120 = 120%)
-    local scale = scalePercent / 100
+-- Функция для расчета DPI на основе текущего разрешения экрана
+function Library:CalculateDPI()
+    local viewportSize = workspace.CurrentCamera.ViewportSize
+    -- Рассчитываем DPI как среднее значение масштаба по X и Y относительно базового разрешения
+    local dpiX = viewportSize.X / Library.BaseResolution.X
+    local dpiY = viewportSize.Y / Library.BaseResolution.Y
+    return (dpiX + dpiY) / 2 -- Среднее значение для более равномерного масштабирования
+end
+
+-- Функция для установки DPI масштаба GUI
+function Library:SetDPIScale(dpiScale)
+    -- dpiScale: масштаб DPI (1.0 = 100%, 0.8 = 80%, 1.2 = 120%, или nil для автоматического расчета)
+    local scale = dpiScale
+    
+    -- Если dpiScale не указан, рассчитываем автоматически на основе разрешения экрана
+    if not scale then
+        scale = Library:CalculateDPI()
+    end
     
     -- Если оригинальные размеры еще не сохранены, сохраняем их
     if not Library.ScaleInitialized then
@@ -737,19 +787,49 @@ function Library:SetGUIScale(scalePercent)
         Library.ScaleInitialized = true
     end
     
-    -- Обновляем текущий масштаб
-    Library.CurrentScale = scale
+    -- Обновляем текущий DPI масштаб
+    Library.CurrentDPI = scale
     
-    -- Применяем масштаб ко всем элементам
+    -- Применяем DPI масштаб ко всем элементам
     for instance, _ in pairs(Library.OriginalSizes) do
         if instance and instance.Parent then
-            ApplyScaleToInstance(instance, scale)
+            ApplyDPIToInstance(instance, scale)
         else
             -- Удаляем ссылки на уничтоженные элементы
             Library.OriginalSizes[instance] = nil
         end
     end
 end
+
+-- Функция для автоматического применения DPI на основе разрешения экрана
+function Library:ApplyAutoDPI()
+    Library:SetDPIScale(nil) -- nil означает автоматический расчет
+end
+
+-- Функция для установки базового разрешения для расчета DPI
+function Library:SetBaseResolution(width, height)
+    -- width, height: базовое разрешение (по умолчанию 1920x1080)
+    Library.BaseResolution = Vector2.new(width or 1920, height or 1080)
+    
+    -- Если DPI уже был применен, пересчитываем его
+    if Library.ScaleInitialized then
+        Library:ApplyAutoDPI()
+    end
+end
+
+-- Функция для масштабирования GUI (обратная совместимость)
+function Library:SetGUIScale(scalePercent)
+    -- scalePercent: процент масштаба (100 = 100%, 80 = 80%, 120 = 120%)
+    local scale = scalePercent / 100
+    Library:SetDPIScale(scale)
+end
+
+-- Автоматическое применение DPI при изменении размера экрана
+Library:GiveSignal(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+    if Library.ScaleInitialized then
+        Library:ApplyAutoDPI()
+    end
+end))
 
 Library:GiveSignal(ScreenGui.DescendantRemoving:Connect(function(Instance)
     if Library.RegistryMap[Instance] then
