@@ -1,4 +1,4 @@
-print("Version 0.56767676767")
+print("Version 0.57")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -45,6 +45,7 @@ local Library = {
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
+ScreenGui:SetAttribute("NotifyPosition","LeftUp")
 ScreenGui:SetAttribute("GlowIntensivity",0.4)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
@@ -3242,9 +3243,11 @@ function Library:SetWatermark(Text)
     Library.WatermarkText.Text = Text;
 end;
 
-function Library:Notify(Text, Time)
-    local XSize, YSize = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
-
+-- Library:Notify("Hello world!", 5, "RightDown")
+function Library:Notify(Text, Time, CustomPosition)
+    local PositionMode = CustomPosition or ScreenGui:GetAttribute("NotifyPosition") or "LeftUp"
+    
+    local XSize, YSize = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14)
     YSize = YSize + 7
 
     local NotifyOuter = Library:Create('Frame', {
@@ -3255,6 +3258,47 @@ function Library:Notify(Text, Time)
         ZIndex = 100;
         Parent = Library.NotificationArea;
     });
+
+    local Viewport = workspace.CurrentCamera.ViewportSize
+    local Padding = 12
+
+    if PositionMode == "RightDown" then
+        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + Padding), 1, -(YSize + Padding))
+        NotifyOuter.AnchorPoint = Vector2.new(1, 1)
+        Library.NotificationArea.Position = UDim2.new(1, -Padding, 1, -Padding)
+        Library.NotificationArea.AnchorPoint = Vector2.new(1, 1)
+        Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+        Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+        Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
+    elseif PositionMode == "RightUp" then
+        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + Padding), 0, Padding)
+        NotifyOuter.AnchorPoint = Vector2.new(1, 0)
+        Library.NotificationArea.Position = UDim2.new(1, -Padding, 0, Padding)
+        Library.NotificationArea.AnchorPoint = Vector2.new(1, 0)
+        Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+        Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+        Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
+    elseif PositionMode == "LeftDown" then
+        NotifyOuter.Position = UDim2.new(0, Padding, 1, -(YSize + Padding))
+        NotifyOuter.AnchorPoint = Vector2.new(0, 1)
+        Library.NotificationArea.Position = UDim2.new(0, Padding, 1, -Padding)
+        Library.NotificationArea.AnchorPoint = Vector2.new(0, 1)
+        Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+        Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
+    else
+        NotifyOuter.Position = UDim2.new(0, Padding, 0, Padding)
+        NotifyOuter.AnchorPoint = Vector2.new(0, 0)
+        Library.NotificationArea.Position = UDim2.new(0, Padding, 0, Padding)
+        Library.NotificationArea.AnchorPoint = Vector2.new(0, 0)
+        Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+        Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
+    end
 
     local NotifyInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -3324,15 +3368,13 @@ function Library:Notify(Text, Time)
     pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true);
 
     task.spawn(function()
-        wait(Time or 5);
+        task.wait(Time or 5);
 
         pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
-
-        wait(0.4);
-
+        task.wait(0.4);
         NotifyOuter:Destroy();
     end);
-end;
+end
 
 function Library:CreateWindow(...)
     local Arguments = { ... }
