@@ -1,4 +1,4 @@
-print("Version 0.58 | now work with IY")
+print("Version 0.585 | now work with IY + fix colored print")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -112,29 +112,31 @@ function cprint(value, color)
     if game:GetService("CoreGui"):FindFirstChild("DevConsoleMaster") then
         local printid = tostring(os.time())..'..'..tostring(math.random(100000000,999999999))
         print(value..'-'..printid)
-        game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.ChildAdded:Connect(function(mainviewname)
-            if mainviewname.Name == 'MainView' then
-                game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ChildAdded:Connect(function(ClientLogName)
-                    if ClientLogName.Name == 'ClientLog' then
-                        game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ClientLog.ChildAdded:Connect(function(child)
-                            local msg = child:FindFirstChild("msg")
-                            if msg and msg:IsA("TextLabel") and msg.Text:match("%-%-%s*(.*)")==value..'-'..printid then
-                                msg.TextColor3 = color
-                                msg.Text = msg.Text:match("(.-)%-%-").."-- "..value
-                            end
-                        end)
+        if game:GetService("CoreGui").DevConsoleMaster:FindFirstChild("DevConsoleWindow") and game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow:FindFirstChild("DevConsoleUI") then
+            game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.ChildAdded:Connect(function(mainviewname)
+                if mainviewname.Name == 'MainView' then
+                    game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ChildAdded:Connect(function(ClientLogName)
+                        if ClientLogName.Name == 'ClientLog' then
+                            game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ClientLog.ChildAdded:Connect(function(child)
+                                local msg = child:FindFirstChild("msg")
+                                if msg and msg:IsA("TextLabel") and msg.Text:match("%-%-%s*(.*)")==value..'-'..printid then
+                                    msg.TextColor3 = color
+                                    msg.Text = msg.Text:match("(.-)%-%-").."-- "..value
+                                end
+                            end)
+                        end
+                    end)
+                end
+            end)
+            if game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI:FindFirstChild("MainView") then
+                game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ClientLog.ChildAdded:Connect(function(child)
+                    local msg = child:FindFirstChild("msg")
+                    if msg and msg:IsA("TextLabel") and msg.Text:match("%-%-%s*(.*)")==value..'-'..printid then
+                        msg.TextColor3 = color
+                        msg.Text = msg.Text:match("(.-)%-%-").."-- "..value
                     end
                 end)
             end
-        end)
-        if game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI:FindFirstChild("MainView") then
-            game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.MainView.ClientLog.ChildAdded:Connect(function(child)
-                local msg = child:FindFirstChild("msg")
-                if msg and msg:IsA("TextLabel") and msg.Text:match("%-%-%s*(.*)")==value..'-'..printid then
-                    msg.TextColor3 = color
-                    msg.Text = msg.Text:match("(.-)%-%-").."-- "..value
-                end
-            end)
         end
     else
         print(value)
