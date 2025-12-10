@@ -1,4 +1,4 @@
-print("Version 0.57")
+print("Version 0.58 | now work with IY")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -283,10 +283,10 @@ if ScreenGui:GetAttribute("FileSupport") then
     GirlImage.BorderSizePixel = 0
 end
 
-local Toggles = {};
+local LinoriaToggles = {};
 local Options = {};
 
-getgenv().Toggles = Toggles;
+getgenv().LinoriaToggles = LinoriaToggles;
 getgenv().Options = Options;
 
 local RainbowStep = 0
@@ -2198,7 +2198,7 @@ do
         Toggle.Container = Container;
         setmetatable(Toggle, BaseAddons);
 
-        Toggles[Idx] = Toggle;
+        LinoriaToggles[Idx] = Toggle;
 
         Library:UpdateDependencyBoxes();
 
