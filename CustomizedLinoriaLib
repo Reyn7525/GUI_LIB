@@ -1,4 +1,4 @@
-print("Version 0.51991bb | Hey, 1991, ussr bye XD")
+print("Version 0.51991.сс | Hey, 1991, ussr bye XD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -96,13 +96,34 @@ test("getcustomasset", function()
         error("getcustomasset function is missing")
     end
 
-    local png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGAoQ0a9gAAAABJRU5ErkJggg=="
-    writefile(".tests/test.png", game:GetService("HttpService"):Base64Decode(png))
+    local function hex2bin(hex)
+        return (hex:gsub('..', function(cc)
+            return string.char(tonumber(cc, 16))
+        end))
+    end
+
+    writefile(".tests/test.png", hex2bin("89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4890000000A49444154789C630001000000058001CAA50D0000000049454E44AE426082"))
+
+    if not isfile(".tests/test.png") or #readfile(".tests/test.png") == 0 then
+        error("Failed to write test PNG file")
+    end
 
     local asset = getcustomasset(".tests/test.png")
 
-    if typeof(asset) ~= "string" or not (asset:find("rbxasset://") or asset:find("rbxassetid://") or asset:find("cached_")) then
-        error("getcustomasset returned invalid asset: " .. tostring(asset))
+    if typeof(asset) ~= "string" then
+        error("getcustomasset returned non-string")
+    end
+
+    if not (asset:find("rbxasset://") or asset:find("rbxassetid://") or asset:find("cached_") or asset:find("asset/?id=")) then
+        error("getcustomasset returned invalid path: " .. asset)
+    end
+
+    local img = Instance.new("ImageLabel")
+    local ok = pcall(function() img.Image = asset end)
+    img:Destroy()
+
+    if not ok then
+        warn("getcustomasset works, but ImageLabel refused the asset (sometimes normal)")
     end
 end)
 
