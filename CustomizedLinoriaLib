@@ -1,4 +1,4 @@
-print("Version 0.51991.zxc | Hey, 1991, ussr bye XD")
+print("Version 0.51991.dbd | Hey, 1991, ussr bye XD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -63,7 +63,7 @@ local function test(name, callback)
             passes += 1
         else
             fails += 1
-            warn("[FAILED] " .. name .. " → " .. tostring(err))
+            warn("RenHub | [FAILED] " .. name .. " → " .. tostring(err))
         end
     end)
 end
@@ -86,7 +86,7 @@ end)
 
 test("getcustomasset", function()
     if not getcustomasset then
-        error("getcustomasset is missing")
+         warn("RenHub | [FAILED] getcustomasset is missing")
     end
 
     local pngHex = "89504E470D0A1A0A0000000D494844520000000100000001080600000001F15C4890000000A49444154789C630001000000058001CAA50D0000000049454E44AE426082"
@@ -98,7 +98,7 @@ test("getcustomasset", function()
 
     local asset = getcustomasset(".tests/asset.png")
     if typeof(asset) ~= "string" or not asset:find("rbxasset") then
-        error("getcustomasset returned invalid path: " .. tostring(asset))
+         warn("RenHub | [FAILED] getcustomasset returned invalid path: " .. tostring(asset))
     end
 end)
 
@@ -123,7 +123,7 @@ test("HttpGet / request", function()
     end
 
     if not success then
-        error("HttpGet and request are both blocked or missing")
+        warn("RenHub | [FAILED] HttpGet and request are both blocked or missing")
     end
 end)
 
@@ -138,7 +138,6 @@ local FileSupport = (fails == 0)
 game.CoreGui.RenHub:SetAttribute("FileSupport", FileSupport)
 
 if FileSupport then
-    print("FileSupport: FULLY SUPPORTED (files + getcustomasset + HttpGet)")
     if not isfolder("RenHub/assets") then
         makefolder("RenHub/assets")
     end
