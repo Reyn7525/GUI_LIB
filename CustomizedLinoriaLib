@@ -1,4 +1,4 @@
-print("Version 0.585 | now work with IY + fix colored print")
+print("Version 0.575 | backuped")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -285,10 +285,10 @@ if ScreenGui:GetAttribute("FileSupport") then
     GirlImage.BorderSizePixel = 0
 end
 
-local LinoriaToggles = {};
+local Toggles = {};
 local Options = {};
 
-getgenv().LinoriaToggles = LinoriaToggles;
+getgenv().Toggles = Toggles;
 getgenv().Options = Options;
 
 local RainbowStep = 0
@@ -2200,7 +2200,7 @@ do
         Toggle.Container = Container;
         setmetatable(Toggle, BaseAddons);
 
-        LinoriaToggles[Idx] = Toggle;
+        Toggles[Idx] = Toggle;
 
         Library:UpdateDependencyBoxes();
 
