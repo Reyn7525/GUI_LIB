@@ -1,4 +1,4 @@
-print("Version 0.51991a | Hey, 1991, ussr bye XD")
+print("Version 0.51991bb | Hey, 1991, ussr bye XD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -58,12 +58,12 @@ local passes, fails = 0, 0
 
 local function test(name, callback)
     task.spawn(function()
-        local success, message = pcall(callback)
-
+        local success, err = pcall(callback)
         if success then
             passes += 1
         else
             fails += 1
+            warn("[Test Failed] " .. name .. ": " .. tostring(err))
         end
     end)
 end
@@ -75,40 +75,52 @@ if isfolder and makefolder and delfolder then
     makefolder(".tests")
 end
 
-test("readfile", function()
-    writefile(".tests/readfile.txt", "success")
-    assert(readfile(".tests/readfile.txt") == "success", "Did not return the contents of the file")
-end)
-
-test("makefolder", function()
-    makefolder(".tests/makefolder")
-    assert(isfolder(".tests/makefolder"), "Did not create the folder")
-end)
-
-test("writefile", function()
-    writefile(".tests/writefile.txt", "success")
-    assert(readfile(".tests/writefile.txt") == "success", "Did not write the file")
+test("writefile/readfile", function()
+    writefile(".tests/test.txt", "filesupport_test")
+    assert(readfile(".tests/test.txt") == "filesupport_test")
 end)
 
 test("appendfile", function()
-    writefile(".tests/appendfile.txt", "su")
-    appendfile(".tests/appendfile.txt", "cce")
-    appendfile(".tests/appendfile.txt", "ss")
-    assert(readfile(".tests/appendfile.txt") == "success", "Did not append the file")
+    writefile(".tests/append.txt", "hello")
+    appendfile(".tests/append.txt", "world")
+    assert(readfile(".tests/append.txt") == "helloworld")
 end)
 
-task.wait(1/2)
+test("makefolder", function()
+    makefolder(".tests/subfolder")
+    assert(isfolder(".tests/subfolder"))
+end)
 
-if fails == 0 then
-    local success, fileContent = pcall(function()
-        return readfile(".tests/readfile.txt")
-    end)
-
-    if success then
-        local loadedFunction, errorMessage = loadstring(fileContent, path)
-        delfile(".tests")
+test("getcustomasset", function()
+    if not getcustomasset then
+        error("getcustomasset function is missing")
     end
-    game.CoreGui.RenHub:SetAttribute("FileSupport",success)
+
+    local png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGAoQ0a9gAAAABJRU5ErkJggg=="
+    writefile(".tests/test.png", game:GetService("HttpService"):Base64Decode(png))
+
+    local asset = getcustomasset(".tests/test.png")
+
+    if typeof(asset) ~= "string" or not (asset:find("rbxasset://") or asset:find("rbxassetid://") or asset:find("cached_")) then
+        error("getcustomasset returned invalid asset: " .. tostring(asset))
+    end
+end)
+
+task.wait(0.8)
+
+if isfolder(".tests") then
+    delfolder(".tests")
+end
+
+local FileSupport = (fails == 0)
+
+game.CoreGui.RenHub:SetAttribute("FileSupport", FileSupport)
+
+if FileSupport then
+    local success, content = pcall(readfile, "main.lua")
+    if success and content then
+        loadstring(content)()
+    end
 end
 
 function cprint(value, color)
