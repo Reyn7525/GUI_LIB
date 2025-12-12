@@ -1,4 +1,4 @@
-print("Library version 0.595 | TEST №4")
+print("Library version 0.595 | TEST №5")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3532,7 +3532,7 @@ function Library:CreateWindow(...)
             end
         end)
 
-        UserInputService.InputChanged:Connect(function(inp)
+        InputService.InputChanged:Connect(function(inp)
             if Resizing and inp.UserInputType == Enum.UserInputType.MouseMovement then
                 local mouse = Vector2.new(inp.Position.X, inp.Position.Y)
                 local delta = mouse - Outer.AbsolutePosition
@@ -3542,7 +3542,7 @@ function Library:CreateWindow(...)
             end
         end)
 
-        UserInputService.InputEnded:Connect(function(inp)
+        InputService.InputEnded:Connect(function(inp)
             if inp.UserInputType == Enum.UserInputType.MouseButton1 and Resizing then
                 Resizing = false
                 -- Восстанавливаем драг
