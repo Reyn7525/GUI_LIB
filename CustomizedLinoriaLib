@@ -1,4 +1,4 @@
-print("Version 0.575 | backuped")
+print("Version 0.58 | I hate higgers")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -285,10 +285,10 @@ if ScreenGui:GetAttribute("FileSupport") then
     GirlImage.BorderSizePixel = 0
 end
 
-local Toggles = {};
+local LinoriaToggles = {};
 local Options = {};
 
-getgenv().Toggles = Toggles;
+getgenv().Toggles = LinoriaToggles;
 getgenv().Options = Options;
 
 local RainbowStep = 0
@@ -2072,7 +2072,7 @@ do
     function Funcs:AddToggle(Idx, Info)
         assert(Info.Text, 'AddInput: Missing `Text` string.')
 
-        local Toggle = {
+        local LinoriaToggle = {
             Value = Info.Default or false;
             Type = 'Toggle';
 
@@ -2140,71 +2140,71 @@ do
             { BorderColor3 = 'Black' }
         );
 
-        function Toggle:UpdateColors()
-            Toggle:Display();
+        function LinoriaToggle:UpdateColors()
+            LinoriaToggle:Display();
         end;
 
         if type(Info.Tooltip) == 'string' then
             Library:AddToolTip(Info.Tooltip, ToggleRegion)
         end
 
-        function Toggle:Display()
-            ToggleInner.BackgroundColor3 = Toggle.Value and Library.AccentColor or Library.MainColor;
-            ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor;
+        function LinoriaToggle:Display()
+            ToggleInner.BackgroundColor3 = LinoriaToggle.Value and Library.AccentColor or Library.MainColor;
+            ToggleInner.BorderColor3 = LinoriaToggle.Value and Library.AccentColorDark or Library.OutlineColor;
 
-            Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and 'AccentColor' or 'MainColor';
-            Library.RegistryMap[ToggleInner].Properties.BorderColor3 = Toggle.Value and 'AccentColorDark' or 'OutlineColor';
+            Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = LinoriaToggle.Value and 'AccentColor' or 'MainColor';
+            Library.RegistryMap[ToggleInner].Properties.BorderColor3 = LinoriaToggle.Value and 'AccentColorDark' or 'OutlineColor';
         end;
 
-        function Toggle:OnChanged(Func)
-            Toggle.Changed = Func;
-            Func(Toggle.Value);
+        function LinoriaToggle:OnChanged(Func)
+            LinoriaToggle.Changed = Func;
+            Func(LinoriaToggle.Value);
         end;
 
-        function Toggle:SetValue(Bool)
+        function LinoriaToggle:SetValue(Bool)
             Bool = (not not Bool);
 
-            Toggle.Value = Bool;
-            Toggle:Display();
+            LinoriaToggle.Value = Bool;
+            LinoriaToggle:Display();
 
-            for _, Addon in next, Toggle.Addons do
+            for _, Addon in next, LinoriaToggle.Addons do
                 if Addon.Type == 'KeyPicker' and Addon.SyncToggleState then
                     Addon.Toggled = Bool
                     Addon:Update()
                 end
             end
 
-            Library:SafeCallback(Toggle.Callback, Toggle.Value);
-            Library:SafeCallback(Toggle.Changed, Toggle.Value);
+            Library:SafeCallback(LinoriaToggle.Callback, LinoriaToggle.Value);
+            Library:SafeCallback(LinoriaToggle.Changed, LinoriaToggle.Value);
             Library:UpdateDependencyBoxes();
         end;
 
         ToggleRegion.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
-                Toggle:SetValue(not Toggle.Value) -- Why was it not like this from the start?
+                LinoriaToggle:SetValue(not LinoriaToggle.Value) -- Why was it not like this from the start?
                 Library:AttemptSave();
             end;
         end);
 
-        if Toggle.Risky then
+        if LinoriaToggle.Risky then
             Library:RemoveFromRegistry(ToggleLabel)
             ToggleLabel.TextColor3 = Library.RiskColor
             Library:AddToRegistry(ToggleLabel, { TextColor3 = 'RiskColor' })
         end
 
-        Toggle:Display();
+        LinoriaToggle:Display();
         Groupbox:AddBlank(Info.BlankSize or 5 + 2);
         Groupbox:Resize();
 
-        Toggle.TextLabel = ToggleLabel;
-        Toggle.Container = Container;
-        setmetatable(Toggle, BaseAddons);
+        LinoriaToggle.TextLabel = ToggleLabel;
+        LinoriaToggle.Container = Container;
+        setmetatable(LinoriaToggle, BaseAddons);
 
-        Toggles[Idx] = Toggle;
+        LinoriaToggles[Idx] = LinoriaToggle;
 
         Library:UpdateDependencyBoxes();
 
-        return Toggle;
+        return LinoriaToggle;
     end;
 
     function Funcs:AddSlider(Idx, Info)
