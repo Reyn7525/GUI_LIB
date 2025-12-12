@@ -1,4 +1,4 @@
-print("Library version 0.595 | TEST №3")
+print("Library version 0.595 | TEST №4")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3445,10 +3445,10 @@ function Library:CreateWindow(...)
     local Config = { AnchorPoint = Vector2.zero }
 
     if type(...) == 'table' then
-        Config = ...;
+        Config = ...
     else
         Config.Title = Arguments[1]
-        Config.AutoShow = Arguments[2] or false;
+        Config.AutoShow = Arguments[2] or false
     end
 
     if type(Config.Title) ~= 'string' then Config.Title = 'No title' end
@@ -3457,111 +3457,109 @@ function Library:CreateWindow(...)
 
     if typeof(Config.Position) ~= 'UDim2' then Config.Position = UDim2.fromOffset(175, 50) end
     if typeof(Config.Size) ~= 'UDim2' then Config.Size = UDim2.fromOffset(550, 600) end
-
     if Config.Center then
         Config.AnchorPoint = Vector2.new(0.5, 0.5)
         Config.Position = UDim2.fromScale(0.5, 0.5)
     end
 
-    local Window = {
-        Tabs = {};
-    };
+    -- Минимальный размер окна (можно переопределить в конфиге)
+    local MinSize = Config.MinSize or Vector2.new(400, 300)
+
+    local Window = { Tabs = {} }
 
     local Outer = Library:Create('Frame', {
         AnchorPoint = Config.AnchorPoint,
-        BackgroundColor3 = Color3.fromRGB(16, 16, 16);
-        BorderSizePixel = 0;
+        BackgroundColor3 = Color3.fromRGB(16, 16, 16),
+        BorderSizePixel = 0,
         Position = Config.Position,
         Size = Config.Size,
-        Visible = false;
-        ZIndex = 1;
-        Parent = ScreenGui;
-    });
-
-    local ResizeHandle = Library:Create('Frame', {
-        Name = 'ResizeHandle';
-        AnchorPoint = Vector2.new(1, 1);
-        BackgroundColor3 = Library.AccentColor;
-        BorderColor3 = Library.OutlineColor;
-        BorderMode = Enum.BorderMode.Outline;
-        Position = UDim2.new(1, 0, 1, 0);
-        Size = UDim2.new(0, 16, 0, 16);
-        ZIndex = 10;
-        Parent = Outer;
+        Visible = false,
+        ZIndex = 1,
+        Parent = ScreenGui,
     })
 
-    -- Треугольник внутри (как у Windows)
-    local Triangle = Library:Create('Frame', {
-        BackgroundColor3 = Library.AccentColor;
-        BorderSizePixel = 0;
-        Position = UDim2.new(1, -12, 1, -12);
-        Size = UDim2.new(0, 10, 0, 10);
-        ZIndex = 11;
-        Parent = ResizeHandle;
-    })
+    -- === ДОБАВЛЕННЫЙ РЕСАЙЗ (вот он, весь магия) ===
+    do
+        local ResizeHandle = Library:Create('Frame', {
+            Name = "ResizeHandle",
+            AnchorPoint = Vector2.new(1, 1),
+            BackgroundColor3 = Library.AccentColor,
+            BorderSizePixel = 0,
+            Position = UDim2.new(1, 0, 1, 0),
+            Size = UDim2.new(0, 18, 0, 18),
+            ZIndex = 15,
+            Parent = Outer
+        })
 
-    local Corner = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor;
-        BorderSizePixel = 0;
-        Size = UDim2.new(1, 0, 1, 0);
-        ZIndex = 10;
-        Parent = Triangle;
-    })
+        -- Треугольник внутри (как на твоём скриншоте)
+        local Triangle = Library:Create('Frame', {
+            BackgroundColor3 = Library.AccentColor,
+            BorderSizePixel = 0,
+            Position = UDim2.new(1, -13, 1, -13),
+            Size = UDim2.new(0, 12, 0, 12),
+            ZIndex = 16,
+            Parent = ResizeHandle
+        })
 
-    local UIGradient = Instance.new("UIGradient", Triangle)
-    UIGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.new(1,1,1)),
-        ColorSequenceKeypoint.new(1, Color3.new(0.7,0.7,0.7))
-    }
-    UIGradient.Rotation = 45
+        local Corner = Library:Create('Frame', {
+            BackgroundColor3 = Library.MainColor,
+            BorderSizePixel = 0,
+            Size = UDim2.new(1, 0, 1, 0),
+            ZIndex = 15,
+            Parent = Triangle
+        })
 
-    -- Логика ресайза
-    local Resizing = false
-    local MinSize = Config.MinSize or Vector2.new(300, 300) -- можно указать в конфиге
+        local Grad = Instance.new("UIGradient", Triangle)
+        Grad.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.new(1,1,1)),
+            ColorSequenceKeypoint.new(1, Color3.new(0.6,0.6,0.6))
+        }
+        Grad.Rotation = 45
 
-    ResizeHandle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            Resizing = true
-            -- Отключаем драг, чтобы не конфликтовало
-            if Outer:FindFirstChild("DraggableConnection") then
-                Outer.DraggableConnection:Disconnect()
-                Outer.DraggableConnection = nil
+        Library:AddToRegistry(ResizeHandle, { BackgroundColor3 = "AccentColor" })
+        Library:AddToRegistry(Triangle, { BackgroundColor3 = "AccentColor" })
+
+        local Resizing = false
+
+        ResizeHandle.InputBegan:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+                Resizing = true
+                -- Отключаем драг на время ресайза
+                if Window.DragConnection then
+                    Window.DragConnection:Disconnect()
+                    Window.DragConnection = nil
+                end
             end
-        end
-    end)
+        end)
 
-    InputService.InputChanged:Connect(function(input)
-        if Resizing and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local mousePos = Vector2.new(input.Position.X, input.Position.Y)
-            local framePos = Outer.AbsolutePosition
-            local newSize = mousePos - framePos
+        UserInputService.InputChanged:Connect(function(inp)
+            if Resizing and inp.UserInputType == Enum.UserInputType.MouseMovement then
+                local mouse = Vector2.new(inp.Position.X, inp.Position.Y)
+                local delta = mouse - Outer.AbsolutePosition
+                local newX = math.max(delta.X, MinSize.X)
+                local newY = math.max(delta.Y, MinSize.Y)
+                Outer.Size = UDim2.new(0, newX, 0, newY)
+            end
+        end)
 
-            newSize = Vector2.new(
-                math.max(newSize.X, MinSize.X),
-                math.max(newSize.Y, MinSize.Y)
-            )
-
-            Outer.Size = UDim2.new(0, newSize.X, 0, newSize.Y)
-        end
-    end)
-
-    InputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if Resizing then
+        UserInputService.InputEnded:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 and Resizing then
                 Resizing = false
                 -- Восстанавливаем драг
                 Library:MakeDraggable(Outer, 25)
             end
-        end
-    end)
+        end)
 
-    -- Делаем ручку красивой при наведении
-    Library:OnHighlight(ResizeHandle, ResizeHandle,
-        { BackgroundColor3 = 'AccentColorDark' },
-        { BackgroundColor3 = 'AccentColor' }
-    )
+        -- Ховер-эффект
+        Library:OnHighlight(ResizeHandle, ResizeHandle,
+            { BackgroundColor3 = Library:GetDarkerColor(Library.AccentColor) },
+            { BackgroundColor3 = Library.AccentColor }
+        )
+    end
+    -- === КОНЕЦ РЕСАЙЗА ===
 
-    Library:MakeDraggable(Outer, 25);
+    Library:MakeDraggable(Outer, 25)
+    Window.DragConnection = Outer:GetPropertyChangedSignal("AbsoluteSize"):Connect(function() end) -- просто заглушка для проверк
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
