@@ -1,4 +1,4 @@
-print("Version 0.51991.сс | Hey, 1991, ussr bye XD")
+print("Version 0.51991.zxc | Hey, 1991, ussr bye XD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -63,7 +63,7 @@ local function test(name, callback)
             passes += 1
         else
             fails += 1
-            warn("[Test Failed] " .. name .. ": " .. tostring(err))
+            warn("[FAILED] " .. name .. " → " .. tostring(err))
         end
     end)
 end
@@ -75,59 +75,59 @@ if isfolder and makefolder and delfolder then
     makefolder(".tests")
 end
 
-test("writefile/readfile", function()
-    writefile(".tests/test.txt", "filesupport_test")
-    assert(readfile(".tests/test.txt") == "filesupport_test")
-end)
+test("File Operations", function()
+    writefile(".tests/test.txt", "hello")
+    appendfile(".tests/test.txt", "world")
+    assert(readfile(".tests/test.txt") == "helloworld", "appendfile failed")
 
-test("appendfile", function()
-    writefile(".tests/append.txt", "hello")
-    appendfile(".tests/append.txt", "world")
-    assert(readfile(".tests/append.txt") == "helloworld")
-end)
-
-test("makefolder", function()
-    makefolder(".tests/subfolder")
-    assert(isfolder(".tests/subfolder"))
+    makefolder(".tests/folder")
+    assert(isfolder(".tests/folder"), "makefolder failed")
 end)
 
 test("getcustomasset", function()
     if not getcustomasset then
-        error("getcustomasset function is missing")
+        error("getcustomasset is missing")
     end
 
+    local pngHex = "89504E470D0A1A0A0000000D494844520000000100000001080600000001F15C4890000000A49444154789C630001000000058001CAA50D0000000049454E44AE426082"
     local function hex2bin(hex)
-        return (hex:gsub('..', function(cc)
-            return string.char(tonumber(cc, 16))
-        end))
+        return (hex:gsub('..', function(c) return string.char(tonumber(c, 16)) end))
     end
 
-    writefile(".tests/test.png", hex2bin("89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4890000000A49444154789C630001000000058001CAA50D0000000049454E44AE426082"))
+    writefile(".tests/asset.png", hex2bin(pngHex))
 
-    if not isfile(".tests/test.png") or #readfile(".tests/test.png") == 0 then
-        error("Failed to write test PNG file")
-    end
-
-    local asset = getcustomasset(".tests/test.png")
-
-    if typeof(asset) ~= "string" then
-        error("getcustomasset returned non-string")
-    end
-
-    if not (asset:find("rbxasset://") or asset:find("rbxassetid://") or asset:find("cached_") or asset:find("asset/?id=")) then
-        error("getcustomasset returned invalid path: " .. asset)
-    end
-
-    local img = Instance.new("ImageLabel")
-    local ok = pcall(function() img.Image = asset end)
-    img:Destroy()
-
-    if not ok then
-        warn("getcustomasset works, but ImageLabel refused the asset (sometimes normal)")
+    local asset = getcustomasset(".tests/asset.png")
+    if typeof(asset) ~= "string" or not asset:find("rbxasset") then
+        error("getcustomasset returned invalid path: " .. tostring(asset))
     end
 end)
 
-task.wait(0.8)
+test("HttpGet / request", function()
+    local success = false
+
+    if game.HttpGet then
+        local ok, res = pcall(game.HttpGet, game, "https://httpbin.org/get", true)
+        if ok and res and #res > 50 and res:find('"url"') then
+            success = true
+        end
+    end
+
+    if not success then
+        local req = (syn and syn.request) or request or (http and http.request) or http_request
+        if req then
+            local res = req({Url = "https://httpbin.org/get", Method = "GET"})
+            if res and res.Body and #res.Body > 50 and res.Body:find('"url"') then
+                success = true
+            end
+        end
+    end
+
+    if not success then
+        error("HttpGet and request are both blocked or missing")
+    end
+end)
+
+task.wait(1)
 
 if isfolder(".tests") then
     delfolder(".tests")
@@ -138,8 +138,13 @@ local FileSupport = (fails == 0)
 game.CoreGui.RenHub:SetAttribute("FileSupport", FileSupport)
 
 if FileSupport then
-    local success, content = pcall(readfile, "main.lua")
-    if success and content then
+    print("FileSupport: FULLY SUPPORTED (files + getcustomasset + HttpGet)")
+    if not isfolder("RenHub/assets") then
+        makefolder("RenHub/assets")
+    end
+
+    local ok, content = pcall(readfile, "main.lua")
+    if ok and content and content ~= "" then
         loadstring(content)()
     end
 end
