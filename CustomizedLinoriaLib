@@ -1,4 +1,4 @@
-print("Version 0.58 | I hate higgers")
+print("Version 0.585 | backuped")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -289,6 +289,7 @@ local LinoriaToggles = {};
 local Options = {};
 
 getgenv().Toggles = LinoriaToggles;
+getgenv().LinoriaToggles = LinoriaToggles;
 getgenv().Options = Options;
 
 local RainbowStep = 0
@@ -2998,11 +2999,13 @@ do
         end);
 
         function Depbox:Update()
+            if not Depbox.Dependencies then return end;
+            
             for _, Dependency in next, Depbox.Dependencies do
                 local Elem = Dependency[1];
                 local Value = Dependency[2];
 
-                if Elem.Type == 'Toggle' and Elem.Value ~= Value then
+                if Elem and Elem.Type == 'Toggle' and Elem.Value ~= Value then
                     Holder.Visible = false;
                     Depbox:Resize();
                     return;
@@ -3014,9 +3017,13 @@ do
         end;
 
         function Depbox:SetupDependencies(Dependencies)
+            if not Dependencies then
+                error('SetupDependencies: Dependencies argument is nil')
+            end
+            
             for _, Dependency in next, Dependencies do
                 assert(type(Dependency) == 'table', 'SetupDependencies: Dependency is not of type `table`.');
-                assert(Dependency[1], 'SetupDependencies: Dependency is missing element argument.');
+                assert(Dependency[1] ~= nil, 'SetupDependencies: Dependency is missing element argument. Make sure the element exists before setting up dependencies.');
                 assert(Dependency[2] ~= nil, 'SetupDependencies: Dependency is missing value argument.');
             end;
 
