@@ -1,4 +1,4 @@
-print("Library version 0.51991.xyz2")
+print("Library version 0.51991.xyz7")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -450,28 +450,56 @@ end;
 function Library:MakeDraggable(Instance, Cutoff)
     Instance.Active = true;
 
+    local isDragging = false;
+    local dragOffset = Vector2.new(0, 0);
+    local dragConnection = nil;
+
+    local function onInputChanged(Input, gameProcessedEvent)
+        if isDragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
+            -- Вычисляем новую позицию
+            local newX = Mouse.X - dragOffset.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X);
+            local newY = Mouse.Y - dragOffset.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y);
+
+            -- Обновляем позицию только один раз за событие MouseMovement
+            Instance.Position = UDim2.new(0, newX, 0, newY);
+        end
+    end
+
     Instance.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local ObjPos = Vector2.new(
+            -- 1. Вычисляем смещение (offset)
+            dragOffset = Vector2.new(
                 Mouse.X - Instance.AbsolutePosition.X,
                 Mouse.Y - Instance.AbsolutePosition.Y
             );
 
-            if ObjPos.Y > (Cutoff or 40) then
+            -- 2. Проверка Cutoff
+            if dragOffset.Y > (Cutoff or 40) then
                 return;
             end;
 
-            while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-                Instance.Position = UDim2.new(
-                    0,
-                    Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
-                    0,
-                    Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
-                );
+            -- 3. Начинаем перетаскивание
+            isDragging = true;
+            
+            -- 4. Подключаем обработчик движения мыши
+            -- Используем UserInputService.InputChanged для обработки движения мыши
+            if not dragConnection then
+                dragConnection = InputService.InputChanged:Connect(onInputChanged);
+            end
+        end
+    end)
 
-                RenderStepped:Wait();
-            end;
-        end;
+    Instance.InputEnded:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            -- 5. Заканчиваем перетаскивание
+            isDragging = false;
+
+            -- 6. Отключаем обработчик движения мыши, чтобы он не работал, когда не нужен
+            if dragConnection then
+                dragConnection:Disconnect();
+                dragConnection = nil;
+            end
+        end
     end)
 end;
 
