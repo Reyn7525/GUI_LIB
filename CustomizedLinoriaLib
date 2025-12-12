@@ -1,4 +1,4 @@
-print("Version 0.585 | backuped")
+print("Version 0.59")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -45,6 +45,7 @@ local Library = {
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
+ScreenGui:SetAttribute("NotifyPadding",12)
 ScreenGui:SetAttribute("NotifyPosition","LeftUp")
 ScreenGui:SetAttribute("GlowIntensivity",0.4)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
@@ -3254,8 +3255,6 @@ end;
 
 -- Library:Notify("Hello world!", 5, "RightDown")
 function Library:Notify(Text, Time, CustomPosition)
-    local PositionMode = CustomPosition or ScreenGui:GetAttribute("NotifyPosition") or "LeftUp"
-    
     local XSize, YSize = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14)
     YSize = YSize + 7
 
@@ -3268,40 +3267,37 @@ function Library:Notify(Text, Time, CustomPosition)
         Parent = Library.NotificationArea;
     });
 
-    local Viewport = workspace.CurrentCamera.ViewportSize
-    local Padding = 12
-
-    if PositionMode == "RightDown" then
-        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + Padding), 1, -(YSize + Padding))
+    if ScreenGui:GetAttribute("NotifyPosition") == "RightDown" then
+        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + ScreenGui:GetAttribute("NotifyPadding")), 1, -(YSize + Padding))
         NotifyOuter.AnchorPoint = Vector2.new(1, 1)
-        Library.NotificationArea.Position = UDim2.new(1, -Padding, 1, -Padding)
+        Library.NotificationArea.Position = UDim2.new(1, -ScreenGui:GetAttribute("NotifyPadding"), 1, -ScreenGui:GetAttribute("NotifyPadding"))
         Library.NotificationArea.AnchorPoint = Vector2.new(1, 1)
         Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
         Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
         Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
-    elseif PositionMode == "RightUp" then
-        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + Padding), 0, Padding)
+    elseif ScreenGui:GetAttribute("NotifyPosition") == "RightUp" then
+        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + ScreenGui:GetAttribute("NotifyPadding")), 0, ScreenGui:GetAttribute("NotifyPadding"))
         NotifyOuter.AnchorPoint = Vector2.new(1, 0)
-        Library.NotificationArea.Position = UDim2.new(1, -Padding, 0, Padding)
+        Library.NotificationArea.Position = UDim2.new(1, -ScreenGui:GetAttribute("NotifyPadding"), 0, ScreenGui:GetAttribute("NotifyPadding"))
         Library.NotificationArea.AnchorPoint = Vector2.new(1, 0)
         Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
         Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
         Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
-    elseif PositionMode == "LeftDown" then
-        NotifyOuter.Position = UDim2.new(0, Padding, 1, -(YSize + Padding))
+    elseif ScreenGui:GetAttribute("NotifyPosition") == "LeftDown" then
+        NotifyOuter.Position = UDim2.new(0, ScreenGui:GetAttribute("NotifyPadding"), 1, -(YSize + ScreenGui:GetAttribute("NotifyPadding")))
         NotifyOuter.AnchorPoint = Vector2.new(0, 1)
-        Library.NotificationArea.Position = UDim2.new(0, Padding, 1, -Padding)
+        Library.NotificationArea.Position = UDim2.new(0, ScreenGui:GetAttribute("NotifyPadding"), 1, -ScreenGui:GetAttribute("NotifyPadding"))
         Library.NotificationArea.AnchorPoint = Vector2.new(0, 1)
         Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
         Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
         Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
     else
-        NotifyOuter.Position = UDim2.new(0, Padding, 0, Padding)
+        NotifyOuter.Position = UDim2.new(0, ScreenGui:GetAttribute("NotifyPadding"), 0, ScreenGui:GetAttribute("NotifyPadding"))
         NotifyOuter.AnchorPoint = Vector2.new(0, 0)
-        Library.NotificationArea.Position = UDim2.new(0, Padding, 0, Padding)
+        Library.NotificationArea.Position = UDim2.new(0, ScreenGui:GetAttribute("NotifyPadding"), 0, ScreenGui:GetAttribute("NotifyPadding"))
         Library.NotificationArea.AnchorPoint = Vector2.new(0, 0)
         Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
         Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
