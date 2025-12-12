@@ -1,4 +1,4 @@
-print("Library version 0.51991.xyz2")
+print("Library version 0.592")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -470,6 +470,7 @@ function Library:MakeDraggable(Instance, Cutoff)
                 );
 
                 RenderStepped:Wait();
+                task.wait();
             end;
         end;
     end)
