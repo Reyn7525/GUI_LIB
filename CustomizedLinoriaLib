@@ -1,4 +1,4 @@
-print("Version 0.59")
+print("Version 0.591 | Hey, 1991, ussr bye XD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3268,7 +3268,7 @@ function Library:Notify(Text, Time, CustomPosition)
     });
 
     if ScreenGui:GetAttribute("NotifyPosition") == "RightDown" then
-        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + ScreenGui:GetAttribute("NotifyPadding")), 1, -(YSize + Padding))
+        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + ScreenGui:GetAttribute("NotifyPadding")), 1, -(YSize + ScreenGui:GetAttribute("NotifyPadding")))
         NotifyOuter.AnchorPoint = Vector2.new(1, 1)
         Library.NotificationArea.Position = UDim2.new(1, -ScreenGui:GetAttribute("NotifyPadding"), 1, -ScreenGui:GetAttribute("NotifyPadding"))
         Library.NotificationArea.AnchorPoint = Vector2.new(1, 1)
