@@ -1,4 +1,4 @@
-print("Version 0.51991.xyz | Hey, 1991, ussr bye XD")
+print("Version 0.51991.xyz2 | Hey, 1991, ussr bye XD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3391,7 +3391,7 @@ function Library:Notify(Text, Time, CustomPosition)
     })
     Library:AddToRegistry(LeftColor, { BackgroundColor3 = 'AccentColor' }, true)
 
-    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, ((Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font") or Enum.Font.Code, 14 * Scale)) + (16 * Scale)), 0, 28 * Scale), 'Out', 'Quad', 0.4, true)
+    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, ((Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font") or Enum.Font.Code, 14 * (ScreenGui:GetAttribute("NotifyScale") or 1))) + (16 * (ScreenGui:GetAttribute("NotifyScale") or 1))), 0, 28 * (ScreenGui:GetAttribute("NotifyScale") or 1)), 'Out', 'Quad', 0.4, true)
 
     task.spawn(function()
         task.wait(Time or 5)
