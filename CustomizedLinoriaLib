@@ -45,8 +45,10 @@ local Library = {
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
-ScreenGui:SetAttribute("NotifyPadding",12)
-ScreenGui:SetAttribute("NotifyPosition","LeftUp")
+ScreenGui:SetAttribute("NotifyScale", 1)
+ScreenGui:SetAttribute("NotifyPaddingX", 12)
+ScreenGui:SetAttribute("NotifyPaddingY", 12)
+ScreenGui:SetAttribute("NotifyPosition", "RightDown")
 ScreenGui:SetAttribute("GlowIntensivity",0.4)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
@@ -3255,55 +3257,46 @@ end;
 
 -- Library:Notify("Hello world!", 5, "RightDown")
 function Library:Notify(Text, Time, CustomPosition)
-    local XSize, YSize = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14)
-    YSize = YSize + 7
-
     local NotifyOuter = Library:Create('Frame', {
         BorderColor3 = Color3.new(0, 0, 0);
-        Position = UDim2.new(0, 100, 0, 10);
-        Size = UDim2.new(0, 0, 0, YSize);
+        Size = UDim2.new(0, 0, 0, (28 * ScreenGui:GetAttribute("NotifyScale")));
         ClipsDescendants = true;
         ZIndex = 100;
         Parent = Library.NotificationArea;
     });
 
     if ScreenGui:GetAttribute("NotifyPosition") == "RightDown" then
-        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + ScreenGui:GetAttribute("NotifyPadding")), 1, -(YSize + ScreenGui:GetAttribute("NotifyPadding")))
         NotifyOuter.AnchorPoint = Vector2.new(1, 1)
-        Library.NotificationArea.Position = UDim2.new(1, -ScreenGui:GetAttribute("NotifyPadding"), 1, -ScreenGui:GetAttribute("NotifyPadding"))
+        NotifyOuter.Position = UDim2.new(1, -((Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), (14 * ScreenGui:GetAttribute("NotifyScale"))) + (16 * ScreenGui:GetAttribute("NotifyScale"))) + (ScreenGui:GetAttribute("NotifyPaddingX") or 12)), 1, -(ScreenGui:GetAttribute("NotifyPaddingY") or 12))
         Library.NotificationArea.AnchorPoint = Vector2.new(1, 1)
+        Library.NotificationArea.Position = UDim2.new(1, -(ScreenGui:GetAttribute("NotifyPaddingX") or 12), 1, -(ScreenGui:GetAttribute("NotifyPaddingY") or 12))
         Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
         Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-        Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
     elseif ScreenGui:GetAttribute("NotifyPosition") == "RightUp" then
-        NotifyOuter.Position = UDim2.new(1, -(XSize + 8 + 4 + ScreenGui:GetAttribute("NotifyPadding")), 0, ScreenGui:GetAttribute("NotifyPadding"))
         NotifyOuter.AnchorPoint = Vector2.new(1, 0)
-        Library.NotificationArea.Position = UDim2.new(1, -ScreenGui:GetAttribute("NotifyPadding"), 0, ScreenGui:GetAttribute("NotifyPadding"))
+        NotifyOuter.Position = UDim2.new(1, -((Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), (14 * ScreenGui:GetAttribute("NotifyScale"))) + (16 * ScreenGui:GetAttribute("NotifyScale"))) + (ScreenGui:GetAttribute("NotifyPaddingX") or 12)), 0, (ScreenGui:GetAttribute("NotifyPaddingY") or 12))
         Library.NotificationArea.AnchorPoint = Vector2.new(1, 0)
+        Library.NotificationArea.Position = UDim2.new(1, -(ScreenGui:GetAttribute("NotifyPaddingX") or 12), 0, (ScreenGui:GetAttribute("NotifyPaddingY") or 12))
         Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
         Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-        Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
     elseif ScreenGui:GetAttribute("NotifyPosition") == "LeftDown" then
-        NotifyOuter.Position = UDim2.new(0, ScreenGui:GetAttribute("NotifyPadding"), 1, -(YSize + ScreenGui:GetAttribute("NotifyPadding")))
         NotifyOuter.AnchorPoint = Vector2.new(0, 1)
-        Library.NotificationArea.Position = UDim2.new(0, ScreenGui:GetAttribute("NotifyPadding"), 1, -ScreenGui:GetAttribute("NotifyPadding"))
+        NotifyOuter.Position = UDim2.new(0, (ScreenGui:GetAttribute("NotifyPaddingX") or 12), 1, -(ScreenGui:GetAttribute("NotifyPaddingY") or 12))
         Library.NotificationArea.AnchorPoint = Vector2.new(0, 1)
+        Library.NotificationArea.Position = UDim2.new(0, (ScreenGui:GetAttribute("NotifyPaddingX") or 12), 1, -(ScreenGui:GetAttribute("NotifyPaddingY") or 12))
         Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
         Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-        Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
     else
-        NotifyOuter.Position = UDim2.new(0, ScreenGui:GetAttribute("NotifyPadding"), 0, ScreenGui:GetAttribute("NotifyPadding"))
         NotifyOuter.AnchorPoint = Vector2.new(0, 0)
-        Library.NotificationArea.Position = UDim2.new(0, ScreenGui:GetAttribute("NotifyPadding"), 0, ScreenGui:GetAttribute("NotifyPadding"))
+        NotifyOuter.Position = UDim2.new(0, (ScreenGui:GetAttribute("NotifyPaddingX") or 12), 0, (ScreenGui:GetAttribute("NotifyPaddingY") or 12))
         Library.NotificationArea.AnchorPoint = Vector2.new(0, 0)
+        Library.NotificationArea.Position = UDim2.new(0, (ScreenGui:GetAttribute("NotifyPaddingX") or 12), 0, (ScreenGui:GetAttribute("NotifyPaddingY") or 12))
         Library.NotificationArea.UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
         Library.NotificationArea.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-        Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4)
     end
+
+    Library.NotificationArea.UIListLayout.Padding = UDim.new(0, 4 * ScreenGui:GetAttribute("NotifyScale"))
+    Library.NotificationArea.UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
     local NotifyInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -3312,21 +3305,17 @@ function Library:Notify(Text, Time, CustomPosition)
         Size = UDim2.new(1, 0, 1, 0);
         ZIndex = 101;
         Parent = NotifyOuter;
-    });
-
-    Library:AddToRegistry(NotifyInner, {
-        BackgroundColor3 = 'MainColor';
-        BorderColor3 = 'OutlineColor';
-    }, true);
+    })
+    Library:AddToRegistry(NotifyInner, { BackgroundColor3 = 'MainColor'; BorderColor3 = 'OutlineColor' }, true)
 
     local InnerFrame = Library:Create('Frame', {
-        BackgroundColor3 = Color3.new(1, 1, 1);
+        BackgroundColor3 = Color3.new(1,1,1);
         BorderSizePixel = 0;
         Position = UDim2.new(0, 1, 0, 1);
         Size = UDim2.new(1, -2, 1, -2);
         ZIndex = 102;
         Parent = NotifyInner;
-    });
+    })
 
     local Gradient = Library:Create('UIGradient', {
         Color = ColorSequence.new({
@@ -3335,50 +3324,44 @@ function Library:Notify(Text, Time, CustomPosition)
         });
         Rotation = -90;
         Parent = InnerFrame;
-    });
-
-    Library:AddToRegistry(Gradient, {
-        Color = function()
-            return ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
-                ColorSequenceKeypoint.new(1, Library.MainColor),
-            });
-        end
-    });
+    })
+    Library:AddToRegistry(Gradient, { Color = function()
+        return ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Library:GetDarkerColor(Library.MainColor)),
+            ColorSequenceKeypoint.new(1, Library.MainColor),
+        })
+    end })
 
     local NotifyLabel = Library:CreateLabel({
-        Position = UDim2.new(0, 4, 0, 0);
-        Size = UDim2.new(1, -4, 1, 0);
+        Position = UDim2.new(0, (16 * ScreenGui:GetAttribute("NotifyScale")) / 2, 0, 0);
+        Size = UDim2.new(1, -(16 * ScreenGui:GetAttribute("NotifyScale")), 1, 0);
         Text = Text;
-        Font = ScreenGui:GetAttribute("Font");
+        Font = ScreenGui:GetAttribute("Font") or Enum.Font.Code;
+        TextSize = (14 * ScreenGui:GetAttribute("NotifyScale"));
         TextXAlignment = Enum.TextXAlignment.Left;
-        TextSize = 14;
+        TextYAlignment = Enum.TextYAlignment.Center;
         ZIndex = 103;
         Parent = InnerFrame;
-    });
+    })
 
     local LeftColor = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor;
         BorderSizePixel = 0;
         Position = UDim2.new(0, -1, 0, -1);
-        Size = UDim2.new(0, 3, 1, 2);
+        Size = UDim2.new(0, 3 * ScreenGui:GetAttribute("NotifyScale"), 1, 2 * ScreenGui:GetAttribute("NotifyScale"));
         ZIndex = 104;
         Parent = NotifyOuter;
-    });
+    })
+    Library:AddToRegistry(LeftColor, { BackgroundColor3 = 'AccentColor' }, true)
 
-    Library:AddToRegistry(LeftColor, {
-        BackgroundColor3 = 'AccentColor';
-    }, true);
-
-    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, XSize + 8 + 4, 0, YSize), 'Out', 'Quad', 0.4, true);
+    pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, Width, 0, (28 * ScreenGui:GetAttribute("NotifyScale"))), 'Out', 'Quad', 0.4, true)
 
     task.spawn(function()
-        task.wait(Time or 5);
-
-        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
-        task.wait(0.4);
-        NotifyOuter:Destroy();
-    end);
+        task.wait(Time or 5)
+        pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, (28 * ScreenGui:GetAttribute("NotifyScale"))), 'Out', 'Quad', 0.4, true)
+        task.wait(0.4)
+        NotifyOuter:Destroy()
+    end)
 end
 
 function Library:CreateWindow(...)
