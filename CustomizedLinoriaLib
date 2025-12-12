@@ -1,4 +1,4 @@
-print("Version 0.51991.xyz2 | Hey, 1991, ussr bye XD")
+print("Version 0.6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3439,7 +3439,10 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
     });
 
-    Library:MakeDraggable(Outer, 25);
+    Outer.Draggable = true
+    Outer.Selectable = true
+    Outer.Active = true
+    -- Library:MakeDraggable(Outer, 25);
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
