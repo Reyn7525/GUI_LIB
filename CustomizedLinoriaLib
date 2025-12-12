@@ -1,4 +1,4 @@
-print("Library version 0.595 | TEST №2")
+print("Library version 0.595 | TEST №3")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3530,7 +3530,7 @@ function Library:CreateWindow(...)
         end
     end)
 
-    UserInputService.InputChanged:Connect(function(input)
+    InputService.InputChanged:Connect(function(input)
         if Resizing and input.UserInputType == Enum.UserInputType.MouseMovement then
             local mousePos = Vector2.new(input.Position.X, input.Position.Y)
             local framePos = Outer.AbsolutePosition
@@ -3545,7 +3545,7 @@ function Library:CreateWindow(...)
         end
     end)
 
-    UserInputService.InputEnded:Connect(function(input)
+    InputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if Resizing then
                 Resizing = false
