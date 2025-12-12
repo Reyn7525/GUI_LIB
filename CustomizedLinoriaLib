@@ -1,4 +1,4 @@
-print("Library version 0.5931")
+print("Library version 0.594")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -448,31 +448,81 @@ function Library:CreateLabel(Properties, IsHud)
 end;
 
 function Library:MakeDraggable(Instance, Cutoff)
-    Instance.Active = true;
+    if not Instance or not Instance.Parent then
+        return;
+    end;
 
+    Instance.Active = true;
+    
+    local RunService = game:GetService("RunService");
+    local Mouse = game.Players.LocalPlayer:GetMouse();
+    local InputService = game:GetService("UserInputService");
+    
+    local connection;
+    local isDragging = false;
+    
     Instance.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
             local ObjPos = Vector2.new(
                 Mouse.X - Instance.AbsolutePosition.X,
                 Mouse.Y - Instance.AbsolutePosition.Y
             );
-
+            
             if ObjPos.Y > (Cutoff or 40) then
                 return;
             end;
-
-            while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+            
+            if isDragging then
+                return;
+            end;
+            
+            isDragging = true;
+            
+            -- Кэшируем значения, которые не меняются
+            local offsetX = Instance.Size.X.Offset * Instance.AnchorPoint.X;
+            local offsetY = Instance.Size.Y.Offset * Instance.AnchorPoint.Y;
+            local startX = Mouse.X - ObjPos.X;
+            local startY = Mouse.Y - ObjPos.Y;
+            
+            connection = RunService.Heartbeat:Connect(function()
+                if not InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+                    if connection then
+                        connection:Disconnect();
+                        connection = nil;
+                    end;
+                    isDragging = false;
+                    return;
+                end;
+                
+                if not Instance or not Instance.Parent then
+                    if connection then
+                        connection:Disconnect();
+                        connection = nil;
+                    end;
+                    isDragging = false;
+                    return;
+                end;
+                
                 Instance.Position = UDim2.new(
                     0,
-                    Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+                    Mouse.X - ObjPos.X + offsetX,
                     0,
-                    Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+                    Mouse.Y - ObjPos.Y + offsetY
                 );
-
-                wait(1/240);
-            end;
+            end);
         end;
-    end)
+    end);
+    
+    -- Очистка при уничтожении
+    Instance.AncestryChanged:Connect(function()
+        if not Instance.Parent then
+            if connection then
+                connection:Disconnect();
+                connection = nil;
+            end;
+            isDragging = false;
+        end;
+    end);
 end;
 
 function Library:AddToolTip(InfoStr, HoverInstance)
