@@ -1,4 +1,4 @@
-print("Library version 0.595 | TEST")
+print("Library version 0.595 | TEST №2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3495,7 +3495,7 @@ function Library:CreateWindow(...)
         BackgroundColor3 = Library.AccentColor;
         BorderSizePixel = 0;
         Position = UDim2.new(1, -12, 1, -12);
-        Size = UDim2.new(0, 10, 0,  , 10);
+        Size = UDim2.new(0, 10, 0, 10);
         ZIndex = 11;
         Parent = ResizeHandle;
     })
