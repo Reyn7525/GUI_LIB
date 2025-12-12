@@ -1,4 +1,4 @@
-print("Library version 0.595")
+print("Library version 0.595 | TEST")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3477,6 +3477,89 @@ function Library:CreateWindow(...)
         ZIndex = 1;
         Parent = ScreenGui;
     });
+
+    local ResizeHandle = Library:Create('Frame', {
+        Name = 'ResizeHandle';
+        AnchorPoint = Vector2.new(1, 1);
+        BackgroundColor3 = Library.AccentColor;
+        BorderColor3 = Library.OutlineColor;
+        BorderMode = Enum.BorderMode.Outline;
+        Position = UDim2.new(1, 0, 1, 0);
+        Size = UDim2.new(0, 16, 0, 16);
+        ZIndex = 10;
+        Parent = Outer;
+    })
+
+    -- Треугольник внутри (как у Windows)
+    local Triangle = Library:Create('Frame', {
+        BackgroundColor3 = Library.AccentColor;
+        BorderSizePixel = 0;
+        Position = UDim2.new(1, -12, 1, -12);
+        Size = UDim2.new(0, 10, 0,  , 10);
+        ZIndex = 11;
+        Parent = ResizeHandle;
+    })
+
+    local Corner = Library:Create('Frame', {
+        BackgroundColor3 = Library.MainColor;
+        BorderSizePixel = 0;
+        Size = UDim2.new(1, 0, 1, 0);
+        ZIndex = 10;
+        Parent = Triangle;
+    })
+
+    local UIGradient = Instance.new("UIGradient", Triangle)
+    UIGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.new(1,1,1)),
+        ColorSequenceKeypoint.new(1, Color3.new(0.7,0.7,0.7))
+    }
+    UIGradient.Rotation = 45
+
+    -- Логика ресайза
+    local Resizing = false
+    local MinSize = Config.MinSize or Vector2.new(300, 300) -- можно указать в конфиге
+
+    ResizeHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Resizing = true
+            -- Отключаем драг, чтобы не конфликтовало
+            if Outer:FindFirstChild("DraggableConnection") then
+                Outer.DraggableConnection:Disconnect()
+                Outer.DraggableConnection = nil
+            end
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if Resizing and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local mousePos = Vector2.new(input.Position.X, input.Position.Y)
+            local framePos = Outer.AbsolutePosition
+            local newSize = mousePos - framePos
+
+            newSize = Vector2.new(
+                math.max(newSize.X, MinSize.X),
+                math.max(newSize.Y, MinSize.Y)
+            )
+
+            Outer.Size = UDim2.new(0, newSize.X, 0, newSize.Y)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if Resizing then
+                Resizing = false
+                -- Восстанавливаем драг
+                Library:MakeDraggable(Outer, 25)
+            end
+        end
+    end)
+
+    -- Делаем ручку красивой при наведении
+    Library:OnHighlight(ResizeHandle, ResizeHandle,
+        { BackgroundColor3 = 'AccentColorDark' },
+        { BackgroundColor3 = 'AccentColor' }
+    )
 
     Library:MakeDraggable(Outer, 25);
 
