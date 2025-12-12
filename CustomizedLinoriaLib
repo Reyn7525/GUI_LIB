@@ -1,4 +1,4 @@
-print("Version 0.6")
+print("Library version 0.51991.xyz2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3439,10 +3439,7 @@ function Library:CreateWindow(...)
         Parent = ScreenGui;
     });
 
-    Outer.Draggable = true
-    Outer.Selectable = true
-    Outer.Active = true
-    -- Library:MakeDraggable(Outer, 25);
+    Library:MakeDraggable(Outer, 25);
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
