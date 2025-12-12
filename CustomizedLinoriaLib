@@ -1,4 +1,4 @@
-print("Library version 0.592")
+print("Library version 0.593")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -469,8 +469,7 @@ function Library:MakeDraggable(Instance, Cutoff)
                     Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
                 );
 
-                RenderStepped:Wait();
-                task.wait();
+                wait(1/60);
             end;
         end;
     end)
