@@ -1,4 +1,4 @@
-print("Library version 0.6")
+print("Library version 0.51991.xyz2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -448,45 +448,32 @@ function Library:CreateLabel(Properties, IsHud)
 end;
 
 function Library:MakeDraggable(Instance, Cutoff)
-    if not Instance or not Instance:IsA("GuiObject") then return end
+    Instance.Active = true;
 
-    Instance.Active = true
-    local dragging = false
-    local dragStart, startPos
+    Instance.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local ObjPos = Vector2.new(
+                Mouse.X - Instance.AbsolutePosition.X,
+                Mouse.Y - Instance.AbsolutePosition.Y
+            );
 
-    local function updateInput(input)
-        if not dragging then return end
+            if ObjPos.Y > (Cutoff or 40) then
+                return;
+            end;
 
-        local delta = Vector2.new(input.Position.X, input.Position.Y) - dragStart
-        Instance.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
+            while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                Instance.Position = UDim2.new(
+                    0,
+                    Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+                    0,
+                    Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+                );
 
-    Instance.InputBegan:Connect(function(input)
-        if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
-        if InputService:IsKeyDown(Enum.KeyCode.LeftAlt) then return end -- опционально: отключить при Alt
-
-        local yPos = input.Position.Y - Instance.AbsolutePosition.Y
-        if yPos > (Cutoff or 40) then return end -- захват только сверху
-
-        dragging = true
-        dragStart = input.Position
-        startPos = Instance.Position
-
-        input.Changed:Wait()
-        dragging = false
+                RenderStepped:Wait();
+            end;
+        end;
     end)
-
-    Instance.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            updateInput(input)
-        end
-    end)
-end
+end;
 
 function Library:AddToolTip(InfoStr, HoverInstance)
     local X, Y = Library:GetTextBounds(InfoStr, Library.Font, 14);
