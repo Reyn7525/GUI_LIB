@@ -3241,37 +3241,38 @@ do
 
     local CrossLines = Instance.new("Frame")
     CrossLines.Parent = CrossLinesGui
+    CrossLines.BackgroundColor3 = Color3.new(0, 0, 0)  -- тёмный фон
     CrossLines.BackgroundTransparency = 1
     CrossLines.Position = UDim2.new(0, 0, -0.1, 0)
     CrossLines.Size = UDim2.new(1, 0, 1.1, 0)
 
     local XLine = Instance.new("Frame")
     XLine.Parent = CrossLines
-    XLine.BackgroundColor3 = Library.AccentColor
+    XLine.BackgroundColor3 = Color3.new(1, 1, 1)  -- белая горизонтальная линия
     XLine.BackgroundTransparency = 1
     XLine.Position = UDim2.new(0, 0, 0.5, 0)
     XLine.Size = UDim2.new(1, 0, 0, 2)
 
     local YLine = Instance.new("Frame")
     YLine.Parent = CrossLines
-    YLine.BackgroundColor3 = Library.AccentColor
+    YLine.BackgroundColor3 = Color3.new(1, 1, 1)  -- белая вертикальная линия
     YLine.BackgroundTransparency = 1
     YLine.Position = UDim2.new(0.5, 0, -0.1, 0)
     YLine.Size = UDim2.new(0, 2, 1.1, 0)
 
     local isDraggingWatermark = false
 
-    -- Начало перетаскивания — только если кликнули именно по ватермарке
+    -- Начало перетаскивания
     Library.Watermark.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             isDraggingWatermark = true
-            TweenService:Create(CrossLines, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.9}):Play()
+            TweenService:Create(CrossLines, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.95}):Play()  -- тёмный фон
             TweenService:Create(XLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0}):Play()
             TweenService:Create(YLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0}):Play()
         end
     end)
 
-    -- Отслеживаем ОТПУСКАНИЕ кнопки мыши глобально
+    -- Отпускание кнопки мыши (глобально)
     InputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
             isDraggingWatermark = false
@@ -3281,7 +3282,7 @@ do
         end
     end)
 
-    -- Дополнительная защита: если по какой-то причине кнопка осталась "зажатой" (редко, но бывает в Roblox)
+    -- Дополнительная защита на случай багов Roblox
     Library.Watermark.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
             isDraggingWatermark = false
@@ -3291,19 +3292,31 @@ do
         end
     end)
 
-    -- Убрали MouseLeave — он был причиной бага
-
-    -- Обновление цвета линий (включая rainbow)
-    table.insert(Library.Signals, RenderStepped:Connect(function()
-        local accent = Library.CurrentRainbowColor or Library.AccentColor
-        XLine.BackgroundColor3 = accent
-        YLine.BackgroundColor3 = accent
-    end))
-
-    -- Синхронизация видимости
+    -- Синхронизация видимости ватермарки
     Library.Watermark:GetPropertyChangedSignal("Visible"):Connect(function()
         CrossLinesGui.Enabled = Library.Watermark.Visible
     end)
+
+    -- === ЦЕНТРИРОВАНИЕ ВАТЕРМАРКИ ПО ГОРИЗОНТАЛИ (как во втором файле) ===
+    local lastWidth = Library.Watermark.AbsoluteSize.X
+
+    table.insert(Library.Signals, RunService.Heartbeat:Connect(function()
+        if not Library.Watermark or not Library.Watermark.Parent then return end
+
+        local currentWidth = Library.Watermark.AbsoluteSize.X
+
+        if math.abs(currentWidth - lastWidth) > 1 then  -- изменился размер
+            local windowCenterX = Library.Watermark.AbsolutePosition.X + currentWidth / 2
+            local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
+
+            -- Если ватермарка близко к центру (±10 пикселей) — центрируем её
+            if math.abs(windowCenterX - screenCenterX) <= 10 then
+                Library.Watermark.Position = UDim2.new(0.5, -currentWidth / 2, Library.Watermark.Position.Y.Scale, Library.Watermark.Position.Y.Offset)
+            end
+
+            lastWidth = currentWidth
+        end
+    end))
 
     local KeybindOuter = Library:Create('Frame', {
         AnchorPoint = Vector2.new(0, 0.5);
