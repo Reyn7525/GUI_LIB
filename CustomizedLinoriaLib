@@ -1,4 +1,4 @@
-print("Library version 0.595с")
+print("Library version 0.595dd")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -480,6 +480,20 @@ function Library:MakeDraggable(Instance, Cutoff)
                         connection:Disconnect();
                         connection = nil;
                     end;
+                    
+                    -- === ЛОГИКА SNAP-TO-CENTER ПРИ ОТПУСКАНИИ ===
+                    if Instance.Name == "Watermark" and game.CoreGui:FindFirstChild("RenHub") then
+                        local SNAP_THRESHOLD = 10; -- Порог в пикселях для привязки к центру
+                        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
+                        local watermarkCenterX = Instance.AbsolutePosition.X + Instance.AbsoluteSize.X / 2
+                        
+                        if math.abs(watermarkCenterX - screenCenterX) <= SNAP_THRESHOLD then
+                            -- Центрируем по горизонтали
+                            Instance.Position = UDim2.new(0.5, -Instance.AbsoluteSize.X / 2, Instance.Position.Y.Scale, Instance.Position.Y.Offset)
+                        end
+                    end
+                    -- ==========================================
+                    
                     isDragging = false;
                     return;
                 end;
@@ -489,6 +503,20 @@ function Library:MakeDraggable(Instance, Cutoff)
                         connection:Disconnect();
                         connection = nil;
                     end;
+                    
+                    -- === ЛОГИКА SNAP-TO-CENTER ПРИ ОТПУСКАНИИ ===
+                    if Instance.Name == "Watermark" and game.CoreGui:FindFirstChild("RenHub") then
+                        local SNAP_THRESHOLD = 10; -- Порог в пикселях для привязки к центру
+                        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
+                        local watermarkCenterX = Instance.AbsolutePosition.X + Instance.AbsoluteSize.X / 2
+                        
+                        if math.abs(watermarkCenterX - screenCenterX) <= SNAP_THRESHOLD then
+                            -- Центрируем по горизонтали
+                            Instance.Position = UDim2.new(0.5, -Instance.AbsoluteSize.X / 2, Instance.Position.Y.Scale, Instance.Position.Y.Offset)
+                        end
+                    end
+                    -- ==========================================
+                    
                     isDragging = false;
                     return;
                 end;
@@ -3312,20 +3340,7 @@ do
         CrossLinesGui.Enabled = Library.Watermark.Visible
     end)
 
-    -- === ЦЕНТРИРОВАНИЕ ВАТЕРМАРКИ ПО ГОРИЗОНТАЛИ ===
-    -- Добавляем центрирование при изменении размера экрана или Watermark
-    local function CenterWatermarkOnResize()
-        if Library.Watermark and Library.Watermark.Parent then
-            Library:CenterWatermark(Library.Watermark)
-        end
-    end
-
-    -- Центрируем при инициализации
-    CenterWatermarkOnResize()
-
-    -- Подписываемся на изменение размера Watermark и размера экрана
-    Library.Watermark:GetPropertyChangedSignal("AbsoluteSize"):Connect(CenterWatermarkOnResize)
-    game.Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(CenterWatermarkOnResize)
+    
 
     local KeybindOuter = Library:Create('Frame', {
         AnchorPoint = Vector2.new(0, 0.5);
