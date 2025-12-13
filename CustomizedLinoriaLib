@@ -1,4 +1,4 @@
-print("Library version 0.595dd")
+print("Library version 0.595vvv")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -447,6 +447,53 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
+function Library:SnapWatermarkToCenter(WatermarkInstance)
+    local SNAP_THRESHOLD = 30;  -- Увеличенный порог (в пикселях) — работает на разных DPI и разрешениях
+    
+    local viewportSize = workspace.CurrentCamera.ViewportSize;
+    local screenCenterX = viewportSize.X / 2;
+    
+    local watermarkCenterX = WatermarkInstance.AbsolutePosition.X + WatermarkInstance.AbsoluteSize.X / 2;
+    
+    if math.abs(watermarkCenterX - screenCenterX) <= SNAP_THRESHOLD then
+        -- Центрируем строго по горизонтали (по верхнему краю, как обычно для ватермарки)
+        WatermarkInstance.Position = UDim2.new(
+            0.5, 
+            -WatermarkInstance.AbsoluteSize.X / 2, 
+            WatermarkInstance.Position.Y.Scale, 
+            WatermarkInstance.Position.Y.Offset
+        );
+    end
+end
+
+-- Постоянное обновление размера и snap для динамического контента (как во втором файле)
+function Library:UpdateWatermarkDynamic()
+    local Watermark = CoreGui:FindFirstChild("RenHub") and CoreGui.RenHub:FindFirstChild("Watermark");  -- Замени на реальное имя твоей ватермарки
+    if not Watermark then return end;
+
+    -- Здесь рассчитай новую ширину на основе детей (аналогично второму файлу)
+    -- Пример для типичной структуры: ContentHolder с UIListLayout и TextLabel'ами
+    local ContentHolder = Watermark:FindFirstChild("ContentHolder");  -- Подставь правильный путь
+    if not ContentHolder then return end;
+
+    local totalWidth = 0;
+    local padding = ContentHolder.UIListLayout.Padding.Offset;
+
+    for _, child in ipairs(ContentHolder:GetChildren()) do
+        if child:IsA("GuiObject") and child.Visible and child ~= ContentHolder.UIListLayout then
+            totalWidth = totalWidth + child.AbsoluteSize.X + padding;
+        end
+    end
+
+    totalWidth = totalWidth + 20;  -- Отступы/паддинг по краям (подбери под свой дизайн)
+
+    local newSize = UDim2.new(0, totalWidth, Watermark.Size.Y.Scale, Watermark.Size.Y.Offset);
+    Watermark.Size = newSize;
+
+    -- После изменения размера — проверяем и применяем snap-to-center
+    Library:SnapWatermarkToCenter(Watermark);
+end
+
 function Library:MakeDraggable(Instance, Cutoff)
     if not Instance or not Instance.Parent then
         return;
@@ -460,8 +507,8 @@ function Library:MakeDraggable(Instance, Cutoff)
     Instance.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
             local ObjPos = Vector2.new(
-                game.Players.LocalPlayer:GetMouse().X - Instance.AbsolutePosition.X,
-                game.Players.LocalPlayer:GetMouse().Y - Instance.AbsolutePosition.Y
+                Mouse.X - Instance.AbsolutePosition.X,
+                Mouse.Y - Instance.AbsolutePosition.Y
             );
             
             if ObjPos.Y > (Cutoff or 40) then
@@ -474,27 +521,20 @@ function Library:MakeDraggable(Instance, Cutoff)
             
             isDragging = true;
 
-            connection = game:GetService("RunService").Heartbeat:Connect(function()
-                if not game:GetService("UserInputService"):IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+            connection = RunService.Heartbeat:Connect(function()
+                if not UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
                     if connection then
                         connection:Disconnect();
                         connection = nil;
                     end;
                     
-                    -- === ЛОГИКА SNAP-TO-CENTER ПРИ ОТПУСКАНИИ ===
-                    if Instance.Name == "Watermark" and game.CoreGui:FindFirstChild("RenHub") then
-                        local SNAP_THRESHOLD = 10; -- Порог в пикселях для привязки к центру
-                        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
-                        local watermarkCenterX = Instance.AbsolutePosition.X + Instance.AbsoluteSize.X / 2
-                        
-                        if math.abs(watermarkCenterX - screenCenterX) <= SNAP_THRESHOLD then
-                            -- Центрируем по горизонтали
-                            Instance.Position = UDim2.new(0.5, -Instance.AbsoluteSize.X / 2, Instance.Position.Y.Scale, Instance.Position.Y.Offset)
-                        end
-                    end
-                    -- ==========================================
-                    
                     isDragging = false;
+                    
+                    -- SNAP-TO-CENTER ЛОГИКА ПРИ ОТПУСКАНИИ
+                    if Instance.Name == "Watermark" then
+                        Library:SnapWatermarkToCenter(Instance);
+                    end
+                    
                     return;
                 end;
                 
@@ -503,29 +543,15 @@ function Library:MakeDraggable(Instance, Cutoff)
                         connection:Disconnect();
                         connection = nil;
                     end;
-                    
-                    -- === ЛОГИКА SNAP-TO-CENTER ПРИ ОТПУСКАНИИ ===
-                    if Instance.Name == "Watermark" and game.CoreGui:FindFirstChild("RenHub") then
-                        local SNAP_THRESHOLD = 10; -- Порог в пикселях для привязки к центру
-                        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
-                        local watermarkCenterX = Instance.AbsolutePosition.X + Instance.AbsoluteSize.X / 2
-                        
-                        if math.abs(watermarkCenterX - screenCenterX) <= SNAP_THRESHOLD then
-                            -- Центрируем по горизонтали
-                            Instance.Position = UDim2.new(0.5, -Instance.AbsoluteSize.X / 2, Instance.Position.Y.Scale, Instance.Position.Y.Offset)
-                        end
-                    end
-                    -- ==========================================
-                    
                     isDragging = false;
                     return;
                 end;
                 
                 Instance.Position = UDim2.new(
                     0,
-                    game.Players.LocalPlayer:GetMouse().X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+                    Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
                     0,
-                    game.Players.LocalPlayer:GetMouse().Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+                    Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
                 );
             end);
         end;
@@ -536,9 +562,9 @@ function Library:MakeDraggable(Instance, Cutoff)
             if connection then
                 connection:Disconnect();
                 connection = nil;
-            end;
+            end
             isDragging = false;
-        end;
+        end
     end);
 end;
 
