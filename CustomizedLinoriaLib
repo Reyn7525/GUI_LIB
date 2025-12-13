@@ -1,4 +1,4 @@
-print("Library version 0.595vvv")
+print("Library version 0.595vvv2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -522,7 +522,7 @@ function Library:MakeDraggable(Instance, Cutoff)
             isDragging = true;
 
             connection = RunService.Heartbeat:Connect(function()
-                if not UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+                if not InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
                     if connection then
                         connection:Disconnect();
                         connection = nil;
