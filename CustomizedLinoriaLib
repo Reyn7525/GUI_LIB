@@ -1,4 +1,4 @@
-print("Library version 0.595vvv2")
+print("Library version 0.595")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -447,53 +447,6 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
-function Library:SnapWatermarkToCenter(WatermarkInstance)
-    local SNAP_THRESHOLD = 30;  -- Увеличенный порог (в пикселях) — работает на разных DPI и разрешениях
-    
-    local viewportSize = workspace.CurrentCamera.ViewportSize;
-    local screenCenterX = viewportSize.X / 2;
-    
-    local watermarkCenterX = WatermarkInstance.AbsolutePosition.X + WatermarkInstance.AbsoluteSize.X / 2;
-    
-    if math.abs(watermarkCenterX - screenCenterX) <= SNAP_THRESHOLD then
-        -- Центрируем строго по горизонтали (по верхнему краю, как обычно для ватермарки)
-        WatermarkInstance.Position = UDim2.new(
-            0.5, 
-            -WatermarkInstance.AbsoluteSize.X / 2, 
-            WatermarkInstance.Position.Y.Scale, 
-            WatermarkInstance.Position.Y.Offset
-        );
-    end
-end
-
--- Постоянное обновление размера и snap для динамического контента (как во втором файле)
-function Library:UpdateWatermarkDynamic()
-    local Watermark = CoreGui:FindFirstChild("RenHub") and CoreGui.RenHub:FindFirstChild("Watermark");  -- Замени на реальное имя твоей ватермарки
-    if not Watermark then return end;
-
-    -- Здесь рассчитай новую ширину на основе детей (аналогично второму файлу)
-    -- Пример для типичной структуры: ContentHolder с UIListLayout и TextLabel'ами
-    local ContentHolder = Watermark:FindFirstChild("ContentHolder");  -- Подставь правильный путь
-    if not ContentHolder then return end;
-
-    local totalWidth = 0;
-    local padding = ContentHolder.UIListLayout.Padding.Offset;
-
-    for _, child in ipairs(ContentHolder:GetChildren()) do
-        if child:IsA("GuiObject") and child.Visible and child ~= ContentHolder.UIListLayout then
-            totalWidth = totalWidth + child.AbsoluteSize.X + padding;
-        end
-    end
-
-    totalWidth = totalWidth + 20;  -- Отступы/паддинг по краям (подбери под свой дизайн)
-
-    local newSize = UDim2.new(0, totalWidth, Watermark.Size.Y.Scale, Watermark.Size.Y.Offset);
-    Watermark.Size = newSize;
-
-    -- После изменения размера — проверяем и применяем snap-to-center
-    Library:SnapWatermarkToCenter(Watermark);
-end
-
 function Library:MakeDraggable(Instance, Cutoff)
     if not Instance or not Instance.Parent then
         return;
@@ -507,8 +460,8 @@ function Library:MakeDraggable(Instance, Cutoff)
     Instance.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
             local ObjPos = Vector2.new(
-                Mouse.X - Instance.AbsolutePosition.X,
-                Mouse.Y - Instance.AbsolutePosition.Y
+                game.Players.LocalPlayer:GetMouse().X - Instance.AbsolutePosition.X,
+                game.Players.LocalPlayer:GetMouse().Y - Instance.AbsolutePosition.Y
             );
             
             if ObjPos.Y > (Cutoff or 40) then
@@ -521,20 +474,13 @@ function Library:MakeDraggable(Instance, Cutoff)
             
             isDragging = true;
 
-            connection = RunService.Heartbeat:Connect(function()
-                if not InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+            connection = game:GetService("RunService").Heartbeat:Connect(function()
+                if not game:GetService("UserInputService"):IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
                     if connection then
                         connection:Disconnect();
                         connection = nil;
                     end;
-                    
                     isDragging = false;
-                    
-                    -- SNAP-TO-CENTER ЛОГИКА ПРИ ОТПУСКАНИИ
-                    if Instance.Name == "Watermark" then
-                        Library:SnapWatermarkToCenter(Instance);
-                    end
-                    
                     return;
                 end;
                 
@@ -549,9 +495,9 @@ function Library:MakeDraggable(Instance, Cutoff)
                 
                 Instance.Position = UDim2.new(
                     0,
-                    Mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+                    game.Players.LocalPlayer:GetMouse().X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
                     0,
-                    Mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+                    game.Players.LocalPlayer:GetMouse().Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
                 );
             end);
         end;
@@ -562,9 +508,9 @@ function Library:MakeDraggable(Instance, Cutoff)
             if connection then
                 connection:Disconnect();
                 connection = nil;
-            end
+            end;
             isDragging = false;
-        end
+        end;
     end);
 end;
 
@@ -693,21 +639,6 @@ function Library:GetDarkerColor(Color)
     local H, S, V = Color3.toHSV(Color);
     return Color3.fromHSV(H, S, V / 1.5);
 end;
-
-function Library:Center(object)
-    object.Position = UDim2.new(0.5, -object.Size.X.Offset/2, 0.5, -object.Size.Y.Offset/2)
-end
-
-function Library:CenterWatermark(object)
-    -- Проверка наличия RenHub в CoreGui
-    if not game.CoreGui:FindFirstChild("RenHub") then
-        return
-    end
-    
-    -- Центрирование ватермарки по горизонтали и вертикали
-    -- Используем AbsoluteSize для точного центрирования, так как Size.Offset может быть неточным
-    object.Position = UDim2.new(0.5, -object.AbsoluteSize.X / 2, 0.5, -object.AbsoluteSize.Y / 2)
-end
 Library.AccentColorDark = Library:GetDarkerColor(Library.AccentColor);
 
 function Library:AddToRegistry(Instance, Properties, IsHud)
@@ -3301,72 +3232,7 @@ do
     Library.WatermarkText = WatermarkLabel;
     Library:MakeDraggable(Library.Watermark);
 
-    local CrossLinesGui = Instance.new("ScreenGui")
-    CrossLinesGui.Name = "RenHubWatermarkCrossLines"
-    CrossLinesGui.Parent = CoreGui
-    CrossLinesGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    CrossLinesGui.DisplayOrder = 0
-    CrossLinesGui.Enabled = Library.Watermark.Visible
 
-    local CrossLines = Instance.new("Frame")
-    CrossLines.Parent = CrossLinesGui
-    CrossLines.BackgroundColor3 = Color3.new(0, 0, 0)  -- тёмный фон
-    CrossLines.BackgroundTransparency = 1
-    CrossLines.Position = UDim2.new(0, 0, -0.1, 0)
-    CrossLines.Size = UDim2.new(1, 0, 1.1, 0)
-
-    local XLine = Instance.new("Frame")
-    XLine.Parent = CrossLines
-    XLine.BackgroundColor3 = Color3.new(1, 1, 1)  -- белая горизонтальная линия
-    XLine.BackgroundTransparency = 1
-    XLine.Position = UDim2.new(0, 0, 0.5, 0)
-    XLine.Size = UDim2.new(1, 0, 0, 2)
-
-    local YLine = Instance.new("Frame")
-    YLine.Parent = CrossLines
-    YLine.BackgroundColor3 = Color3.new(1, 1, 1)  -- белая вертикальная линия
-    YLine.BackgroundTransparency = 1
-    YLine.Position = UDim2.new(0.5, 0, -0.1, 0)
-    YLine.Size = UDim2.new(0, 2, 1.1, 0)
-
-    local isDraggingWatermark = false
-
-    -- Начало перетаскивания
-    Library.Watermark.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            isDraggingWatermark = true
-            TweenService:Create(CrossLines, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.95}):Play()  -- тёмный фон
-            TweenService:Create(XLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0}):Play()
-            TweenService:Create(YLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0}):Play()
-        end
-    end)
-
-    -- Отпускание кнопки мыши (глобально)
-    InputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
-            isDraggingWatermark = false
-            TweenService:Create(CrossLines, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 1}):Play()
-            TweenService:Create(XLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 1}):Play()
-            TweenService:Create(YLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 1}):Play()
-        end
-    end)
-
-    -- Дополнительная защита на случай багов Roblox
-    Library.Watermark.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
-            isDraggingWatermark = false
-            TweenService:Create(CrossLines, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-            TweenService:Create(XLine, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-            TweenService:Create(YLine, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-        end
-    end)
-
-    -- Синхронизация видимости ватермарки
-    Library.Watermark:GetPropertyChangedSignal("Visible"):Connect(function()
-        CrossLinesGui.Enabled = Library.Watermark.Visible
-    end)
-
-    
 
     local KeybindOuter = Library:Create('Frame', {
         AnchorPoint = Vector2.new(0, 0.5);
