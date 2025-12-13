@@ -1,4 +1,4 @@
-print("Library version 0.595666")
+print("Library version 0.595777")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3241,7 +3241,7 @@ do
 
     local CrossLines = Instance.new("Frame")
     CrossLines.Parent = CrossLinesGui
-    CrossLines.BackgroundColor3 = Color3.new(0, 0, 0)  -- тёмный полупрозрачный фон
+    CrossLines.BackgroundColor3 = Color3.new(0, 0, 0)
     CrossLines.BackgroundTransparency = 1
     CrossLines.Size = UDim2.new(1, 0, 1, 0)
     CrossLines.Position = UDim2.new(0, 0, 0, 0)
@@ -3249,8 +3249,7 @@ do
 
     local XLine = Instance.new("Frame")
     XLine.Parent = CrossLines
-    XLine.Name = "XLine"
-    XLine.BackgroundColor3 = Color3.new(1, 1, 1)  -- белая линия
+    XLine.BackgroundColor3 = Color3.new(1, 1, 1)
     XLine.BackgroundTransparency = 1
     XLine.AnchorPoint = Vector2.new(0.5, 0.5)
     XLine.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -3259,8 +3258,7 @@ do
 
     local YLine = Instance.new("Frame")
     YLine.Parent = CrossLines
-    YLine.Name = "YLine"
-    YLine.BackgroundColor3 = Color3.new(1, 1, 1)  -- белая линия
+    YLine.BackgroundColor3 = Color3.new(1, 1, 1)
     YLine.BackgroundTransparency = 1
     YLine.AnchorPoint = Vector2.new(0.5, 0.5)
     YLine.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -3279,7 +3277,7 @@ do
         end
     end)
 
-    -- Отпускание кнопки мыши глобально
+    -- Отпускание кнопки мыши (глобально)
     InputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
             isDraggingWatermark = false
@@ -3289,7 +3287,7 @@ do
         end
     end)
 
-    -- Защита от багов Roblox
+    -- Защита от багов
     Library.Watermark.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
             isDraggingWatermark = false
@@ -3299,24 +3297,44 @@ do
         end
     end)
 
-    -- Синхронизация видимости с ватермаркой
+    -- Синхронизация видимости
     Library.Watermark:GetPropertyChangedSignal("Visible"):Connect(function()
         CrossLinesGui.Enabled = Library.Watermark.Visible
     end)
 
-    -- === ЦЕНТРИРОВАНИЕ ВАТЕРМАРКИ ПО ГОРИЗОНТАЛИ ===
-    local lastWidth = Library.Watermark.AbsoluteSize.X
+    -- === ЦЕНТРИРОВАНИЕ ВАТЕРМАРКИ + БЕЗОПАСНАЯ ПРОВЕРКА НА СУЩЕСТВОВАНИЕ GUI ===
+    local lastWidth = (Library.Watermark and Library.Watermark.AbsoluteSize.X) or 0
+    local heartbeatConnection
 
-    table.insert(Library.Signals, RunService.Heartbeat:Connect(function()
-        if not Library.Watermark or not Library.Watermark.Parent then return end
+    heartbeatConnection = table.insert(Library.Signals, RunService.Heartbeat:Connect(function()
+        -- Проверка: если RenHub GUI удалён из CoreGui — выходим из цикла
+        if not game.CoreGui:FindFirstChild("RenHub") or not Library.Watermark or not Library.Watermark.Parent then
+            if heartbeatConnection then
+                heartbeatConnection:Disconnect()
+            end
+            return
+        end
 
         local currentWidth = Library.Watermark.AbsoluteSize.X
-        if math.abs(currentWidth - lastWidth) > 1 then
+
+        if math.abs(currentWidth - lastWidth) > 2 then
             local windowCenterX = Library.Watermark.AbsolutePosition.X + currentWidth / 2
             local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
 
             if math.abs(windowCenterX - screenCenterX) <= 10 then
+                -- Центрируем
                 Library.Watermark.Position = UDim2.new(0.5, -currentWidth / 2, Library.Watermark.Position.Y.Scale, Library.Watermark.Position.Y.Offset)
+            else
+                -- Если справа от центра — сдвигаем влево при увеличении ширины
+                local widthDiff = currentWidth - lastWidth
+                if windowCenterX > screenCenterX then
+                    Library.Watermark.Position = UDim2.new(
+                        Library.Watermark.Position.X.Scale,
+                        Library.Watermark.Position.X.Offset - widthDiff,
+                        Library.Watermark.Position.Y.Scale,
+                        Library.Watermark.Position.Y.Offset
+                    )
+                end
             end
 
             lastWidth = currentWidth
