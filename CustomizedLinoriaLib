@@ -1,4 +1,4 @@
-print("Library version 0.595a")
+print("Library version 0.595b")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -13,13 +13,11 @@ local Mouse = LocalPlayer:GetMouse();
 
 local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end);
 
-local ScreenGui = Instance.new('ScreenGui');
-ScreenGui.DisplayOrder = 1
-ScreenGui.Name = "RenHub"
-ProtectGui(ScreenGui);
-
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
-ScreenGui.Parent = CoreGui;
+local ScreenGui = game.CoreGui:FindFirstChild("RenHub")
+if not ScreenGui then
+    -- Если RenHub не найден, скрипт должен завершиться
+    return
+end
 
 local Library = {
     Registry = {};
@@ -639,6 +637,16 @@ function Library:GetDarkerColor(Color)
     local H, S, V = Color3.toHSV(Color);
     return Color3.fromHSV(H, S, V / 1.5);
 end;
+
+function Library:Center(object)
+    object.Position = UDim2.new(0.5, -object.Size.X.Offset/2, 0.5, -object.Size.Y.Offset/2)
+end
+
+function Library:CenterWatermark(object)
+    -- Центрирование ватермарки по горизонтали и вертикали
+    -- Используем AbsoluteSize для точного центрирования, так как Size.Offset может быть неточным
+    object.Position = UDim2.new(0.5, -object.AbsoluteSize.X / 2, 0.5, -object.AbsoluteSize.Y / 2)
+end
 Library.AccentColorDark = Library:GetDarkerColor(Library.AccentColor);
 
 function Library:AddToRegistry(Instance, Properties, IsHud)
@@ -3297,26 +3305,20 @@ do
         CrossLinesGui.Enabled = Library.Watermark.Visible
     end)
 
-    -- === ЦЕНТРИРОВАНИЕ ВАТЕРМАРКИ ПО ГОРИЗОНТАЛИ (как во втором файле) ===
-    local lastWidth = Library.Watermark.AbsoluteSize.X
-
-    table.insert(Library.Signals, RunService.Heartbeat:Connect(function()
-        if not Library.Watermark or not Library.Watermark.Parent then return end
-
-        local currentWidth = Library.Watermark.AbsoluteSize.X
-
-        if math.abs(currentWidth - lastWidth) > 1 then  -- изменился размер
-            local windowCenterX = Library.Watermark.AbsolutePosition.X + currentWidth / 2
-            local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
-
-            -- Если ватермарка близко к центру (±10 пикселей) — центрируем её
-            if math.abs(windowCenterX - screenCenterX) <= 10 then
-                Library.Watermark.Position = UDim2.new(0.5, -currentWidth / 2, Library.Watermark.Position.Y.Scale, Library.Watermark.Position.Y.Offset)
-            end
-
-            lastWidth = currentWidth
+    -- === ЦЕНТРИРОВАНИЕ ВАТЕРМАРКИ ПО ГОРИЗОНТАЛИ ===
+    -- Добавляем центрирование при изменении размера экрана или Watermark
+    local function CenterWatermarkOnResize()
+        if Library.Watermark and Library.Watermark.Parent then
+            Library:CenterWatermark(Library.Watermark)
         end
-    end))
+    end
+
+    -- Центрируем при инициализации
+    CenterWatermarkOnResize()
+
+    -- Подписываемся на изменение размера Watermark и размера экрана
+    Library.Watermark:GetPropertyChangedSignal("AbsoluteSize"):Connect(CenterWatermarkOnResize)
+    game.Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(CenterWatermarkOnResize)
 
     local KeybindOuter = Library:Create('Frame', {
         AnchorPoint = Vector2.new(0, 0.5);
