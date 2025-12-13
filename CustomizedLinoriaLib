@@ -1,4 +1,4 @@
-print("Library version 0.5951234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+print("Library version 0.5952323232323232323232323232323232232323232")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3237,7 +3237,7 @@ do
     CrossLinesGui.Parent = CoreGui
     CrossLinesGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     CrossLinesGui.DisplayOrder = 0
-    CrossLinesGui.Enabled = Library.Watermark.Visible  -- синхронизировано с видимостью ватермарки
+    CrossLinesGui.Enabled = Library.Watermark.Visible
 
     local CrossLines = Instance.new("Frame")
     CrossLines.Parent = CrossLinesGui
@@ -3261,7 +3261,7 @@ do
 
     local isDraggingWatermark = false
 
-    -- Появление при клике (начало перетаскивания)
+    -- Начало перетаскивания — только если кликнули именно по ватермарке
     Library.Watermark.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             isDraggingWatermark = true
@@ -3271,7 +3271,7 @@ do
         end
     end)
 
-    -- Исчезновение при отпускании кнопки мыши
+    -- Отслеживаем ОТПУСКАНИЕ кнопки мыши глобально
     InputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
             isDraggingWatermark = false
@@ -3281,9 +3281,9 @@ do
         end
     end)
 
-    -- Дополнительно: если курсор уходит с ватермарки во время удержания
-    Library.Watermark.MouseLeave:Connect(function()
-        if isDraggingWatermark then
+    -- Дополнительная защита: если по какой-то причине кнопка осталась "зажатой" (редко, но бывает в Roblox)
+    Library.Watermark.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
             isDraggingWatermark = false
             TweenService:Create(CrossLines, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
             TweenService:Create(XLine, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
@@ -3291,13 +3291,16 @@ do
         end
     end)
 
-    -- Синхронизация цвета линий с акцентом GUI (включая rainbow mode)
+    -- Убрали MouseLeave — он был причиной бага
+
+    -- Обновление цвета линий (включая rainbow)
     table.insert(Library.Signals, RenderStepped:Connect(function()
-        XLine.BackgroundColor3 = Library.AccentColor or Library.CurrentRainbowColor or Library.AccentColor
-        YLine.BackgroundColor3 = Library.AccentColor or Library.CurrentRainbowColor or Library.AccentColor
+        local accent = Library.CurrentRainbowColor or Library.AccentColor
+        XLine.BackgroundColor3 = accent
+        YLine.BackgroundColor3 = accent
     end))
 
-    -- Синхронизация видимости с ватермаркой
+    -- Синхронизация видимости
     Library.Watermark:GetPropertyChangedSignal("Visible"):Connect(function()
         CrossLinesGui.Enabled = Library.Watermark.Visible
     end)
