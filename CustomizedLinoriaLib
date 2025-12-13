@@ -1,4 +1,4 @@
-print("Library version 0.595")
+print("Library version 0.5951234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3232,7 +3232,75 @@ do
     Library.WatermarkText = WatermarkLabel;
     Library:MakeDraggable(Library.Watermark);
 
+    local CrossLinesGui = Instance.new("ScreenGui")
+    CrossLinesGui.Name = "RenHubWatermarkCrossLines"
+    CrossLinesGui.Parent = CoreGui
+    CrossLinesGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    CrossLinesGui.DisplayOrder = 0
+    CrossLinesGui.Enabled = Library.Watermark.Visible  -- синхронизировано с видимостью ватермарки
 
+    local CrossLines = Instance.new("Frame")
+    CrossLines.Parent = CrossLinesGui
+    CrossLines.BackgroundTransparency = 1
+    CrossLines.Position = UDim2.new(0, 0, -0.1, 0)
+    CrossLines.Size = UDim2.new(1, 0, 1.1, 0)
+
+    local XLine = Instance.new("Frame")
+    XLine.Parent = CrossLines
+    XLine.BackgroundColor3 = Library.AccentColor
+    XLine.BackgroundTransparency = 1
+    XLine.Position = UDim2.new(0, 0, 0.5, 0)
+    XLine.Size = UDim2.new(1, 0, 0, 2)
+
+    local YLine = Instance.new("Frame")
+    YLine.Parent = CrossLines
+    YLine.BackgroundColor3 = Library.AccentColor
+    YLine.BackgroundTransparency = 1
+    YLine.Position = UDim2.new(0.5, 0, -0.1, 0)
+    YLine.Size = UDim2.new(0, 2, 1.1, 0)
+
+    local isDraggingWatermark = false
+
+    -- Появление при клике (начало перетаскивания)
+    Library.Watermark.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDraggingWatermark = true
+            TweenService:Create(CrossLines, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.9}):Play()
+            TweenService:Create(XLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0}):Play()
+            TweenService:Create(YLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0}):Play()
+        end
+    end)
+
+    -- Исчезновение при отпускании кнопки мыши
+    InputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
+            isDraggingWatermark = false
+            TweenService:Create(CrossLines, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(XLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(YLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 1}):Play()
+        end
+    end)
+
+    -- Дополнительно: если курсор уходит с ватермарки во время удержания
+    Library.Watermark.MouseLeave:Connect(function()
+        if isDraggingWatermark then
+            isDraggingWatermark = false
+            TweenService:Create(CrossLines, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(XLine, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(YLine, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+        end
+    end)
+
+    -- Синхронизация цвета линий с акцентом GUI (включая rainbow mode)
+    table.insert(Library.Signals, RenderStepped:Connect(function()
+        XLine.BackgroundColor3 = Library.AccentColor or Library.CurrentRainbowColor or Library.AccentColor
+        YLine.BackgroundColor3 = Library.AccentColor or Library.CurrentRainbowColor or Library.AccentColor
+    end))
+
+    -- Синхронизация видимости с ватермаркой
+    Library.Watermark:GetPropertyChangedSignal("Visible"):Connect(function()
+        CrossLinesGui.Enabled = Library.Watermark.Visible
+    end)
 
     local KeybindOuter = Library:Create('Frame', {
         AnchorPoint = Vector2.new(0, 0.5);
