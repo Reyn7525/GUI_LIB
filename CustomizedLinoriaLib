@@ -1,4 +1,4 @@
-print("Library version 0.595777")
+print("Library version 0.595a")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3241,29 +3241,24 @@ do
 
     local CrossLines = Instance.new("Frame")
     CrossLines.Parent = CrossLinesGui
-    CrossLines.BackgroundColor3 = Color3.new(0, 0, 0)
+    CrossLines.BackgroundColor3 = Color3.new(0, 0, 0)  -- тёмный фон
     CrossLines.BackgroundTransparency = 1
-    CrossLines.Size = UDim2.new(1, 0, 1, 0)
-    CrossLines.Position = UDim2.new(0, 0, 0, 0)
-    CrossLines.BorderSizePixel = 0
+    CrossLines.Position = UDim2.new(0, 0, -0.1, 0)
+    CrossLines.Size = UDim2.new(1, 0, 1.1, 0)
 
     local XLine = Instance.new("Frame")
     XLine.Parent = CrossLines
-    XLine.BackgroundColor3 = Color3.new(1, 1, 1)
+    XLine.BackgroundColor3 = Color3.new(1, 1, 1)  -- белая горизонтальная линия
     XLine.BackgroundTransparency = 1
-    XLine.AnchorPoint = Vector2.new(0.5, 0.5)
-    XLine.Position = UDim2.new(0.5, 0, 0.5, 0)
+    XLine.Position = UDim2.new(0, 0, 0.5, 0)
     XLine.Size = UDim2.new(1, 0, 0, 2)
-    XLine.BorderSizePixel = 0
 
     local YLine = Instance.new("Frame")
     YLine.Parent = CrossLines
-    YLine.BackgroundColor3 = Color3.new(1, 1, 1)
+    YLine.BackgroundColor3 = Color3.new(1, 1, 1)  -- белая вертикальная линия
     YLine.BackgroundTransparency = 1
-    YLine.AnchorPoint = Vector2.new(0.5, 0.5)
-    YLine.Position = UDim2.new(0.5, 0, 0.5, 0)
-    YLine.Size = UDim2.new(0, 2, 1, 0)
-    YLine.BorderSizePixel = 0
+    YLine.Position = UDim2.new(0.5, 0, -0.1, 0)
+    YLine.Size = UDim2.new(0, 2, 1.1, 0)
 
     local isDraggingWatermark = false
 
@@ -3271,7 +3266,7 @@ do
     Library.Watermark.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             isDraggingWatermark = true
-            TweenService:Create(CrossLines, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.95}):Play()
+            TweenService:Create(CrossLines, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.95}):Play()  -- тёмный фон
             TweenService:Create(XLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0}):Play()
             TweenService:Create(YLine, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {BackgroundTransparency = 0}):Play()
         end
@@ -3287,7 +3282,7 @@ do
         end
     end)
 
-    -- Защита от багов
+    -- Дополнительная защита на случай багов Roblox
     Library.Watermark.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDraggingWatermark then
             isDraggingWatermark = false
@@ -3297,44 +3292,26 @@ do
         end
     end)
 
-    -- Синхронизация видимости
+    -- Синхронизация видимости ватермарки
     Library.Watermark:GetPropertyChangedSignal("Visible"):Connect(function()
         CrossLinesGui.Enabled = Library.Watermark.Visible
     end)
 
-    -- === ЦЕНТРИРОВАНИЕ ВАТЕРМАРКИ + БЕЗОПАСНАЯ ПРОВЕРКА НА СУЩЕСТВОВАНИЕ GUI ===
-    local lastWidth = (Library.Watermark and Library.Watermark.AbsoluteSize.X) or 0
-    local heartbeatConnection
+    -- === ЦЕНТРИРОВАНИЕ ВАТЕРМАРКИ ПО ГОРИЗОНТАЛИ (как во втором файле) ===
+    local lastWidth = Library.Watermark.AbsoluteSize.X
 
-    heartbeatConnection = table.insert(Library.Signals, RunService.Heartbeat:Connect(function()
-        -- Проверка: если RenHub GUI удалён из CoreGui — выходим из цикла
-        if not game.CoreGui:FindFirstChild("RenHub") or not Library.Watermark or not Library.Watermark.Parent then
-            if heartbeatConnection then
-                heartbeatConnection:Disconnect()
-            end
-            return
-        end
+    table.insert(Library.Signals, RunService.Heartbeat:Connect(function()
+        if not Library.Watermark or not Library.Watermark.Parent then return end
 
         local currentWidth = Library.Watermark.AbsoluteSize.X
 
-        if math.abs(currentWidth - lastWidth) > 2 then
+        if math.abs(currentWidth - lastWidth) > 1 then  -- изменился размер
             local windowCenterX = Library.Watermark.AbsolutePosition.X + currentWidth / 2
             local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
 
+            -- Если ватермарка близко к центру (±10 пикселей) — центрируем её
             if math.abs(windowCenterX - screenCenterX) <= 10 then
-                -- Центрируем
                 Library.Watermark.Position = UDim2.new(0.5, -currentWidth / 2, Library.Watermark.Position.Y.Scale, Library.Watermark.Position.Y.Offset)
-            else
-                -- Если справа от центра — сдвигаем влево при увеличении ширины
-                local widthDiff = currentWidth - lastWidth
-                if windowCenterX > screenCenterX then
-                    Library.Watermark.Position = UDim2.new(
-                        Library.Watermark.Position.X.Scale,
-                        Library.Watermark.Position.X.Offset - widthDiff,
-                        Library.Watermark.Position.Y.Scale,
-                        Library.Watermark.Position.Y.Offset
-                    )
-                end
             end
 
             lastWidth = currentWidth
