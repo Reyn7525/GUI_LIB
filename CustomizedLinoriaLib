@@ -1,4 +1,4 @@
-print("Library version 0.595b")
+print("Library version 0.595с")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -13,11 +13,13 @@ local Mouse = LocalPlayer:GetMouse();
 
 local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end);
 
-local ScreenGui = game.CoreGui:FindFirstChild("RenHub")
-if not ScreenGui then
-    -- Если RenHub не найден, скрипт должен завершиться
-    return
-end
+local ScreenGui = Instance.new('ScreenGui');
+ScreenGui.DisplayOrder = 1
+ScreenGui.Name = "RenHub"
+ProtectGui(ScreenGui);
+
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
+ScreenGui.Parent = CoreGui;
 
 local Library = {
     Registry = {};
@@ -643,6 +645,11 @@ function Library:Center(object)
 end
 
 function Library:CenterWatermark(object)
+    -- Проверка наличия RenHub в CoreGui
+    if not game.CoreGui:FindFirstChild("RenHub") then
+        return
+    end
+    
     -- Центрирование ватермарки по горизонтали и вертикали
     -- Используем AbsoluteSize для точного центрирования, так как Size.Offset может быть неточным
     object.Position = UDim2.new(0.5, -object.AbsoluteSize.X / 2, 0.5, -object.AbsoluteSize.Y / 2)
