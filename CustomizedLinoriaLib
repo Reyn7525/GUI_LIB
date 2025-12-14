@@ -1,4 +1,4 @@
-print("Library version 0.6075")
+print("Library version 0.601")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3294,7 +3294,6 @@ do
     Library.WatermarkText = WatermarkLabel;
     Library:MakeDraggable(Library.Watermark);
 
-    -- CrossLines for watermark centering
     local RenHubWatermarkCrossLines = Library:Create('ScreenGui', {
         Name = "RenHubWatermarkCrossLines";
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
@@ -3319,7 +3318,7 @@ do
         BackgroundTransparency = 1.000;
         BorderColor3 = Color3.new(0, 0, 0);
         BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0.5, -1);
+        Position = UDim2.new(0, 0, 0.5, 48);
         Size = UDim2.new(1, 0, 0, 2);
         Parent = CrossLines;
     });
@@ -3339,19 +3338,16 @@ do
     Library.WatermarkCrossLinesFrame = CrossLines;
     Library.WatermarkXLine = XLine;
     Library.WatermarkYLine = YLine;
-
-    -- Variables for watermark centering
     local isHoldingWatermark = false;
     local lastWatermarkWidth = 0;
 
-    -- Function to show cross lines
     local function showCrossLines()
         if not RenHubWatermarkCrossLines or not RenHubWatermarkCrossLines.Parent then return end;
         
         TweenService:Create(
             CrossLines,
             TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
-            {BackgroundTransparency = 0.95}
+            {BackgroundTransparency = 0.9}
         ):Play();
         TweenService:Create(
             XLine,
@@ -3365,7 +3361,6 @@ do
         ):Play();
     end;
 
-    -- Function to hide cross lines
     local function hideCrossLines()
         if not RenHubWatermarkCrossLines or not RenHubWatermarkCrossLines.Parent then return end;
         
@@ -3386,7 +3381,6 @@ do
         ):Play();
     end;
 
-    -- Enhanced drag handlers for watermark
     WatermarkOuter.MouseEnter:Connect(function()
         if InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
             isHoldingWatermark = true;
@@ -3427,10 +3421,8 @@ do
         end;
     end);
 
-    -- Initialize lastWatermarkWidth with current width
     lastWatermarkWidth = WatermarkOuter.AbsoluteSize.X;
 
-    -- Store variables in Library for access in update loop
     Library.WatermarkCentering = {
         isHolding = function() return isHoldingWatermark end;
         lastWidth = function() return lastWatermarkWidth end;
