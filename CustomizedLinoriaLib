@@ -1,4 +1,4 @@
-print("Library version 0.609")
+print("Library version 0.60911")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -352,64 +352,44 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
     end
 
     -- Watermark centering logic
+        -- Improved Watermark centering logic (horizontal only, as requested)
     if Library.Watermark and Library.Watermark.Parent and Library.Watermark.Visible then
-        local watermark = Library.Watermark;
-        local currentWidth = watermark.AbsoluteSize.X;
-        local currentHeight = watermark.AbsoluteSize.Y;
-        local lastWidth = Library.WatermarkCentering.lastWidth();
-        
-        -- Update width tracking
+        local watermark = Library.Watermark
+        local currentWidth = watermark.AbsoluteSize.X
+        local currentHeight = watermark.AbsoluteSize.Y
+
+        -- Track width changes
+        local lastWidth = Library.WatermarkCentering.lastWidth or currentWidth
         if currentWidth ~= lastWidth then
-            Library.WatermarkCentering.setLastWidth(currentWidth);
+            Library.WatermarkCentering.setLastWidth(currentWidth)
+
+            -- When text width changes, adjust position to keep the center point stable
+            local widthDiff = currentWidth - lastWidth
+            local currentCenterX = watermark.AbsolutePosition.X + lastWidth / 2
+
+            -- New position should keep the same center
+            local newOffsetX = currentCenterX - currentWidth / 2
+            watermark.Position = UDim2.new(
+                watermark.Position.X.Scale,
+                newOffsetX,
+                watermark.Position.Y.Scale,
+                watermark.Position.Y.Offset
+            )
         end
 
-        -- Calculate center positions (horizontal)
-        local windowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
-        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
-        local distanceFromCenterX = math.abs(windowCenterX - screenCenterX);
+        -- Current center of the watermark
+        local watermarkCenterX = watermark.AbsolutePosition.X + currentWidth / 2
+        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2
+        local distanceX = math.abs(watermarkCenterX - screenCenterX)
 
-        -- Calculate center positions (vertical)
-        local windowCenterY = watermark.AbsolutePosition.Y + watermark.AbsoluteSize.Y / 2;
-        local screenCenterY = workspace.CurrentCamera.ViewportSize.Y / 2;
-        local distanceFromCenterY = math.abs(windowCenterY - screenCenterY);
-
-        -- Auto-center if close to center (within 10 pixels)
-        local shouldCenterX = distanceFromCenterX <= 10;
-        local shouldCenterY = distanceFromCenterY <= 10;
-
-        if shouldCenterX and shouldCenterY then
-            -- Center both horizontally and vertically
-            watermark.AnchorPoint = Vector2.new(0.5, 0.5);
-            watermark.Position = UDim2.new(0.5, 0, 0.5, 0);
-        elseif shouldCenterX then
-            -- Center only horizontally
-            watermark.AnchorPoint = Vector2.new(0.5, 0);
+        -- If very close to horizontal center (±15 pixels), snap to perfect center
+        if distanceX <= 15 then
+            watermark.AnchorPoint = Vector2.new(0.5, watermark.AnchorPoint.Y)
             watermark.Position = UDim2.new(
                 0.5, 0,
                 watermark.Position.Y.Scale,
                 watermark.Position.Y.Offset
-            );
-        elseif shouldCenterY then
-            -- Center only vertically
-            watermark.AnchorPoint = Vector2.new(0, 0.5);
-            watermark.Position = UDim2.new(
-                watermark.Position.X.Scale,
-                watermark.Position.X.Offset,
-                0.5, 0
-            );
-        elseif currentWidth ~= lastWidth and lastWidth > 0 then
-            -- Adjust position when width changes to maintain relative position
-            local widthDifference = currentWidth - lastWidth;
-            local currentWindowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
-            
-            if currentWindowCenterX > screenCenterX then
-                watermark.Position = UDim2.new(
-                    watermark.Position.X.Scale,
-                    watermark.Position.X.Offset - widthDifference,
-                    watermark.Position.Y.Scale,
-                    watermark.Position.Y.Offset
-                );
-            end
+            )
         end
     end
 end))
