@@ -1,4 +1,4 @@
-print("Library version 0.609")
+print("Library version 0.6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -355,7 +355,6 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
     if Library.Watermark and Library.Watermark.Parent and Library.Watermark.Visible then
         local watermark = Library.Watermark;
         local currentWidth = watermark.AbsoluteSize.X;
-        local currentHeight = watermark.AbsoluteSize.Y;
         local lastWidth = Library.WatermarkCentering.lastWidth();
         
         -- Update width tracking
@@ -363,39 +362,17 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
             Library.WatermarkCentering.setLastWidth(currentWidth);
         end
 
-        -- Calculate center positions (horizontal)
+        -- Calculate center positions
         local windowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
         local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
-        local distanceFromCenterX = math.abs(windowCenterX - screenCenterX);
-
-        -- Calculate center positions (vertical)
-        local windowCenterY = watermark.AbsolutePosition.Y + watermark.AbsoluteSize.Y / 2;
-        local screenCenterY = workspace.CurrentCamera.ViewportSize.Y / 2;
-        local distanceFromCenterY = math.abs(windowCenterY - screenCenterY);
+        local distanceFromCenter = math.abs(windowCenterX - screenCenterX);
 
         -- Auto-center if close to center (within 10 pixels)
-        local shouldCenterX = distanceFromCenterX <= 10;
-        local shouldCenterY = distanceFromCenterY <= 10;
-
-        if shouldCenterX and shouldCenterY then
-            -- Center both horizontally and vertically
-            watermark.AnchorPoint = Vector2.new(0.5, 0.5);
-            watermark.Position = UDim2.new(0.5, 0, 0.5, 0);
-        elseif shouldCenterX then
-            -- Center only horizontally
-            watermark.AnchorPoint = Vector2.new(0.5, 0);
+        if distanceFromCenter <= 10 then
             watermark.Position = UDim2.new(
-                0.5, 0,
+                0.5, -currentWidth / 2,
                 watermark.Position.Y.Scale,
                 watermark.Position.Y.Offset
-            );
-        elseif shouldCenterY then
-            -- Center only vertically
-            watermark.AnchorPoint = Vector2.new(0, 0.5);
-            watermark.Position = UDim2.new(
-                watermark.Position.X.Scale,
-                watermark.Position.X.Offset,
-                0.5, 0
             );
         elseif currentWidth ~= lastWidth and lastWidth > 0 then
             -- Adjust position when width changes to maintain relative position
@@ -3318,7 +3295,7 @@ do
         BackgroundTransparency = 1.000;
         BorderColor3 = Color3.new(0, 0, 0);
         BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0.5, 46);
+        Position = UDim2.new(0, 0, 0.5, 0);
         Size = UDim2.new(1, 0, 0, 2);
         Parent = CrossLines;
     });
@@ -3329,8 +3306,8 @@ do
         BackgroundTransparency = 1.000;
         BorderColor3 = Color3.new(0, 0, 0);
         BorderSizePixel = 0;
-        Position = UDim2.new(0.5, -1, 0, 0);
-        Size = UDim2.new(0, 2, 1, 0);
+        Position = UDim2.new(0.5, 0, -0.1, 0);
+        Size = UDim2.new(0, 2, 1.1, 0);
         Parent = CrossLines;
     });
 
