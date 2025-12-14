@@ -3318,7 +3318,7 @@ do
         BackgroundTransparency = 1.000;
         BorderColor3 = Color3.new(0, 0, 0);
         BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0.5, 48);
+        Position = UDim2.new(0, 0, 0.5, 46);
         Size = UDim2.new(1, 0, 0, 2);
         Parent = CrossLines;
     });
