@@ -1,4 +1,4 @@
-print("Library version 0.6")
+print("Library version 0.605")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -361,6 +361,14 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         -- Update width tracking
         if currentWidth ~= lastWidth then
             Library.WatermarkCentering.setLastWidth(currentWidth);
+        end
+
+        -- Update XLine position to follow watermark vertically
+        if Library.WatermarkXLine and Library.WatermarkXLine.Parent then
+            local watermarkCenterY = watermark.AbsolutePosition.Y + watermark.AbsoluteSize.Y / 2;
+            local screenHeight = workspace.CurrentCamera.ViewportSize.Y;
+            local yPosition = watermarkCenterY / screenHeight;
+            Library.WatermarkXLine.Position = UDim2.new(0, 0, yPosition, -1);
         end
 
         -- Calculate center positions (horizontal)
@@ -3319,7 +3327,7 @@ do
         BackgroundTransparency = 1.000;
         BorderColor3 = Color3.new(0, 0, 0);
         BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0.5, -1);
+        Position = UDim2.new(0, 0, 0, 0);
         Size = UDim2.new(1, 0, 0, 2);
         Parent = CrossLines;
     });
