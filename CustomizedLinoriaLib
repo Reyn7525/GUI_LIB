@@ -1,4 +1,4 @@
-print("Library version 0.601")
+print("Library version 0.609")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -379,23 +379,23 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
 
         if shouldCenterX and shouldCenterY then
             -- Center both horizontally and vertically
-            watermark.Position = UDim2.new(
-                0.5, -currentWidth / 2,
-                0.5, -currentHeight / 2
-            );
+            watermark.AnchorPoint = Vector2.new(0.5, 0.5);
+            watermark.Position = UDim2.new(0.5, 0, 0.5, 0);
         elseif shouldCenterX then
             -- Center only horizontally
+            watermark.AnchorPoint = Vector2.new(0.5, 0);
             watermark.Position = UDim2.new(
-                0.5, -currentWidth / 2,
+                0.5, 0,
                 watermark.Position.Y.Scale,
                 watermark.Position.Y.Offset
             );
         elseif shouldCenterY then
             -- Center only vertically
+            watermark.AnchorPoint = Vector2.new(0, 0.5);
             watermark.Position = UDim2.new(
                 watermark.Position.X.Scale,
                 watermark.Position.X.Offset,
-                0.5, -currentHeight / 2
+                0.5, 0
             );
         elseif currentWidth ~= lastWidth and lastWidth > 0 then
             -- Adjust position when width changes to maintain relative position
@@ -3294,6 +3294,7 @@ do
     Library.WatermarkText = WatermarkLabel;
     Library:MakeDraggable(Library.Watermark);
 
+    -- CrossLines for watermark centering
     local RenHubWatermarkCrossLines = Library:Create('ScreenGui', {
         Name = "RenHubWatermarkCrossLines";
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
@@ -3318,7 +3319,7 @@ do
         BackgroundTransparency = 1.000;
         BorderColor3 = Color3.new(0, 0, 0);
         BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0.5, 48);
+        Position = UDim2.new(0, 0, 0.5, -1);
         Size = UDim2.new(1, 0, 0, 2);
         Parent = CrossLines;
     });
@@ -3338,16 +3339,19 @@ do
     Library.WatermarkCrossLinesFrame = CrossLines;
     Library.WatermarkXLine = XLine;
     Library.WatermarkYLine = YLine;
+
+    -- Variables for watermark centering
     local isHoldingWatermark = false;
     local lastWatermarkWidth = 0;
 
+    -- Function to show cross lines
     local function showCrossLines()
         if not RenHubWatermarkCrossLines or not RenHubWatermarkCrossLines.Parent then return end;
         
         TweenService:Create(
             CrossLines,
             TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
-            {BackgroundTransparency = 0.9}
+            {BackgroundTransparency = 0.95}
         ):Play();
         TweenService:Create(
             XLine,
@@ -3361,6 +3365,7 @@ do
         ):Play();
     end;
 
+    -- Function to hide cross lines
     local function hideCrossLines()
         if not RenHubWatermarkCrossLines or not RenHubWatermarkCrossLines.Parent then return end;
         
@@ -3381,6 +3386,7 @@ do
         ):Play();
     end;
 
+    -- Enhanced drag handlers for watermark
     WatermarkOuter.MouseEnter:Connect(function()
         if InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
             isHoldingWatermark = true;
@@ -3421,8 +3427,10 @@ do
         end;
     end);
 
+    -- Initialize lastWatermarkWidth with current width
     lastWatermarkWidth = WatermarkOuter.AbsoluteSize.X;
 
+    -- Store variables in Library for access in update loop
     Library.WatermarkCentering = {
         isHolding = function() return isHoldingWatermark end;
         lastWidth = function() return lastWatermarkWidth end;
