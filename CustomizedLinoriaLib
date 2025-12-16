@@ -1,4 +1,4 @@
-print("Library version 0.6a")
+print("Library version 0.6a2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1518,6 +1518,27 @@ do
             if Info.NoUI then
                 return;
             end;
+
+            -- Check if KeyPicker should be visible based on toggle state(s)
+            if Info.ShowWhenToggleEnabled then
+                local togglesToCheck = {};
+                
+                -- Support both string (single toggle) and table (multiple toggles)
+                if type(Info.ShowWhenToggleEnabled) == 'string' then
+                    table.insert(togglesToCheck, Info.ShowWhenToggleEnabled);
+                elseif type(Info.ShowWhenToggleEnabled) == 'table' then
+                    togglesToCheck = Info.ShowWhenToggleEnabled;
+                end
+                
+                -- All specified toggles must be enabled
+                for _, toggleName in next, togglesToCheck do
+                    local toggle = LinoriaToggles[toggleName];
+                    if not toggle or not toggle.Value then
+                        ContainerLabel.Visible = false;
+                        return;
+                    end
+                end
+            end
 
             local State = KeyPicker:GetState();
 
