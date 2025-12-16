@@ -1,4 +1,4 @@
-print("Library version 0.6")
+print("Library version 0.6a")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1688,6 +1688,25 @@ do
                 KeyPicker:Update();
             end;
         end))
+
+        -- Constant update loop for Hold mode
+        if KeyPicker.Mode == 'Hold' then
+            local LastState = false;
+            Library:GiveSignal(RenderStepped:Connect(function()
+                if Picking then return end;
+                
+                local CurrentState = KeyPicker:GetState();
+                
+                if CurrentState ~= LastState then
+                    LastState = CurrentState;
+                    KeyPicker.Toggled = CurrentState;
+                    KeyPicker:DoClick();
+                end;
+                
+                -- Update UI every frame for Hold mode to show real-time state
+                KeyPicker:Update();
+            end));
+        end;
 
         KeyPicker:Update();
 
