@@ -1,4 +1,4 @@
-print("Library version 0.6a2")
+print("Library version 0.6b")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1519,18 +1519,15 @@ do
                 return;
             end;
 
-            -- Check if KeyPicker should be visible based on toggle state(s)
             if Info.ShowWhenToggleEnabled then
                 local togglesToCheck = {};
                 
-                -- Support both string (single toggle) and table (multiple toggles)
                 if type(Info.ShowWhenToggleEnabled) == 'string' then
                     table.insert(togglesToCheck, Info.ShowWhenToggleEnabled);
                 elseif type(Info.ShowWhenToggleEnabled) == 'table' then
                     togglesToCheck = Info.ShowWhenToggleEnabled;
                 end
                 
-                -- All specified toggles must be enabled
                 for _, toggleName in next, togglesToCheck do
                     local toggle = LinoriaToggles[toggleName];
                     if not toggle or not toggle.Value then
@@ -1710,7 +1707,6 @@ do
             end;
         end))
 
-        -- Constant update loop for Hold mode
         if KeyPicker.Mode == 'Hold' then
             local LastState = false;
             Library:GiveSignal(RenderStepped:Connect(function()
@@ -1724,7 +1720,6 @@ do
                     KeyPicker:DoClick();
                 end;
                 
-                -- Update UI every frame for Hold mode to show real-time state
                 KeyPicker:Update();
             end));
         end;
