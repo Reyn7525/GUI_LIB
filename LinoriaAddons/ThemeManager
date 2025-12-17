@@ -1,6 +1,7 @@
 local httpService = game:GetService('HttpService')
 local ThemeManager = {} do
 	ThemeManager.Folder = 'RenHub'
+	-- if not isfolder(ThemeManager.Folder) then makefolder(ThemeManager.Folder) end
 
 	ThemeManager.Library = nil
 	ThemeManager.BuiltInThemes = {
@@ -43,7 +44,7 @@ local ThemeManager = {} do
 	end
 
 	function ThemeManager:ApplyTransparencyToRegistry()
-		if not self.Library or not self.Library.Registry then return end
+		if not self.Library or not self.Library.ScreenGui then return end
 		
 		local transparencyMap = {
 			FontColor = "FontColorTransparency",
@@ -59,12 +60,28 @@ local ThemeManager = {} do
 			end
 		end
 		
-		for _, Object in next, self.Library.Registry do
+		local fontTransparency = self.Library.FontColorTransparency or 0
+		local mainTransparency = self.Library.MainColorTransparency or 0
+		local accentTransparency = self.Library.AccentColorTransparency or 0
+		local backgroundTransparency = self.Library.BackgroundColorTransparency or 0
+		local outlineTransparency = self.Library.OutlineColorTransparency or 0
+		
+		for _, Object in next, self.Library.Registry or {} do
 			if Object.Instance and Object.Instance.Parent then
 				for Property, ColorIdx in next, Object.Properties do
 					if type(ColorIdx) == 'string' then
-						local transparencyField = ColorIdx .. "Transparency"
-						local transparency = self.Library[transparencyField] or 0
+						local transparency = 0
+						if ColorIdx == "FontColor" then
+							transparency = fontTransparency
+						elseif ColorIdx == "MainColor" then
+							transparency = mainTransparency
+						elseif ColorIdx == "AccentColor" then
+							transparency = accentTransparency
+						elseif ColorIdx == "BackgroundColor" then
+							transparency = backgroundTransparency
+						elseif ColorIdx == "OutlineColor" then
+							transparency = outlineTransparency
+						end
 						
 						if Property == "BackgroundColor3" and Object.Instance:IsA("GuiObject") then
 							pcall(function()
@@ -84,6 +101,31 @@ local ThemeManager = {} do
 							end)
 						end
 					end
+				end
+			end
+		end
+		
+		local function colorsEqual(c1, c2)
+			if not c1 or not c2 then return false end
+			return math.abs(c1.R - c2.R) < 0.01 and math.abs(c1.G - c2.G) < 0.01 and math.abs(c1.B - c2.B) < 0.01
+		end
+		
+		for _, desc in next, self.Library.ScreenGui:GetDescendants() do
+			if desc:IsA("Frame") or desc:IsA("ScrollingFrame") then
+				if colorsEqual(desc.BackgroundColor3, self.Library.BackgroundColor) then
+					pcall(function() desc.BackgroundTransparency = backgroundTransparency end)
+				elseif colorsEqual(desc.BackgroundColor3, self.Library.MainColor) then
+					pcall(function() desc.BackgroundTransparency = mainTransparency end)
+				elseif colorsEqual(desc.BackgroundColor3, self.Library.AccentColor) then
+					pcall(function() desc.BackgroundTransparency = accentTransparency end)
+				end
+			elseif desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+				if colorsEqual(desc.TextColor3, self.Library.FontColor) then
+					pcall(function() desc.TextTransparency = fontTransparency end)
+				end
+			elseif desc:IsA("UIStroke") then
+				if colorsEqual(desc.Color, self.Library.OutlineColor) then
+					pcall(function() desc.Transparency = outlineTransparency end)
 				end
 			end
 		end
@@ -198,24 +240,23 @@ local ThemeManager = {} do
 					end
 					
 					local currentTransparency = Options[field].Transparency or 0
-					if currentTransparency ~= lastTransparency then
-						lastTransparency = currentTransparency
-						self:ApplyTransparencyToRegistry()
-					end
+					lastTransparency = currentTransparency
 					
 					if field == "AccentColor" then
 						self.Library.AccentColorDark = self.Library:GetDarkerColor(self.Library.AccentColor)
 					end
 					
 					self.Library:UpdateColorsUsingRegistry()
+					task.wait()
+					self:ApplyTransparencyToRegistry()
 				end)
 				
 				task.spawn(function()
 					while self.Library and not self.Library.Unloaded do
-						task.wait(0.1)
+						task.wait(0.05)
 						if Options[field] then
 							local currentTransparency = Options[field].Transparency or 0
-							if currentTransparency ~= lastTransparency then
+							if math.abs(currentTransparency - lastTransparency) > 0.001 then
 								lastTransparency = currentTransparency
 								self:ApplyTransparencyToRegistry()
 							end
