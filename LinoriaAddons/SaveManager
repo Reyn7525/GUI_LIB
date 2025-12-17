@@ -124,10 +124,7 @@ local SaveManager = {} do
 
 		for _, option in next, decoded.objects do
 			if self.Parser[option.type] then
-				task.spawn(function() 
-					task.wait()
-					self.Parser[option.type].Load(option.idx, option) 
-				end)
+				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end) -- task.spawn() so the config loading wont get stuck.
 			end
 		end
 
@@ -142,14 +139,11 @@ local SaveManager = {} do
 	end
 
 	function SaveManager:BuildFolderTree()
-		local paths = {}
-		
-		local parts = self.Folder:split('/')
-		for idx = 1, #parts do
-			paths[#paths + 1] = table.concat(parts, '/', 1, idx)
-		end
-		
-		table.insert(paths, self.Folder .. '/settings')
+		local paths = {
+			self.Folder,
+			self.Folder .. '/themes',
+			self.Folder .. '/settings'
+		}
 
 		for i = 1, #paths do
 			local str = paths[i]
