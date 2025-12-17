@@ -1,18 +1,18 @@
 local httpService = game:GetService('HttpService')
 local ThemeManager = {} do
-	ThemeManager.Folder = 'RenHub'
+	ThemeManager.Folder = 'RenHub/'..game.PlaceId
 	-- if not isfolder(ThemeManager.Folder) then makefolder(ThemeManager.Folder) end
 
 	ThemeManager.Library = nil
 	ThemeManager.BuiltInThemes = {
-		['Default'] 		= { 1, httpService:JSONDecode('{"FontColor":"ffffff","FontColorTransparency":0,"MainColor":"1c1c1c","MainColorTransparency":0,"AccentColor":"0055ff","AccentColorTransparency":0,"BackgroundColor":"141414","BackgroundColorTransparency":0,"OutlineColor":"#1f1f1f","OutlineColorTransparency":0}') },
-		['BBot'] 			= { 2, httpService:JSONDecode('{"FontColor":"ffffff","FontColorTransparency":0,"MainColor":"1e1e1e","MainColorTransparency":0,"AccentColor":"7e48a3","AccentColorTransparency":0,"BackgroundColor":"232323","BackgroundColorTransparency":0,"OutlineColor":"141414","OutlineColorTransparency":0}') },
-		['Fatality']		= { 3, httpService:JSONDecode('{"FontColor":"ffffff","FontColorTransparency":0,"MainColor":"1e1842","MainColorTransparency":0,"AccentColor":"c50754","AccentColorTransparency":0,"BackgroundColor":"191335","BackgroundColorTransparency":0,"OutlineColor":"#242039","OutlineColorTransparency":0}') },
-		['Jester'] 			= { 4, httpService:JSONDecode('{"FontColor":"ffffff","FontColorTransparency":0,"MainColor":"242424","MainColorTransparency":0,"AccentColor":"db4467","AccentColorTransparency":0,"BackgroundColor":"1c1c1c","BackgroundColorTransparency":0,"OutlineColor":"373737","OutlineColorTransparency":0}') },
-		['Mint'] 			= { 5, httpService:JSONDecode('{"FontColor":"ffffff","FontColorTransparency":0,"MainColor":"242424","MainColorTransparency":0,"AccentColor":"3db488","AccentColorTransparency":0,"BackgroundColor":"1c1c1c","BackgroundColorTransparency":0,"OutlineColor":"373737","OutlineColorTransparency":0}') },
-		['Tokyo Night'] 	= { 6, httpService:JSONDecode('{"FontColor":"ffffff","FontColorTransparency":0,"MainColor":"191925","MainColorTransparency":0,"AccentColor":"6759b3","AccentColorTransparency":0,"BackgroundColor":"16161f","BackgroundColorTransparency":0,"OutlineColor":"323232","OutlineColorTransparency":0}') },
-		['Ubuntu'] 			= { 7, httpService:JSONDecode('{"FontColor":"ffffff","FontColorTransparency":0,"MainColor":"3e3e3e","MainColorTransparency":0,"AccentColor":"e2581e","AccentColorTransparency":0,"BackgroundColor":"323232","BackgroundColorTransparency":0,"OutlineColor":"191919","OutlineColorTransparency":0}') },
-		['Quartz'] 			= { 8, httpService:JSONDecode('{"FontColor":"ffffff","FontColorTransparency":0,"MainColor":"232330","MainColorTransparency":0,"AccentColor":"426e87","AccentColorTransparency":0,"BackgroundColor":"1d1b26","BackgroundColorTransparency":0,"OutlineColor":"27232f","OutlineColorTransparency":0}') },
+		['Default'] 		= { 1, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1c1c1c","AccentColor":"0055ff","BackgroundColor":"141414","OutlineColor":"#1f1f1f"}') },
+		['BBot'] 			= { 2, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1e1e","AccentColor":"7e48a3","BackgroundColor":"232323","OutlineColor":"141414"}') },
+		['Fatality']		= { 3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"#242039"}') },
+		['Jester'] 			= { 4, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"db4467","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
+		['Mint'] 			= { 5, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"3db488","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
+		['Tokyo Night'] 	= { 6, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"191925","AccentColor":"6759b3","BackgroundColor":"16161f","OutlineColor":"323232"}') },
+		['Ubuntu'] 			= { 7, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"3e3e3e","AccentColor":"e2581e","BackgroundColor":"323232","OutlineColor":"191919"}') },
+		['Quartz'] 			= { 8, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"232330","AccentColor":"426e87","BackgroundColor":"1d1b26","OutlineColor":"27232f"}') },
 	}
 
 	function ThemeManager:ApplyTheme(theme)
@@ -24,111 +24,15 @@ local ThemeManager = {} do
 		-- custom themes are just regular dictionaries instead of an array with { index, dictionary }
 
 		local scheme = data[2]
-		local themeData = customThemeData or scheme
-		local colorFields = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor" }
-		
-		for _, field in next, colorFields do
-			if themeData[field] then
-				local transparencyField = field .. "Transparency"
-				local transparency = themeData[transparencyField] or 0
-				
-				self.Library[field] = Color3.fromHex(themeData[field])
-				
-				if Options[field] then
-					Options[field]:SetValueRGB(Color3.fromHex(themeData[field]), transparency)
-				end
+		for idx, col in next, customThemeData or scheme do
+			self.Library[idx] = Color3.fromHex(col)
+			
+			if Options[idx] then
+				Options[idx]:SetValueRGB(Color3.fromHex(col))
 			end
 		end
 
 		self:ThemeUpdate()
-	end
-
-	function ThemeManager:ApplyTransparencyToRegistry()
-		if not self.Library or not self.Library.ScreenGui then return end
-		
-		local transparencyMap = {
-			FontColor = "FontColorTransparency",
-			MainColor = "MainColorTransparency",
-			AccentColor = "AccentColorTransparency",
-			BackgroundColor = "BackgroundColorTransparency",
-			OutlineColor = "OutlineColorTransparency"
-		}
-		
-		for colorField, transparencyField in next, transparencyMap do
-			if Options and Options[colorField] then
-				self.Library[transparencyField] = Options[colorField].Transparency or 0
-			end
-		end
-		
-		local fontTransparency = self.Library.FontColorTransparency or 0
-		local mainTransparency = self.Library.MainColorTransparency or 0
-		local accentTransparency = self.Library.AccentColorTransparency or 0
-		local backgroundTransparency = self.Library.BackgroundColorTransparency or 0
-		local outlineTransparency = self.Library.OutlineColorTransparency or 0
-		
-		for _, Object in next, self.Library.Registry or {} do
-			if Object.Instance and Object.Instance.Parent then
-				for Property, ColorIdx in next, Object.Properties do
-					if type(ColorIdx) == 'string' then
-						local transparency = 0
-						if ColorIdx == "FontColor" then
-							transparency = fontTransparency
-						elseif ColorIdx == "MainColor" then
-							transparency = mainTransparency
-						elseif ColorIdx == "AccentColor" then
-							transparency = accentTransparency
-						elseif ColorIdx == "BackgroundColor" then
-							transparency = backgroundTransparency
-						elseif ColorIdx == "OutlineColor" then
-							transparency = outlineTransparency
-						end
-						
-						if Property == "BackgroundColor3" and Object.Instance:IsA("GuiObject") then
-							pcall(function()
-								Object.Instance.BackgroundTransparency = transparency
-							end)
-						elseif Property == "TextColor3" and (Object.Instance:IsA("TextLabel") or Object.Instance:IsA("TextButton") or Object.Instance:IsA("TextBox")) then
-							pcall(function()
-								Object.Instance.TextTransparency = transparency
-							end)
-						elseif Property == "BorderColor3" and Object.Instance:IsA("GuiObject") then
-							pcall(function()
-								Object.Instance.BorderTransparency = transparency
-							end)
-						elseif Property == "ImageColor3" and Object.Instance:IsA("ImageLabel") then
-							pcall(function()
-								Object.Instance.ImageTransparency = transparency
-							end)
-						end
-					end
-				end
-			end
-		end
-		
-		local function colorsEqual(c1, c2)
-			if not c1 or not c2 then return false end
-			return math.abs(c1.R - c2.R) < 0.01 and math.abs(c1.G - c2.G) < 0.01 and math.abs(c1.B - c2.B) < 0.01
-		end
-		
-		for _, desc in next, self.Library.ScreenGui:GetDescendants() do
-			if desc:IsA("Frame") or desc:IsA("ScrollingFrame") then
-				if colorsEqual(desc.BackgroundColor3, self.Library.BackgroundColor) then
-					pcall(function() desc.BackgroundTransparency = backgroundTransparency end)
-				elseif colorsEqual(desc.BackgroundColor3, self.Library.MainColor) then
-					pcall(function() desc.BackgroundTransparency = mainTransparency end)
-				elseif colorsEqual(desc.BackgroundColor3, self.Library.AccentColor) then
-					pcall(function() desc.BackgroundTransparency = accentTransparency end)
-				end
-			elseif desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-				if colorsEqual(desc.TextColor3, self.Library.FontColor) then
-					pcall(function() desc.TextTransparency = fontTransparency end)
-				end
-			elseif desc:IsA("UIStroke") then
-				if colorsEqual(desc.Color, self.Library.OutlineColor) then
-					pcall(function() desc.Transparency = outlineTransparency end)
-				end
-			end
-		end
 	end
 
 	function ThemeManager:ThemeUpdate()
@@ -142,7 +46,6 @@ local ThemeManager = {} do
 
 		self.Library.AccentColorDark = self.Library:GetDarkerColor(self.Library.AccentColor);
 		self.Library:UpdateColorsUsingRegistry()
-		self:ApplyTransparencyToRegistry()
 	end
 
 	function ThemeManager:LoadDefault()		
@@ -173,11 +76,11 @@ local ThemeManager = {} do
 	end
 
 	function ThemeManager:CreateThemeManager(groupbox)
-		groupbox:AddLabel('Background color'):AddColorPicker('BackgroundColor', { Default = self.Library.BackgroundColor, Transparency = 0 });
-		groupbox:AddLabel('Main color')	:AddColorPicker('MainColor', { Default = self.Library.MainColor, Transparency = 0 });
-		groupbox:AddLabel('Accent color'):AddColorPicker('AccentColor', { Default = self.Library.AccentColor, Transparency = 0 });
-		groupbox:AddLabel('Outline color'):AddColorPicker('OutlineColor', { Default = self.Library.OutlineColor, Transparency = 0 });
-		groupbox:AddLabel('Font color')	:AddColorPicker('FontColor', { Default = self.Library.FontColor, Transparency = 0 });
+		groupbox:AddLabel('Background color'):AddColorPicker('BackgroundColor', { Default = self.Library.BackgroundColor });
+		groupbox:AddLabel('Main color')	:AddColorPicker('MainColor', { Default = self.Library.MainColor });
+		groupbox:AddLabel('Accent color'):AddColorPicker('AccentColor', { Default = self.Library.AccentColor });
+		groupbox:AddLabel('Outline color'):AddColorPicker('OutlineColor', { Default = self.Library.OutlineColor });
+		groupbox:AddLabel('Font color')	:AddColorPicker('FontColor', { Default = self.Library.FontColor });
 
 		local ThemesArray = {}
 		for Name, Theme in next, self.BuiltInThemes do
@@ -230,41 +133,11 @@ local ThemeManager = {} do
 			self:ThemeUpdate()
 		end
 
-		for _, field in next, { "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor" } do
-			if Options[field] then
-				local lastTransparency = Options[field].Transparency or 0
-				
-				Options[field]:OnChanged(function()
-					if Options[field] then
-						self.Library[field] = Options[field].Value
-					end
-					
-					local currentTransparency = Options[field].Transparency or 0
-					lastTransparency = currentTransparency
-					
-					if field == "AccentColor" then
-						self.Library.AccentColorDark = self.Library:GetDarkerColor(self.Library.AccentColor)
-					end
-					
-					self.Library:UpdateColorsUsingRegistry()
-					task.wait()
-					self:ApplyTransparencyToRegistry()
-				end)
-				
-				task.spawn(function()
-					while self.Library and not self.Library.Unloaded do
-						task.wait(0.05)
-						if Options[field] then
-							local currentTransparency = Options[field].Transparency or 0
-							if math.abs(currentTransparency - lastTransparency) > 0.001 then
-								lastTransparency = currentTransparency
-								self:ApplyTransparencyToRegistry()
-							end
-						end
-					end
-				end)
-			end
-		end
+		Options.BackgroundColor:OnChanged(UpdateTheme)
+		Options.MainColor:OnChanged(UpdateTheme)
+		Options.AccentColor:OnChanged(UpdateTheme)
+		Options.OutlineColor:OnChanged(UpdateTheme)
+		Options.FontColor:OnChanged(UpdateTheme)
 	end
 
 	function ThemeManager:GetCustomTheme(file)
@@ -293,7 +166,6 @@ local ThemeManager = {} do
 
 		for _, field in next, fields do
 			theme[field] = Options[field].Value:ToHex()
-			theme[field .. "Transparency"] = Options[field].Transparency or 0
 		end
 
 		writefile(self.Folder .. '/themes/' .. file .. '.json', httpService:JSONEncode(theme))
@@ -341,7 +213,7 @@ local ThemeManager = {} do
 		end
 
 		table.insert(paths, self.Folder .. '/themes')
-		table.insert(paths, self.Folder .. '/assets')
+		table.insert(paths, self.Folder .. '/settings')
 
 		for i = 1, #paths do
 			local str = paths[i]
