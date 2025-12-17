@@ -1,6 +1,6 @@
 local httpService = game:GetService('HttpService')
 local ThemeManager = {} do
-	ThemeManager.Folder = 'RenHub/'..game.PlaceId
+	ThemeManager.Folder = 'RenHub'
 	-- if not isfolder(ThemeManager.Folder) then makefolder(ThemeManager.Folder) end
 
 	ThemeManager.Library = nil
@@ -213,7 +213,6 @@ local ThemeManager = {} do
 		end
 
 		table.insert(paths, self.Folder .. '/themes')
-		table.insert(paths, self.Folder .. '/settings')
 
 		for i = 1, #paths do
 			local str = paths[i]
