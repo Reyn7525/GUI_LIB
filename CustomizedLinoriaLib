@@ -1,4 +1,4 @@
-print("Library version 0.6i")
+print("Library version 0.6i2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1658,7 +1658,9 @@ do
                     if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Enum.KeyCode.Escape then
                         Key = nil;
                         local VirtualInputManager = game:GetService("VirtualInputManager");
+                        task.wait(0.1)
                         if VirtualInputManager then
+                            print("pressed escape btw rn")
                             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Escape, false, game);
                             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Escape, false, game);
                         end;
