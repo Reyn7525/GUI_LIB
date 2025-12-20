@@ -1,4 +1,4 @@
-print("Library version 0.6c")
+print("Library version 0.6d")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1746,12 +1746,14 @@ do
         local Groupbox = self;
         local Container = Groupbox.Container;
 
-        Library:Create('Frame', {
+        local BlankFrame = Library:Create('Frame', {
             BackgroundTransparency = 1;
             Size = UDim2.new(1, 0, 0, Size);
             ZIndex = 1;
             Parent = Container;
         });
+        
+        return BlankFrame;
     end;
 
     function Funcs:AddLabel(Text, DoesWrap)
@@ -1805,10 +1807,13 @@ do
             if self.TextLabel and self.TextLabel.Parent then
                 self.TextLabel:Destroy()
             end
+            if self.BlankFrame and self.BlankFrame.Parent then
+                self.BlankFrame:Destroy()
+            end
             Groupbox:Resize()
         end
 
-        Groupbox:AddBlank(5);
+        Label.BlankFrame = Groupbox:AddBlank(5);
         Groupbox:Resize();
 
         return Label;
@@ -1999,10 +2004,13 @@ do
             if self.Outer and self.Outer.Parent then
                 self.Outer:Destroy()
             end
+            if self.BlankFrame and self.BlankFrame.Parent then
+                self.BlankFrame:Destroy()
+            end
             Groupbox:Resize()
         end
 
-        Groupbox:AddBlank(5);
+        Button.BlankFrame = Groupbox:AddBlank(5);
         Groupbox:Resize();
 
         return Button;
@@ -2050,10 +2058,17 @@ do
             if self.DividerOuter and self.DividerOuter.Parent then
                 self.DividerOuter:Destroy()
             end
+            if self.BlankFrameBefore and self.BlankFrameBefore.Parent then
+                self.BlankFrameBefore:Destroy()
+            end
+            if self.BlankFrameAfter and self.BlankFrameAfter.Parent then
+                self.BlankFrameAfter:Destroy()
+            end
             self.Groupbox:Resize()
         end
 
-        Groupbox:AddBlank(9);
+        Divider.BlankFrameBefore = Groupbox:AddBlank(2);
+        Divider.BlankFrameAfter = Groupbox:AddBlank(9);
         Groupbox:Resize();
 
         return Divider;
@@ -2082,7 +2097,7 @@ do
             Parent = Container;
         });
 
-        Groupbox:AddBlank(1);
+        Textbox.LabelBlankFrame = Groupbox:AddBlank(1);
 
         local TextBoxOuter = Library:Create('Frame', {
             BackgroundColor3 = Color3.new(0, 0, 0);
@@ -2250,8 +2265,14 @@ do
             if self.InputLabel and self.InputLabel.Parent then
                 self.InputLabel:Destroy()
             end
+            if self.LabelBlankFrame and self.LabelBlankFrame.Parent then
+                self.LabelBlankFrame:Destroy()
+            end
             if self.TextBoxOuter and self.TextBoxOuter.Parent then
                 self.TextBoxOuter:Destroy()
+            end
+            if self.BlankFrame and self.BlankFrame.Parent then
+                self.BlankFrame:Destroy()
             end
             if Options[self.Idx] == self then
                 Options[self.Idx] = nil
@@ -2259,7 +2280,7 @@ do
             self.Groupbox:Resize()
         end
 
-        Groupbox:AddBlank(5);
+        Textbox.BlankFrame = Groupbox:AddBlank(5);
         Groupbox:Resize();
 
         Options[Idx] = Textbox;
@@ -2391,7 +2412,7 @@ do
         end
 
         LinoriaToggle:Display();
-        Groupbox:AddBlank(Info.BlankSize or 5 + 2);
+        LinoriaToggle.BlankFrame = Groupbox:AddBlank(Info.BlankSize or 5 + 2);
         Groupbox:Resize();
 
         LinoriaToggle.TextLabel = ToggleLabel;
@@ -2404,6 +2425,9 @@ do
         function LinoriaToggle:Destroy()
             if self.ToggleOuter and self.ToggleOuter.Parent then
                 self.ToggleOuter:Destroy()
+            end
+            if self.BlankFrame and self.BlankFrame.Parent then
+                self.BlankFrame:Destroy()
             end
             if LinoriaToggles[self.Idx] == self then
                 LinoriaToggles[self.Idx] = nil
@@ -2454,7 +2478,7 @@ do
             Label.TextStrokeColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
             Slider.Label = Label;
     
-            Groupbox:AddBlank(3);
+            Slider.LabelBlankFrame = Groupbox:AddBlank(3);
         end
     
         local SliderOuter = Library:Create('Frame', {
@@ -2720,17 +2744,23 @@ do
             if self.Label and self.Label.Parent then
                 self.Label:Destroy()
             end
+            if self.LabelBlankFrame and self.LabelBlankFrame.Parent then
+                self.LabelBlankFrame:Destroy()
+            end
             if self.SliderOuter and self.SliderOuter.Parent then
                 self.SliderOuter:Destroy()
+            end
+            if self.BlankFrame and self.BlankFrame.Parent then
+                self.BlankFrame:Destroy()
             end
             if Options[self.Idx] == self then
                 Options[self.Idx] = nil
             end
             self.Groupbox:Resize()
         end
-    
+
         Slider:Display();
-        Groupbox:AddBlank(Info.BlankSize or 6);
+        Slider.BlankFrame = Groupbox:AddBlank(Info.BlankSize or 6);
         Groupbox:Resize();
     
         Options[Idx] = Slider;
@@ -2780,7 +2810,7 @@ do
             });
             Dropdown.DropdownLabel = DropdownLabel;
 
-            Groupbox:AddBlank(3);
+            Dropdown.LabelBlankFrame = Groupbox:AddBlank(3);
         end
 
         for _, Element in next, Container:GetChildren() do
@@ -3187,11 +3217,17 @@ do
             if self.DropdownLabel and self.DropdownLabel.Parent then
                 self.DropdownLabel:Destroy()
             end
+            if self.LabelBlankFrame and self.LabelBlankFrame.Parent then
+                self.LabelBlankFrame:Destroy()
+            end
             if self.DropdownOuter and self.DropdownOuter.Parent then
                 self.DropdownOuter:Destroy()
             end
             if self.ListOuter and self.ListOuter.Parent then
                 self.ListOuter:Destroy()
+            end
+            if self.BlankFrame and self.BlankFrame.Parent then
+                self.BlankFrame:Destroy()
             end
             if Options[self.Idx] == self then
                 Options[self.Idx] = nil
@@ -3199,7 +3235,7 @@ do
             self.Groupbox:Resize()
         end
 
-        Groupbox:AddBlank(Info.BlankSize or 5);
+        Dropdown.BlankFrame = Groupbox:AddBlank(Info.BlankSize or 5);
         Groupbox:Resize();
 
         Options[Idx] = Dropdown;
