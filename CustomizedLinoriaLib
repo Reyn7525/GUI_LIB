@@ -1,4 +1,4 @@
-print("Library version 0.6g1")
+print("Library version 0.6g2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1563,9 +1563,8 @@ do
         end;
 
         function KeyPicker:GetState()
-            -- If keybind is nil/empty, always return false
             if KeyPicker.Value == nil or KeyPicker.Value == 'nil' then
-                return false;
+                return true;
             end;
             
             if KeyPicker.Mode == 'Always' then
