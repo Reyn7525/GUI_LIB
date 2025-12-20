@@ -1,4 +1,4 @@
-print("Library version 0.6f")
+print("Library version 0.6g")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -7,6 +7,7 @@ local Teams = game:GetService('Teams');
 local Players = game:GetService('Players');
 local RunService = game:GetService('RunService')
 local TweenService = game:GetService('TweenService');
+local GuiService = game:GetService('GuiService');
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
@@ -1416,7 +1417,7 @@ do
         local DisplayLabel = Library:CreateLabel({
             Size = UDim2.new(1, 0, 1, 0);
             TextSize = 13;
-            Text = Info.Default or 'None';
+            Text = Info.Default or 'Nil';
             TextWrapped = true;
             ZIndex = 8;
             Parent = PickInner;
@@ -1538,7 +1539,7 @@ do
 
             local State = KeyPicker:GetState();
             
-            local keyDisplay = KeyPicker.Value or 'None';
+            local keyDisplay = KeyPicker.Value or 'Nil';
             ContainerLabel.Text = string.format('[%s] %s (%s)', keyDisplay, Info.Text, KeyPicker.Mode);
 
             ContainerLabel.Visible = true;
@@ -1563,7 +1564,7 @@ do
 
         function KeyPicker:GetState()
             -- If keybind is nil/empty, always return false
-            if KeyPicker.Value == nil or KeyPicker.Value == 'None' then
+            if KeyPicker.Value == nil or KeyPicker.Value == 'Nil' then
                 return false;
             end;
             
@@ -1586,7 +1587,7 @@ do
         function KeyPicker:SetValue(Data)
             local Key, Mode = Data[1], Data[2];
             KeyPicker.Value = Key;
-            DisplayLabel.Text = Key or 'None';
+            DisplayLabel.Text = Key or 'Nil';
             if Mode and ModeButtons[Mode] then
                 ModeButtons[Mode]:Select();
             end;
@@ -1620,6 +1621,9 @@ do
         PickOuter.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
                 Picking = true;
+                
+                -- Block Roblox context menu and other actions
+                GuiService:SetMenuIsOpen(true, "");
 
                 DisplayLabel.Text = '';
 
@@ -1642,6 +1646,19 @@ do
                 wait(0.2);
 
                 local Event;
+                local TimeoutConnection;
+                
+                -- Timeout after 10 seconds to prevent stuck state
+                TimeoutConnection = task.delay(10, function()
+                    if not Break then
+                        Break = true;
+                        Picking = false;
+                        GuiService:SetMenuIsOpen(false, "");
+                        DisplayLabel.Text = KeyPicker.Value or 'Nil';
+                        if Event then Event:Disconnect(); end;
+                    end;
+                end);
+                
                 Event = InputService.InputBegan:Connect(function(Input)
                     local Key;
 
@@ -1654,13 +1671,23 @@ do
                         Key = 'MB1';
                     elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
                         Key = 'MB2';
+                    else
+                        return; -- Ignore other input types
                     end;
 
                     Break = true;
                     Picking = false;
+                    
+                    -- Unblock Roblox context menu
+                    GuiService:SetMenuIsOpen(false, "");
+                    
+                    if TimeoutConnection then
+                        task.cancel(TimeoutConnection);
+                        TimeoutConnection = nil;
+                    end;
 
                     KeyPicker.Value = Key;
-                    DisplayLabel.Text = Key or 'None';
+                    DisplayLabel.Text = Key or 'Nil';
 
                     Library:SafeCallback(KeyPicker.ChangedCallback, Key and (Input.KeyCode or Input.UserInputType) or nil)
                     Library:SafeCallback(KeyPicker.Changed, Key)
@@ -1668,6 +1695,28 @@ do
                     Library:AttemptSave();
 
                     Event:Disconnect();
+                end);
+                
+                -- Also handle window focus loss or GUI closing
+                local function cleanup()
+                    if not Break then
+                        Break = true;
+                        Picking = false;
+                        GuiService:SetMenuIsOpen(false, "");
+                        DisplayLabel.Text = KeyPicker.Value or 'Nil';
+                        if Event then Event:Disconnect(); end;
+                        if TimeoutConnection then
+                            task.cancel(TimeoutConnection);
+                            TimeoutConnection = nil;
+                        end;
+                    end;
+                end;
+                
+                -- Cleanup if GUI is closed
+                ScreenGui.AncestryChanged:Connect(function()
+                    if not ScreenGui.Parent then
+                        cleanup();
+                    end;
                 end);
             elseif Input.UserInputType == Enum.UserInputType.MouseButton2 and not Library:MouseIsOverOpenedFrame() then
                 ModeSelectOuter.Visible = true;
@@ -1680,7 +1729,7 @@ do
                     local Key = KeyPicker.Value;
                     
                     -- Skip if keybind is empty
-                    if Key == nil or Key == 'None' then
+                    if Key == nil or Key == 'Nil' then
                         KeyPicker:Update();
                         return;
                     end;
