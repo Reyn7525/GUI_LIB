@@ -1,4 +1,4 @@
-print("Library version 0.6b")
+print("Library version 0.6c")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -49,7 +49,7 @@ ScreenGui:SetAttribute("NotifyScale", 1)
 ScreenGui:SetAttribute("NotifyPaddingX", 12)
 ScreenGui:SetAttribute("NotifyPaddingY", 12)
 ScreenGui:SetAttribute("NotifyPosition", "LeftUp")
-ScreenGui:SetAttribute("GlowIntensivity",0.2)
+ScreenGui:SetAttribute("GlowIntensivity",0.4)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
 ScreenGui:SetAttribute("TextOutlineColor",Color3.new(0,0,0))
@@ -1801,6 +1801,13 @@ do
             setmetatable(Label, BaseAddons);
         end
 
+        function Label:Destroy()
+            if self.TextLabel and self.TextLabel.Parent then
+                self.TextLabel:Destroy()
+            end
+            Groupbox:Resize()
+        end
+
         Groupbox:AddBlank(5);
         Groupbox:Resize();
 
@@ -1988,6 +1995,13 @@ do
             Button:AddTooltip(Button.Tooltip)
         end
 
+        function Button:Destroy()
+            if self.Outer and self.Outer.Parent then
+                self.Outer:Destroy()
+            end
+            Groupbox:Resize()
+        end
+
         Groupbox:AddBlank(5);
         Groupbox:Resize();
 
@@ -2029,8 +2043,20 @@ do
             BorderColor3 = 'OutlineColor';
         });
 
+        Divider.DividerOuter = DividerOuter;
+        Divider.Groupbox = Groupbox;
+
+        function Divider:Destroy()
+            if self.DividerOuter and self.DividerOuter.Parent then
+                self.DividerOuter:Destroy()
+            end
+            self.Groupbox:Resize()
+        end
+
         Groupbox:AddBlank(9);
         Groupbox:Resize();
+
+        return Divider;
     end
 
     function Funcs:AddInput(Idx, Info)
@@ -2215,6 +2241,24 @@ do
             Func(Textbox.Value);
         end;
 
+        Textbox.InputLabel = InputLabel;
+        Textbox.TextBoxOuter = TextBoxOuter;
+        Textbox.Groupbox = Groupbox;
+        Textbox.Idx = Idx;
+
+        function Textbox:Destroy()
+            if self.InputLabel and self.InputLabel.Parent then
+                self.InputLabel:Destroy()
+            end
+            if self.TextBoxOuter and self.TextBoxOuter.Parent then
+                self.TextBoxOuter:Destroy()
+            end
+            if Options[self.Idx] == self then
+                Options[self.Idx] = nil
+            end
+            self.Groupbox:Resize()
+        end
+
         Groupbox:AddBlank(5);
         Groupbox:Resize();
 
@@ -2352,7 +2396,20 @@ do
 
         LinoriaToggle.TextLabel = ToggleLabel;
         LinoriaToggle.Container = Container;
+        LinoriaToggle.ToggleOuter = ToggleOuter;
+        LinoriaToggle.Groupbox = Groupbox;
+        LinoriaToggle.Idx = Idx;
         setmetatable(LinoriaToggle, BaseAddons);
+
+        function LinoriaToggle:Destroy()
+            if self.ToggleOuter and self.ToggleOuter.Parent then
+                self.ToggleOuter:Destroy()
+            end
+            if LinoriaToggles[self.Idx] == self then
+                LinoriaToggles[self.Idx] = nil
+            end
+            self.Groupbox:Resize()
+        end
 
         LinoriaToggles[Idx] = LinoriaToggle;
 
@@ -2395,6 +2452,7 @@ do
     
             Label.TextStrokeTransparency = ScreenGui:GetAttribute("TextOutline") and 0 or 1
             Label.TextStrokeColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
+            Slider.Label = Label;
     
             Groupbox:AddBlank(3);
         end
@@ -2654,6 +2712,23 @@ do
             end;
         end);
     
+        Slider.SliderOuter = SliderOuter;
+        Slider.Groupbox = Groupbox;
+        Slider.Idx = Idx;
+    
+        function Slider:Destroy()
+            if self.Label and self.Label.Parent then
+                self.Label:Destroy()
+            end
+            if self.SliderOuter and self.SliderOuter.Parent then
+                self.SliderOuter:Destroy()
+            end
+            if Options[self.Idx] == self then
+                Options[self.Idx] = nil
+            end
+            self.Groupbox:Resize()
+        end
+    
         Slider:Display();
         Groupbox:AddBlank(Info.BlankSize or 6);
         Groupbox:Resize();
@@ -2703,6 +2778,7 @@ do
                 ZIndex = 5;
                 Parent = Container;
             });
+            Dropdown.DropdownLabel = DropdownLabel;
 
             Groupbox:AddBlank(3);
         end
@@ -2787,6 +2863,7 @@ do
             Visible = false;
             Parent = ScreenGui;
         });
+        Dropdown.ListOuter = ListOuter;
 
         local function RecalculateListPosition()
             ListOuter.Position = UDim2.fromOffset(DropdownOuter.AbsolutePosition.X, DropdownOuter.AbsolutePosition.Y + DropdownOuter.Size.Y.Offset + 1);
@@ -3102,6 +3179,26 @@ do
             Dropdown:Display();
         end
 
+        Dropdown.DropdownOuter = DropdownOuter;
+        Dropdown.Groupbox = Groupbox;
+        Dropdown.Idx = Idx;
+
+        function Dropdown:Destroy()
+            if self.DropdownLabel and self.DropdownLabel.Parent then
+                self.DropdownLabel:Destroy()
+            end
+            if self.DropdownOuter and self.DropdownOuter.Parent then
+                self.DropdownOuter:Destroy()
+            end
+            if self.ListOuter and self.ListOuter.Parent then
+                self.ListOuter:Destroy()
+            end
+            if Options[self.Idx] == self then
+                Options[self.Idx] = nil
+            end
+            self.Groupbox:Resize()
+        end
+
         Groupbox:AddBlank(Info.BlankSize or 5);
         Groupbox:Resize();
 
@@ -3240,7 +3337,7 @@ do
 
     local WatermarkShadow = Instance.new("ImageLabel",WatermarkOuter);
     WatermarkShadow.Name = "Shadow";
-    WatermarkShadow.Visible = true;
+    WatermarkShadow.Visible = false;
     WatermarkShadow.Image = "rbxassetid://77943359001214";
     WatermarkShadow.Position = UDim2.new(0, -50, 0, -50);
     WatermarkShadow.Size = UDim2.new(1, 100, 1, 100);
@@ -3477,7 +3574,7 @@ do
 
     local KeybindShadow = Instance.new("ImageLabel",KeybindOuter);
     KeybindShadow.Name = "Shadow";
-    KeybindShadow.Visible = true;
+    KeybindShadow.Visible = false;
     KeybindShadow.Image = "rbxassetid://73866778642588";
     KeybindShadow.Position = UDim2.new(0, -50, 0, -50);
     KeybindShadow.Size = UDim2.new(1, 100, 1, 100);
@@ -4521,7 +4618,7 @@ function Library:CreateWindow(...)
 
     local MainShadow = Instance.new("ImageLabel",Outer);
     MainShadow.Name = "Shadow";
-    MainShadow.Visible = true;
+    MainShadow.Visible = false;
     MainShadow.Image = "rbxassetid://135199846610274";
     MainShadow.Position = UDim2.new(0, -50, 0, -50);
     MainShadow.Size = UDim2.new(0, 650, 0, 700);
