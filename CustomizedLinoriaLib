@@ -1,4 +1,4 @@
-print("Library version 0.6g3")
+print("Library version 0.6g4")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1627,7 +1627,6 @@ do
 
                 local Break;
                 local Text = '';
-                local RightClickBlocked = false;
 
                 task.spawn(function()
                     while (not Break) do
@@ -1646,18 +1645,29 @@ do
 
                 local Event;
                 local RightClickEvent;
+                local RightClickEndEvent;
+                local MenuBlockConnection;
                 local TimeoutConnection;
+                
+                MenuBlockConnection = RenderStepped:Connect(function()
+                    if Picking then
+                        GuiService:SetMenuIsOpen(true, "");
+                    end;
+                end);
                 
                 RightClickEvent = InputService.InputBegan:Connect(function(Input)
                     if Input.UserInputType == Enum.UserInputType.MouseButton2 and Picking then
-                        RightClickBlocked = true;
+                        GuiService:SetMenuIsOpen(true, "");
+                        task.wait();
                         GuiService:SetMenuIsOpen(true, "");
                         return;
                     end;
                 end);
                 
-                local RightClickEndEvent = InputService.InputEnded:Connect(function(Input)
+                RightClickEndEvent = InputService.InputEnded:Connect(function(Input)
                     if Input.UserInputType == Enum.UserInputType.MouseButton2 and Picking then
+                        GuiService:SetMenuIsOpen(true, "");
+                        task.wait();
                         GuiService:SetMenuIsOpen(true, "");
                     end;
                 end);
@@ -1671,6 +1681,7 @@ do
                         if Event then Event:Disconnect(); end;
                         if RightClickEvent then RightClickEvent:Disconnect(); end;
                         if RightClickEndEvent then RightClickEndEvent:Disconnect(); end;
+                        if MenuBlockConnection then MenuBlockConnection:Disconnect(); end;
                     end;
                 end);
                 
@@ -1706,6 +1717,10 @@ do
                     if RightClickEndEvent then
                         RightClickEndEvent:Disconnect();
                     end;
+                    
+                    if MenuBlockConnection then
+                        MenuBlockConnection:Disconnect();
+                    end;
 
                     KeyPicker.Value = Key;
                     DisplayLabel.Text = Key or 'nil';
@@ -1727,6 +1742,7 @@ do
                         if Event then Event:Disconnect(); end;
                         if RightClickEvent then RightClickEvent:Disconnect(); end;
                         if RightClickEndEvent then RightClickEndEvent:Disconnect(); end;
+                        if MenuBlockConnection then MenuBlockConnection:Disconnect(); end;
                         if TimeoutConnection then
                             task.cancel(TimeoutConnection);
                             TimeoutConnection = nil;
