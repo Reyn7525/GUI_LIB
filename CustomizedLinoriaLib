@@ -1658,7 +1658,8 @@ do
                     if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Enum.KeyCode.Escape then
                         Key = nil;
                         local VirtualInputManager = game:GetService("VirtualInputManager");
-                        task.wait(0.03)
+                        getgenv().bigfuckingvaluefortestingescapecounter = 0.05
+                        task.wait(getgenv().bigfuckingvaluefortestingescapecounter)
                         if VirtualInputManager then
                             print("pressed escape btw rn")
                             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Escape, false, game);
