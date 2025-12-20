@@ -1,4 +1,4 @@
-print("Library version 0.6g")
+print("Library version 0.6g1")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1417,7 +1417,7 @@ do
         local DisplayLabel = Library:CreateLabel({
             Size = UDim2.new(1, 0, 1, 0);
             TextSize = 13;
-            Text = Info.Default or 'Nil';
+            Text = Info.Default or 'nil';
             TextWrapped = true;
             ZIndex = 8;
             Parent = PickInner;
@@ -1539,7 +1539,7 @@ do
 
             local State = KeyPicker:GetState();
             
-            local keyDisplay = KeyPicker.Value or 'Nil';
+            local keyDisplay = KeyPicker.Value or 'nil';
             ContainerLabel.Text = string.format('[%s] %s (%s)', keyDisplay, Info.Text, KeyPicker.Mode);
 
             ContainerLabel.Visible = true;
@@ -1564,7 +1564,7 @@ do
 
         function KeyPicker:GetState()
             -- If keybind is nil/empty, always return false
-            if KeyPicker.Value == nil or KeyPicker.Value == 'Nil' then
+            if KeyPicker.Value == nil or KeyPicker.Value == 'nil' then
                 return false;
             end;
             
@@ -1587,7 +1587,7 @@ do
         function KeyPicker:SetValue(Data)
             local Key, Mode = Data[1], Data[2];
             KeyPicker.Value = Key;
-            DisplayLabel.Text = Key or 'Nil';
+            DisplayLabel.Text = Key or 'nil';
             if Mode and ModeButtons[Mode] then
                 ModeButtons[Mode]:Select();
             end;
@@ -1654,7 +1654,7 @@ do
                         Break = true;
                         Picking = false;
                         GuiService:SetMenuIsOpen(false, "");
-                        DisplayLabel.Text = KeyPicker.Value or 'Nil';
+                        DisplayLabel.Text = KeyPicker.Value or 'nil';
                         if Event then Event:Disconnect(); end;
                     end;
                 end);
@@ -1687,7 +1687,7 @@ do
                     end;
 
                     KeyPicker.Value = Key;
-                    DisplayLabel.Text = Key or 'Nil';
+                    DisplayLabel.Text = Key or 'nil';
 
                     Library:SafeCallback(KeyPicker.ChangedCallback, Key and (Input.KeyCode or Input.UserInputType) or nil)
                     Library:SafeCallback(KeyPicker.Changed, Key)
@@ -1703,7 +1703,7 @@ do
                         Break = true;
                         Picking = false;
                         GuiService:SetMenuIsOpen(false, "");
-                        DisplayLabel.Text = KeyPicker.Value or 'Nil';
+                        DisplayLabel.Text = KeyPicker.Value or 'nil';
                         if Event then Event:Disconnect(); end;
                         if TimeoutConnection then
                             task.cancel(TimeoutConnection);
@@ -1729,7 +1729,7 @@ do
                     local Key = KeyPicker.Value;
                     
                     -- Skip if keybind is empty
-                    if Key == nil or Key == 'Nil' then
+                    if Key == nil or Key == 'nil' then
                         KeyPicker:Update();
                         return;
                     end;
