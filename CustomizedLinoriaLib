@@ -1,4 +1,4 @@
-print("Library version 0.6d")
+print("Library version 0.6e")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -49,7 +49,7 @@ ScreenGui:SetAttribute("NotifyScale", 1)
 ScreenGui:SetAttribute("NotifyPaddingX", 12)
 ScreenGui:SetAttribute("NotifyPaddingY", 12)
 ScreenGui:SetAttribute("NotifyPosition", "LeftUp")
-ScreenGui:SetAttribute("GlowIntensivity",0.4)
+ScreenGui:SetAttribute("GlowIntensivity",0.2)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
 ScreenGui:SetAttribute("TextOutlineColor",Color3.new(0,0,0))
@@ -3373,7 +3373,7 @@ do
 
     local WatermarkShadow = Instance.new("ImageLabel",WatermarkOuter);
     WatermarkShadow.Name = "Shadow";
-    WatermarkShadow.Visible = false;
+    WatermarkShadow.Visible = true;
     WatermarkShadow.Image = "rbxassetid://77943359001214";
     WatermarkShadow.Position = UDim2.new(0, -50, 0, -50);
     WatermarkShadow.Size = UDim2.new(1, 100, 1, 100);
@@ -3610,7 +3610,7 @@ do
 
     local KeybindShadow = Instance.new("ImageLabel",KeybindOuter);
     KeybindShadow.Name = "Shadow";
-    KeybindShadow.Visible = false;
+    KeybindShadow.Visible = true;
     KeybindShadow.Image = "rbxassetid://73866778642588";
     KeybindShadow.Position = UDim2.new(0, -50, 0, -50);
     KeybindShadow.Size = UDim2.new(1, 100, 1, 100);
@@ -4654,7 +4654,7 @@ function Library:CreateWindow(...)
 
     local MainShadow = Instance.new("ImageLabel",Outer);
     MainShadow.Name = "Shadow";
-    MainShadow.Visible = false;
+    MainShadow.Visible = true;
     MainShadow.Image = "rbxassetid://135199846610274";
     MainShadow.Position = UDim2.new(0, -50, 0, -50);
     MainShadow.Size = UDim2.new(0, 650, 0, 700);
