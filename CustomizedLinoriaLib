@@ -1,4 +1,4 @@
-print("Library version 0.6g4")
+print("Library version 0.6h")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -7,7 +7,6 @@ local Teams = game:GetService('Teams');
 local Players = game:GetService('Players');
 local RunService = game:GetService('RunService')
 local TweenService = game:GetService('TweenService');
-local GuiService = game:GetService('GuiService');
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
@@ -1620,8 +1619,6 @@ do
         PickOuter.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
                 Picking = true;
-                
-                GuiService:SetMenuIsOpen(true, "");
 
                 DisplayLabel.Text = '';
 
@@ -1644,44 +1641,14 @@ do
                 wait(0.2);
 
                 local Event;
-                local RightClickEvent;
-                local RightClickEndEvent;
-                local MenuBlockConnection;
                 local TimeoutConnection;
-                
-                MenuBlockConnection = RenderStepped:Connect(function()
-                    if Picking then
-                        GuiService:SetMenuIsOpen(true, "");
-                    end;
-                end);
-                
-                RightClickEvent = InputService.InputBegan:Connect(function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton2 and Picking then
-                        GuiService:SetMenuIsOpen(true, "");
-                        task.wait();
-                        GuiService:SetMenuIsOpen(true, "");
-                        return;
-                    end;
-                end);
-                
-                RightClickEndEvent = InputService.InputEnded:Connect(function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton2 and Picking then
-                        GuiService:SetMenuIsOpen(true, "");
-                        task.wait();
-                        GuiService:SetMenuIsOpen(true, "");
-                    end;
-                end);
                 
                 TimeoutConnection = task.delay(10, function()
                     if not Break then
                         Break = true;
                         Picking = false;
-                        GuiService:SetMenuIsOpen(false, "");
                         DisplayLabel.Text = KeyPicker.Value or 'nil';
                         if Event then Event:Disconnect(); end;
-                        if RightClickEvent then RightClickEvent:Disconnect(); end;
-                        if RightClickEndEvent then RightClickEndEvent:Disconnect(); end;
-                        if MenuBlockConnection then MenuBlockConnection:Disconnect(); end;
                     end;
                 end);
                 
@@ -1703,23 +1670,9 @@ do
                     Break = true;
                     Picking = false;
                     
-                    GuiService:SetMenuIsOpen(false, "");
-                    
                     if TimeoutConnection then
                         task.cancel(TimeoutConnection);
                         TimeoutConnection = nil;
-                    end;
-                    
-                    if RightClickEvent then
-                        RightClickEvent:Disconnect();
-                    end;
-                    
-                    if RightClickEndEvent then
-                        RightClickEndEvent:Disconnect();
-                    end;
-                    
-                    if MenuBlockConnection then
-                        MenuBlockConnection:Disconnect();
                     end;
 
                     KeyPicker.Value = Key;
@@ -1737,12 +1690,8 @@ do
                     if not Break then
                         Break = true;
                         Picking = false;
-                        GuiService:SetMenuIsOpen(false, "");
                         DisplayLabel.Text = KeyPicker.Value or 'nil';
                         if Event then Event:Disconnect(); end;
-                        if RightClickEvent then RightClickEvent:Disconnect(); end;
-                        if RightClickEndEvent then RightClickEndEvent:Disconnect(); end;
-                        if MenuBlockConnection then MenuBlockConnection:Disconnect(); end;
                         if TimeoutConnection then
                             task.cancel(TimeoutConnection);
                             TimeoutConnection = nil;
