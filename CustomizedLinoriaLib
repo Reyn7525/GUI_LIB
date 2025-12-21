@@ -1,4 +1,4 @@
-print("Library version 0.6j")
+print("Library version 0.6k")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -351,31 +351,26 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         Library.CurrentRainbowColor = Color3.fromHSV(Hue, 0.8, 1);
     end
 
-    -- Watermark centering logic
     if Library.Watermark and Library.Watermark.Parent and Library.Watermark.Visible then
         local watermark = Library.Watermark;
         local currentWidth = watermark.AbsoluteSize.X;
         local lastWidth = Library.WatermarkCentering.lastWidth();
         
-        -- Update width tracking
         if currentWidth ~= lastWidth then
             Library.WatermarkCentering.setLastWidth(currentWidth);
         end
 
-        -- Calculate center positions
         local windowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
         local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
         local distanceFromCenter = math.abs(windowCenterX - screenCenterX);
 
-        -- Auto-center if close to center (within 10 pixels)
-        if distanceFromCenter <= 10 then
+        if distanceFromCenter <= 10 and not Library.WatermarkCentering.isHolding() then
             watermark.Position = UDim2.new(
                 0.5, -currentWidth / 2,
                 watermark.Position.Y.Scale,
                 watermark.Position.Y.Offset
             );
-        elseif currentWidth ~= lastWidth and lastWidth > 0 then
-            -- Adjust position when width changes to maintain relative position
+        elseif currentWidth ~= lastWidth and lastWidth > 0 and not Library.WatermarkCentering.isHolding() then
             local widthDifference = currentWidth - lastWidth;
             local currentWindowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
             
@@ -385,6 +380,40 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
                     watermark.Position.X.Offset - widthDifference,
                     watermark.Position.Y.Scale,
                     watermark.Position.Y.Offset
+                );
+            end
+        end
+    end
+
+    if Library.KeybindFrame and Library.KeybindFrame.Parent and Library.KeybindFrame.Visible and Library.KeybindCentering then
+        local keybindFrame = Library.KeybindFrame;
+        local currentWidth = keybindFrame.AbsoluteSize.X;
+        local lastWidth = Library.KeybindCentering.lastWidth();
+        
+        if currentWidth ~= lastWidth then
+            Library.KeybindCentering.setLastWidth(currentWidth);
+        end
+
+        local windowCenterX = keybindFrame.AbsolutePosition.X + keybindFrame.AbsoluteSize.X / 2;
+        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
+        local distanceFromCenter = math.abs(windowCenterX - screenCenterX);
+
+        if distanceFromCenter <= 10 and not Library.KeybindCentering.isHolding() then
+            keybindFrame.Position = UDim2.new(
+                0.5, -currentWidth / 2,
+                keybindFrame.Position.Y.Scale,
+                keybindFrame.Position.Y.Offset
+            );
+        elseif currentWidth ~= lastWidth and lastWidth > 0 and not Library.KeybindCentering.isHolding() then
+            local widthDifference = currentWidth - lastWidth;
+            local currentWindowCenterX = keybindFrame.AbsolutePosition.X + keybindFrame.AbsoluteSize.X / 2;
+            
+            if currentWindowCenterX > screenCenterX then
+                keybindFrame.Position = UDim2.new(
+                    keybindFrame.Position.X.Scale,
+                    keybindFrame.Position.X.Offset - widthDifference,
+                    keybindFrame.Position.Y.Scale,
+                    keybindFrame.Position.Y.Offset
                 );
             end
         end
@@ -1559,6 +1588,9 @@ do
             end;
 
             Library.KeybindFrame.Size = UDim2.new(0, math.max(XSize + 10, 210), 0, YSize + 23)
+            if Library.KeybindCentering then
+                Library.KeybindCentering.setLastWidth(Library.KeybindFrame.AbsoluteSize.X);
+            end;
         end;
 
         function KeyPicker:GetState()
@@ -3607,6 +3639,19 @@ do
                     showCrossLines();
                 end;
             end;
+            if Library.KeybindFrame and Library.KeybindFrame.Parent and Library.KeybindFrame.Visible then
+                local mouse = LocalPlayer:GetMouse();
+                local mousePosition = Vector2.new(mouse.X, mouse.Y);
+                local windowPosition = Library.KeybindFrame.AbsolutePosition;
+                local windowSize = Library.KeybindFrame.AbsoluteSize;
+
+                if mousePosition.X >= windowPosition.X and mousePosition.X <= windowPosition.X + windowSize.X and
+                    mousePosition.Y >= windowPosition.Y and mousePosition.Y <= windowPosition.Y + windowSize.Y then
+                    if Library.KeybindCentering then
+                        Library.KeybindCentering.setIsHolding(true);
+                    end;
+                end;
+            end;
         end;
     end);
 
@@ -3615,6 +3660,9 @@ do
             if isHoldingWatermark then
                 isHoldingWatermark = false;
                 hideCrossLines();
+            end;
+            if Library.KeybindCentering and Library.KeybindCentering.isHolding() then
+                Library.KeybindCentering.setIsHolding(false);
             end;
         end;
     end);
@@ -3712,6 +3760,16 @@ do
     Library.KeybindFrame = KeybindOuter;
     Library.KeybindContainer = KeybindContainer;
     Library:MakeDraggable(KeybindOuter);
+
+    local lastKeybindWidth = KeybindOuter.AbsoluteSize.X;
+    local isHoldingKeybind = false;
+
+    Library.KeybindCentering = {
+        isHolding = function() return isHoldingKeybind end;
+        lastWidth = function() return lastKeybindWidth end;
+        setLastWidth = function(width) lastKeybindWidth = width end;
+        setIsHolding = function(value) isHoldingKeybind = value end;
+    };
 end;
 
 function Library:SetWatermarkVisibility(Bool)
@@ -3725,7 +3783,6 @@ function Library:SetWatermark(Text)
     local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
     local newWidth = X + 15;
     
-    -- Update last width for centering logic
     if Library.WatermarkCentering then
         Library.WatermarkCentering.setLastWidth(Library.Watermark.AbsoluteSize.X);
     end;
