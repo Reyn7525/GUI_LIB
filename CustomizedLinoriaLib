@@ -1,4 +1,4 @@
-print("Library version 0.6k2")
+print("Library version 0.6k3")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -399,8 +399,9 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         local distanceFromCenter = math.abs(windowCenterX - screenCenterX);
 
         if distanceFromCenter <= 10 and not Library.KeybindCentering.isHolding() then
+            keybindFrame.AnchorPoint = Vector2.new(0.5, 0.5);
             keybindFrame.Position = UDim2.new(
-                0.5, -currentWidth / 2,
+                0.5, 0,
                 keybindFrame.Position.Y.Scale,
                 keybindFrame.Position.Y.Offset
             );
