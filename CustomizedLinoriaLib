@@ -1,4 +1,4 @@
-print("Library version 0.6k3")
+print("Library version 0.6i10")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -385,40 +385,6 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         end
     end
 
-    if Library.KeybindFrame and Library.KeybindFrame.Parent and Library.KeybindFrame.Visible and Library.KeybindCentering then
-        local keybindFrame = Library.KeybindFrame;
-        local currentWidth = keybindFrame.AbsoluteSize.X;
-        local lastWidth = Library.KeybindCentering.lastWidth();
-        
-        if currentWidth ~= lastWidth then
-            Library.KeybindCentering.setLastWidth(currentWidth);
-        end
-
-        local windowCenterX = keybindFrame.AbsolutePosition.X + keybindFrame.AbsoluteSize.X / 2;
-        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
-        local distanceFromCenter = math.abs(windowCenterX - screenCenterX);
-
-        if distanceFromCenter <= 10 and not Library.KeybindCentering.isHolding() then
-            keybindFrame.AnchorPoint = Vector2.new(0.5, 0.5);
-            keybindFrame.Position = UDim2.new(
-                0.5, 0,
-                keybindFrame.Position.Y.Scale,
-                keybindFrame.Position.Y.Offset
-            );
-        elseif currentWidth ~= lastWidth and lastWidth > 0 and not Library.KeybindCentering.isHolding() then
-            local widthDifference = currentWidth - lastWidth;
-            local currentWindowCenterX = keybindFrame.AbsolutePosition.X + keybindFrame.AbsoluteSize.X / 2;
-            
-            if currentWindowCenterX > screenCenterX then
-                keybindFrame.Position = UDim2.new(
-                    keybindFrame.Position.X.Scale,
-                    keybindFrame.Position.X.Offset - widthDifference,
-                    keybindFrame.Position.Y.Scale,
-                    keybindFrame.Position.Y.Offset
-                );
-            end
-        end
-    end
 end))
 
 local function GetPlayersString()
@@ -1589,9 +1555,6 @@ do
             end;
 
             Library.KeybindFrame.Size = UDim2.new(0, math.max(XSize + 10, 210), 0, YSize + 23)
-            if Library.KeybindCentering then
-                Library.KeybindCentering.setLastWidth(Library.KeybindFrame.AbsoluteSize.X);
-            end;
         end;
 
         function KeyPicker:GetState()
@@ -3640,19 +3603,6 @@ do
                     showCrossLines();
                 end;
             end;
-            if Library.KeybindFrame and Library.KeybindFrame.Parent and Library.KeybindFrame.Visible then
-                local mouse = LocalPlayer:GetMouse();
-                local mousePosition = Vector2.new(mouse.X, mouse.Y);
-                local windowPosition = Library.KeybindFrame.AbsolutePosition;
-                local windowSize = Library.KeybindFrame.AbsoluteSize;
-
-                if mousePosition.X >= windowPosition.X and mousePosition.X <= windowPosition.X + windowSize.X and
-                    mousePosition.Y >= windowPosition.Y and mousePosition.Y <= windowPosition.Y + windowSize.Y then
-                    if Library.KeybindCentering then
-                        Library.KeybindCentering.setIsHolding(true);
-                    end;
-                end;
-            end;
         end;
     end);
 
@@ -3661,9 +3611,6 @@ do
             if isHoldingWatermark then
                 isHoldingWatermark = false;
                 hideCrossLines();
-            end;
-            if Library.KeybindCentering and Library.KeybindCentering.isHolding() then
-                Library.KeybindCentering.setIsHolding(false);
             end;
         end;
     end);
@@ -3761,16 +3708,6 @@ do
     Library.KeybindFrame = KeybindOuter;
     Library.KeybindContainer = KeybindContainer;
     Library:MakeDraggable(KeybindOuter);
-
-    local lastKeybindWidth = KeybindOuter.AbsoluteSize.X;
-    local isHoldingKeybind = false;
-
-    Library.KeybindCentering = {
-        isHolding = function() return isHoldingKeybind end;
-        lastWidth = function() return lastKeybindWidth end;
-        setLastWidth = function(width) lastKeybindWidth = width end;
-        setIsHolding = function(value) isHoldingKeybind = value end;
-    };
 end;
 
 function Library:SetWatermarkVisibility(Bool)
