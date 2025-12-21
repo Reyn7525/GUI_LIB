@@ -1,4 +1,4 @@
-print("Library version 0.6i9")
+print("Library version 0.6j")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4431,6 +4431,11 @@ function Library:CreateWindow(...)
     function Library:Toggle()
         if Fading then
             return;
+        end;
+        
+        for Frame, _ in next, Library.OpenedFrames do
+            Frame.Visible = false;
+            Library.OpenedFrames[Frame] = nil;
         end;
         
         local FadeTime = Config.MenuFadeTime;
