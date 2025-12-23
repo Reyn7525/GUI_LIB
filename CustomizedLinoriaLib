@@ -1,4 +1,4 @@
-print("Library version 0.6k")
+print("Library version 0.6L")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4698,6 +4698,15 @@ function Library:CreateWindow(...)
         task.wait(FadeTime);
     
         Outer.Visible = Toggled;
+    
+        -- Обновляем все цветовые пикеры при открытии меню, чтобы DisplayFrame показывал правильную прозрачность
+        if Toggled then
+            for _, Option in next, Options do
+                if Option and Option.Type == 'ColorPicker' and Option.DisplayFrame then
+                    Option:Display();
+                end;
+            end;
+        end;
     
         Fading = false;
     end
