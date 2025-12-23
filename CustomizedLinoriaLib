@@ -1,4 +1,4 @@
-print("Library version 0.6i10")
+print("Library version 0.6j")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -42,6 +42,7 @@ local Library = {
 
     Signals = {};
     ScreenGui = ScreenGui;
+    Unloaded = false;
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
@@ -510,6 +511,15 @@ function Library:MakeDraggable(Instance, Cutoff)
             isDragging = true;
 
             connection = game:GetService("RunService").Heartbeat:Connect(function()
+                if Library.Unloaded or not ScreenGui or not ScreenGui.Parent then
+                    if connection then
+                        connection:Disconnect();
+                        connection = nil;
+                    end;
+                    isDragging = false;
+                    return;
+                end;
+                
                 if not game:GetService("UserInputService"):IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
                     if connection then
                         connection:Disconnect();
@@ -529,10 +539,10 @@ function Library:MakeDraggable(Instance, Cutoff)
                 end;
                 
                 Instance.Position = UDim2.new(
-                    0,
-                    game.Players.LocalPlayer:GetMouse().X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
-                    0,
-                    game.Players.LocalPlayer:GetMouse().Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+                   0,
+                   game.Players.LocalPlayer:GetMouse().X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
+                   0,
+                   game.Players.LocalPlayer:GetMouse().Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
                 );
             end);
         end;
@@ -740,6 +750,7 @@ function Library:GiveSignal(Signal)
 end
 
 function Library:Unload()
+    Library.Unloaded = true
     -- Unload all of the signals
     for Idx = #Library.Signals, 1, -1 do
         local Connection = table.remove(Library.Signals, Idx)
@@ -4757,8 +4768,8 @@ local function OnPlayerChange()
     end;
 end;
 
-Players.PlayerAdded:Connect(OnPlayerChange);
-Players.PlayerRemoving:Connect(OnPlayerChange);
+Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange));
+Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
 
 getgenv().Library = Library
 return Library
