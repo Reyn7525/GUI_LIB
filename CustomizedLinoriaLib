@@ -1,4 +1,4 @@
-print("Library version 0.6j")
+print("Library version 0.6k")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1250,6 +1250,7 @@ do
                 end;
             end;
 
+            ColorPicker:Display();
             PickerFrameOuter.Visible = true;
             Library.OpenedFrames[PickerFrameOuter] = true;
         end;
