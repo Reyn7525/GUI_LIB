@@ -1,4 +1,4 @@
-print("Library version 0.6M")
+print("Library version 0.6M1")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -745,19 +745,16 @@ function Library:UpdateColorsUsingRegistry()
 end;
 
 function Library:GiveSignal(Signal)
-    -- Only used for signals not attached to library instances, as those should be cleaned up on object destruction by Roblox
     table.insert(Library.Signals, Signal)
 end
 
 function Library:Unload()
     Library.Unloaded = true
-    -- Unload all of the signals
     for Idx = #Library.Signals, 1, -1 do
         local Connection = table.remove(Library.Signals, Idx)
         Connection:Disconnect()
     end
 
-     -- Call our unload callback, maybe to undo some hooks etc
     if Library.OnUnload then
         Library.OnUnload()
     end
@@ -1382,11 +1379,10 @@ do
         local ToggleLabel = self.TextLabel;
         local Container = self.Container;
 
-        -- Allow nil as default value for empty keybind
         local KeyPicker = {
             Value = Info.Default or nil;
             Toggled = false;
-            Mode = Info.Mode or 'Toggle'; -- Always, Toggle, Hold
+            Mode = Info.Mode or 'Toggle';
             Type = 'KeyPicker';
             Callback = Info.Callback or function(Value) end;
             ChangedCallback = Info.ChangedCallback or function(New) end;
@@ -2812,10 +2808,8 @@ do
                         
                         local newValue = Slider.Value
                         if Input.Position.Z > 0 then
-                            -- Прокрутка вверх
                             newValue = Slider.Value + step
                         else
-                            -- Прокрутка вниз
                             newValue = Slider.Value - step
                         end
                         
@@ -4734,7 +4728,6 @@ function Library:CreateWindow(...)
     
         Outer.Visible = Toggled;
     
-        -- Обновляем все цветовые пикеры при открытии меню, чтобы DisplayFrame показывал правильную прозрачность
         if Toggled then
             for _, Option in next, Options do
                 if Option and Option.Type == 'ColorPicker' and Option.DisplayFrame then
