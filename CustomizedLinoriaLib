@@ -1,4 +1,4 @@
-print("Library version 0.6M2")
+print("Library version 0.6M3")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4750,14 +4750,29 @@ function Library:CreateWindow(...)
     end))
     
     local blockedScrollingFrames = {}
+    local restorePending = false
     
     local function restoreScrollingFrames()
-        for frame, savedValue in pairs(blockedScrollingFrames) do
-            if frame and frame.Parent then
-                frame.ScrollingEnabled = savedValue
-            end
-            blockedScrollingFrames[frame] = nil
+        if restorePending then
+            return
         end
+        
+        restorePending = true
+        task.spawn(function()
+            task.wait(0.15)
+            for frame, data in pairs(blockedScrollingFrames) do
+                if frame and frame.Parent then
+                    if data.connection then
+                        data.connection:Disconnect()
+                    end
+                    if not (InputService:IsKeyDown(Enum.KeyCode.LeftControl) or InputService:IsKeyDown(Enum.KeyCode.RightControl)) then
+                        frame.ScrollingEnabled = data.scrollingEnabled
+                    end
+                end
+                blockedScrollingFrames[frame] = nil
+            end
+            restorePending = false
+        end)
     end
     
     Library:GiveSignal(InputService.InputChanged:Connect(function(Input)
@@ -4777,8 +4792,21 @@ function Library:CreateWindow(...)
                            mousePos.Y >= framePos.Y and mousePos.Y <= framePos.Y + frameSize.Y then
                             if not blockedScrollingFrames[descendant] then
                                 local savedScrollingEnabled = descendant.ScrollingEnabled
-                                blockedScrollingFrames[descendant] = savedScrollingEnabled
+                                local savedCanvasPosition = descendant.CanvasPosition
+                                
                                 descendant.ScrollingEnabled = false
+                                
+                                local connection = descendant:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+                                    if InputService:IsKeyDown(Enum.KeyCode.LeftControl) or InputService:IsKeyDown(Enum.KeyCode.RightControl) then
+                                        descendant.CanvasPosition = savedCanvasPosition
+                                    end
+                                end)
+                                
+                                blockedScrollingFrames[descendant] = {
+                                    scrollingEnabled = savedScrollingEnabled,
+                                    canvasPosition = savedCanvasPosition,
+                                    connection = connection
+                                }
                             end
                         end
                     end
