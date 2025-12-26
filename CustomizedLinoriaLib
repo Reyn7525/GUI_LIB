@@ -1,4 +1,4 @@
-print("Library version 0.6M6")
+print("Library version 0.6M7")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4750,48 +4750,27 @@ function Library:CreateWindow(...)
     end))
     
     local blockedScrollingFrames = {}
-    local lastWheelTime = 0
-    local releaseTime = 0
     
     Library:GiveSignal(RenderStepped:Connect(function()
         local isControlPressed = InputService:IsKeyDown(Enum.KeyCode.LeftControl) or InputService:IsKeyDown(Enum.KeyCode.RightControl)
-        local currentTime = tick()
         
-        if isControlPressed then
-            for frame, data in pairs(blockedScrollingFrames) do
-                if frame and frame.Parent then
+        for frame, data in pairs(blockedScrollingFrames) do
+            if frame and frame.Parent then
+                if isControlPressed then
+                    if frame.CanvasPosition ~= data.canvasPosition then
+                        frame.CanvasPosition = data.canvasPosition
+                    end
+                else
                     if frame.CanvasPosition ~= data.canvasPosition then
                         frame.CanvasPosition = data.canvasPosition
                     end
                 end
-            end
-        else
-            for frame, data in pairs(blockedScrollingFrames) do
-                if frame and frame.Parent then
-                    if frame.CanvasPosition ~= data.canvasPosition then
-                        frame.CanvasPosition = data.canvasPosition
-                    end
-                end
-            end
-            
-            if releaseTime > 0 and currentTime - releaseTime > 0.5 and currentTime - lastWheelTime > 0.5 then
-                for frame, data in pairs(blockedScrollingFrames) do
-                    if frame and frame.Parent then
-                        if data.connection then
-                            data.connection:Disconnect()
-                        end
-                        frame.ScrollingEnabled = data.scrollingEnabled
-                    end
-                    blockedScrollingFrames[frame] = nil
-                end
-                releaseTime = 0
             end
         end
     end))
     
     Library:GiveSignal(InputService.InputChanged:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseWheel then
-            lastWheelTime = tick()
             local isControlPressed = InputService:IsKeyDown(Enum.KeyCode.LeftControl) or InputService:IsKeyDown(Enum.KeyCode.RightControl)
             
             if isControlPressed then
@@ -4829,27 +4808,15 @@ function Library:CreateWindow(...)
                     end
                 end
             else
-                local hasBlockedFrames = false
-                for _ in pairs(blockedScrollingFrames) do
-                    hasBlockedFrames = true
-                    break
+                for frame, data in pairs(blockedScrollingFrames) do
+                    if frame and frame.Parent then
+                        if data.connection then
+                            data.connection:Disconnect()
+                        end
+                        frame.ScrollingEnabled = data.scrollingEnabled
+                    end
+                    blockedScrollingFrames[frame] = nil
                 end
-                if hasBlockedFrames then
-                    releaseTime = tick()
-                end
-            end
-        end
-    end))
-    
-    Library:GiveSignal(InputService.InputEnded:Connect(function(Input)
-        if Input.KeyCode == Enum.KeyCode.LeftControl or Input.KeyCode == Enum.KeyCode.RightControl then
-            local hasBlockedFrames = false
-            for _ in pairs(blockedScrollingFrames) do
-                hasBlockedFrames = true
-                break
-            end
-            if hasBlockedFrames then
-                releaseTime = tick()
             end
         end
     end))
