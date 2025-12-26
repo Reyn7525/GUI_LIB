@@ -1,4 +1,4 @@
-print("Library version 0.6M1")
+print("Library version 0.6M2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4746,6 +4746,52 @@ function Library:CreateWindow(...)
             end
         elseif Input.KeyCode == Enum.KeyCode.RightControl or (Input.KeyCode == Enum.KeyCode.RightShift and (not Processed)) then
             task.spawn(Library.Toggle)
+        end
+    end))
+    
+    local blockedScrollingFrames = {}
+    
+    local function restoreScrollingFrames()
+        for frame, savedValue in pairs(blockedScrollingFrames) do
+            if frame and frame.Parent then
+                frame.ScrollingEnabled = savedValue
+            end
+            blockedScrollingFrames[frame] = nil
+        end
+    end
+    
+    Library:GiveSignal(InputService.InputChanged:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseWheel then
+            local isControlPressed = InputService:IsKeyDown(Enum.KeyCode.LeftControl) or InputService:IsKeyDown(Enum.KeyCode.RightControl)
+            
+            if isControlPressed then
+                local mousePos = Vector2.new(Mouse.X, Mouse.Y)
+                local scrollingFrames = ScreenGui:GetDescendants()
+                
+                for _, descendant in ipairs(scrollingFrames) do
+                    if descendant:IsA("ScrollingFrame") then
+                        local framePos = descendant.AbsolutePosition
+                        local frameSize = descendant.AbsoluteSize
+                        
+                        if mousePos.X >= framePos.X and mousePos.X <= framePos.X + frameSize.X and
+                           mousePos.Y >= framePos.Y and mousePos.Y <= framePos.Y + frameSize.Y then
+                            if not blockedScrollingFrames[descendant] then
+                                local savedScrollingEnabled = descendant.ScrollingEnabled
+                                blockedScrollingFrames[descendant] = savedScrollingEnabled
+                                descendant.ScrollingEnabled = false
+                            end
+                        end
+                    end
+                end
+            else
+                restoreScrollingFrames()
+            end
+        end
+    end))
+    
+    Library:GiveSignal(InputService.InputEnded:Connect(function(Input)
+        if Input.KeyCode == Enum.KeyCode.LeftControl or Input.KeyCode == Enum.KeyCode.RightControl then
+            restoreScrollingFrames()
         end
     end))
 
