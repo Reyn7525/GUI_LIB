@@ -1,4 +1,4 @@
-print("Library version 0.6L1")
+print("Library version 0.6M")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2794,6 +2794,41 @@ do
     
                 Library:AttemptSave();
             end;
+        end);
+        
+        SliderInner.InputChanged:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseWheel and not Library:MouseIsOverOpenedFrame() then
+                if InputService:IsKeyDown(Enum.KeyCode.LeftControl) or InputService:IsKeyDown(Enum.KeyCode.RightControl) then
+                    local mousePos = Vector2.new(Mouse.X, Mouse.Y)
+                    local sliderPos = SliderOuter.AbsolutePosition
+                    local sliderSize = SliderOuter.AbsoluteSize
+                    
+                    if mousePos.X >= sliderPos.X and mousePos.X <= sliderPos.X + sliderSize.X and
+                       mousePos.Y >= sliderPos.Y and mousePos.Y <= sliderPos.Y + sliderSize.Y then
+                        local step = 1
+                        if Slider.Rounding > 0 then
+                            step = 10 ^ (-Slider.Rounding)
+                        end
+                        
+                        local newValue = Slider.Value
+                        if Input.Position.Z > 0 then
+                            -- Прокрутка вверх
+                            newValue = Slider.Value + step
+                        else
+                            -- Прокрутка вниз
+                            newValue = Slider.Value - step
+                        end
+                        
+                        newValue = math.clamp(newValue, Slider.Min, Slider.Max)
+                        newValue = Round(newValue)
+                        
+                        if newValue ~= Slider.Value then
+                            Slider:SetValue(newValue)
+                            Library:AttemptSave()
+                        end
+                    end
+                end
+            end
         end);
     
         Slider.SliderOuter = SliderOuter;
