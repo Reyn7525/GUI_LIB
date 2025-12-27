@@ -1,4 +1,4 @@
-print("Library version 0.6M8 | TEST")
+print("Library version 0.6M9TESTINGBUILD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3520,7 +3520,7 @@ do
         BackgroundTransparency = 1;
         BorderSizePixel = 0;
         Size = UDim2.new(0, 14, 0, 14);
-        Position = UDim2.new(0, 5, 0, 3);
+        Position = UDim2.new(0, 5, 0, 2);
         ZIndex = 204;
         Visible = false;
         Parent = InnerFrame;
@@ -3771,8 +3771,14 @@ function Library:SetWatermarkVisibility(Bool)
 end;
 
 function Library:SetWatermark(Text)
-    local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
-    local logoOffset = (Library.WatermarkLogo and Library.WatermarkLogo.Visible) and 17 or 0;
+    -- Add separator before text if logo is visible
+    local displayText = Text
+    if Library.WatermarkLogo and Library.WatermarkLogo.Visible and Text ~= "" then
+        displayText = " | " .. Text
+    end
+    
+    local X, Y = Library:GetTextBounds(displayText, ScreenGui:GetAttribute("Font"), 14);
+    local logoOffset = (Library.WatermarkLogo and Library.WatermarkLogo.Visible) and 22 or 0;
     local newWidth = X + 15 + logoOffset;
     
     if Library.WatermarkCentering then
@@ -3781,11 +3787,11 @@ function Library:SetWatermark(Text)
     
     Library.Watermark.Size = UDim2.new(0, newWidth, 0, (Y * 1.5) + 3);
 
-    Library.WatermarkText.Text = Text;
+    Library.WatermarkText.Text = displayText;
     
     -- Adjust text position based on logo visibility
     if Library.WatermarkLogo and Library.WatermarkLogo.Visible then
-        Library.WatermarkText.Position = UDim2.new(0, 22, 0, 0);
+        Library.WatermarkText.Position = UDim2.new(0, 24, 0, 0);
     else
         Library.WatermarkText.Position = UDim2.new(0, 5, 0, 0);
     end
