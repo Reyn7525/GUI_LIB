@@ -1,4 +1,4 @@
-print("Library version 0.6M12-TESTING-BUILD")
+print("Library version 0.6M13-TESTING-BUILD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3515,16 +3515,15 @@ do
         end
     });
 
-    local WatermarkLogo = Library:Create('ImageLabel', {
-        Name = "WatermarkLogo";
-        BackgroundTransparency = 1;
-        BorderSizePixel = 0;
-        Size = UDim2.new(0, 14, 0, 14);
-        Position = UDim2.new(0, 5, 0, 1);
-        ZIndex = 205;
-        Visible = false;
-        Parent = InnerFrame;
-    });
+    local WatermarkLogo = Instance.new("ImageLabel");
+    WatermarkLogo.Name = "WatermarkLogo";
+    WatermarkLogo.BackgroundTransparency = 1;
+    WatermarkLogo.BorderSizePixel = 0;
+    WatermarkLogo.Size = UDim2.new(0, 14, 0, 14);
+    WatermarkLogo.Position = UDim2.new(0, 5, 0, 1);
+    WatermarkLogo.ZIndex = 205;
+    WatermarkLogo.Visible = false;
+    WatermarkLogo.Parent = InnerFrame;
 
     local WatermarkLabel = Library:CreateLabel({
         Position = UDim2.new(0, 5, 0, 0);
