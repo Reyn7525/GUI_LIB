@@ -1,4 +1,4 @@
-print("Library version 0.6M11-TESTING-BUILD")
+print("Library version 0.6M12-TESTING-BUILD")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3816,13 +3816,16 @@ function Library:SetWatermarkLogo(ImageId, Visible)
     
     if ImageId then
         Library.WatermarkLogo.Image = "rbxassetid://" .. tostring(ImageId);
+        Library.WatermarkLogo.ImageTransparency = 0;
     end
     
     if Visible ~= nil then
         Library.WatermarkLogo.Visible = Visible;
-        -- Ensure logo position is fixed
         Library.WatermarkLogo.Position = UDim2.new(0, 5, 0, 1);
+        Library.WatermarkLogo.Size = UDim2.new(0, 14, 0, 14);
         Library.WatermarkLogo.ZIndex = 205;
+        Library.WatermarkLogo.BackgroundTransparency = 1;
+        Library.WatermarkLogo.BorderSizePixel = 0;
     end
 end;
 
