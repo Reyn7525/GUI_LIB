@@ -1,4 +1,4 @@
-print("Library version 0.6M7")
+print("Library version 0.6N")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4882,4 +4882,14 @@ Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange));
 Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
 
 getgenv().Library = Library
+
+
+print(" ███████████     dsc.gg/renhub     █████   █████            █████    ") 
+print("▒▒███▒▒▒▒▒███    Reyn    Iriska   ▒▒███   ▒▒███    Azirav  ▒▒███     ")
+print(" ▒███    ▒███   ██████  ████████   ▒███    ▒███  █████ ████ ▒███████ ")
+print(" ▒██████████   ███▒▒███▒▒███▒▒███  ▒███████████ ▒▒███ ▒███  ▒███▒▒███")
+print(" ▒███▒▒▒▒▒███ ▒███████  ▒███ ▒███  ▒███▒▒▒▒▒███  ▒███ ▒███  ▒███ ▒███")
+print(" ▒███    ▒███ ▒███▒▒▒   ▒███ ▒███  ▒███    ▒███  ▒███ ▒███  ▒███ ▒███")
+print(" █████   █████▒▒██████  ████ █████ █████   █████ ▒▒████████ ████████ ")
+print("▒▒▒▒▒   ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒   ▒▒▒▒▒   ▒▒▒▒▒▒▒▒ ▒▒▒▒▒▒▒▒  ")
 return Library
