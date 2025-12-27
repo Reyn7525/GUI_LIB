@@ -1,4 +1,4 @@
-print("Library version 0.6M14-TESTING-BUILD")
+print("Library version 0.6M7")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3515,17 +3515,6 @@ do
         end
     });
 
-    local WatermarkLogo = Instance.new("ImageLabel");
-    WatermarkLogo.Name = "WatermarkLogo";
-    WatermarkLogo.BackgroundTransparency = 1;
-    WatermarkLogo.BorderSizePixel = 0;
-    WatermarkLogo.Size = UDim2.new(0, 14, 0, 14);
-    WatermarkLogo.Position = UDim2.new(0, 5, 0, 1);
-    WatermarkLogo.ZIndex = 205;
-    WatermarkLogo.ImageTransparency = 0;
-    WatermarkLogo.Visible = false;
-    WatermarkLogo.Parent = InnerFrame;
-
     local WatermarkLabel = Library:CreateLabel({
         Position = UDim2.new(0, 5, 0, 0);
         Size = UDim2.new(1, -4, 1, 0);
@@ -3537,7 +3526,6 @@ do
 
     Library.Watermark = WatermarkOuter;
     Library.WatermarkText = WatermarkLabel;
-    Library.WatermarkLogo = WatermarkLogo;
     Library:MakeDraggable(Library.Watermark);
 
     local RenHubWatermarkCrossLines = Library:Create('ScreenGui', {
@@ -3771,22 +3759,8 @@ function Library:SetWatermarkVisibility(Bool)
 end;
 
 function Library:SetWatermark(Text)
-    local logoVisible = Library.WatermarkLogo and Library.WatermarkLogo.Visible
-    
-    -- Calculate text width without separator first
     local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
-    
-    -- Calculate logo space: logo width (14) + left padding (5) + gap (5) = 24
-    local logoSpace = logoVisible and 24 or 0
-    
-    -- Add separator width if logo is visible and text is not empty
-    local separatorWidth = 0
-    if logoVisible and Text ~= "" then
-        local separatorX = Library:GetTextBounds(" | ", ScreenGui:GetAttribute("Font"), 14);
-        separatorWidth = separatorX
-    end
-    
-    local newWidth = X + separatorWidth + 15 + logoSpace
+    local newWidth = X + 15;
     
     if Library.WatermarkCentering then
         Library.WatermarkCentering.setLastWidth(Library.Watermark.AbsoluteSize.X);
@@ -3794,39 +3768,7 @@ function Library:SetWatermark(Text)
     
     Library.Watermark.Size = UDim2.new(0, newWidth, 0, (Y * 1.5) + 3);
 
-    -- Set text with separator if needed
-    if logoVisible and Text ~= "" then
-        Library.WatermarkText.Text = " | " .. Text
-    else
-        Library.WatermarkText.Text = Text
-    end
-    
-    -- Adjust text position based on logo visibility
-    if logoVisible then
-        Library.WatermarkText.Position = UDim2.new(0, 24, 0, 0);
-    else
-        Library.WatermarkText.Position = UDim2.new(0, 5, 0, 0);
-    end
-end;
-
-function Library:SetWatermarkLogo(ImageId, Visible)
-    if not Library.WatermarkLogo then 
-        return 
-    end
-    
-    if ImageId then
-        Library.WatermarkLogo.Image = "rbxassetid://" .. tostring(ImageId);
-        Library.WatermarkLogo.ImageTransparency = 0;
-    end
-    
-    if Visible ~= nil then
-        Library.WatermarkLogo.Visible = Visible;
-        Library.WatermarkLogo.Position = UDim2.new(0, 5, 0, 1);
-        Library.WatermarkLogo.Size = UDim2.new(0, 14, 0, 14);
-        Library.WatermarkLogo.ZIndex = 205;
-        Library.WatermarkLogo.BackgroundTransparency = 1;
-        Library.WatermarkLogo.BorderSizePixel = 0;
-    end
+    Library.WatermarkText.Text = Text;
 end;
 
 -- Library:Notify("Hello world!", 5, "RightDown")
