@@ -1,4 +1,4 @@
-print("Library version 0.6M7")
+print("Library version 0.6M8 | TEST")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3515,6 +3515,17 @@ do
         end
     });
 
+    local WatermarkLogo = Library:Create('ImageLabel', {
+        Name = "WatermarkLogo";
+        BackgroundTransparency = 1;
+        BorderSizePixel = 0;
+        Size = UDim2.new(0, 14, 0, 14);
+        Position = UDim2.new(0, 5, 0, 3);
+        ZIndex = 204;
+        Visible = false;
+        Parent = InnerFrame;
+    });
+
     local WatermarkLabel = Library:CreateLabel({
         Position = UDim2.new(0, 5, 0, 0);
         Size = UDim2.new(1, -4, 1, 0);
@@ -3526,6 +3537,7 @@ do
 
     Library.Watermark = WatermarkOuter;
     Library.WatermarkText = WatermarkLabel;
+    Library.WatermarkLogo = WatermarkLogo;
     Library:MakeDraggable(Library.Watermark);
 
     local RenHubWatermarkCrossLines = Library:Create('ScreenGui', {
@@ -3760,7 +3772,8 @@ end;
 
 function Library:SetWatermark(Text)
     local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
-    local newWidth = X + 15;
+    local logoOffset = (Library.WatermarkLogo and Library.WatermarkLogo.Visible) and 17 or 0;
+    local newWidth = X + 15 + logoOffset;
     
     if Library.WatermarkCentering then
         Library.WatermarkCentering.setLastWidth(Library.Watermark.AbsoluteSize.X);
@@ -3769,6 +3782,25 @@ function Library:SetWatermark(Text)
     Library.Watermark.Size = UDim2.new(0, newWidth, 0, (Y * 1.5) + 3);
 
     Library.WatermarkText.Text = Text;
+    
+    -- Adjust text position based on logo visibility
+    if Library.WatermarkLogo and Library.WatermarkLogo.Visible then
+        Library.WatermarkText.Position = UDim2.new(0, 22, 0, 0);
+    else
+        Library.WatermarkText.Position = UDim2.new(0, 5, 0, 0);
+    end
+end;
+
+function Library:SetWatermarkLogo(ImageId, Visible)
+    if not Library.WatermarkLogo then return end
+    
+    if ImageId then
+        Library.WatermarkLogo.Image = "rbxassetid://" .. tostring(ImageId);
+    end
+    
+    if Visible ~= nil then
+        Library.WatermarkLogo.Visible = Visible;
+    end
 end;
 
 -- Library:Notify("Hello world!", 5, "RightDown")
