@@ -1,4 +1,4 @@
-print("Library version 0.6N")
+print("Library version 0.6M7")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -149,36 +149,6 @@ if FileSupport then
     end
 end
 
-local HttpGetSupported = pcall(function() return game.HttpGet ~= nil end)
-local HttpGetFunction = nil
-
-if HttpGetSupported and game.HttpGet then
-    HttpGetFunction = function(url, noCache)
-        return game:HttpGet(url, noCache)
-    end
-else
-    local HttpService = game:GetService("HttpService")
-    local req = (syn and syn.request) or request or (http and http.request) or http_request
-    if req then
-        HttpGetFunction = function(url, noCache)
-            local response = req({Url = url, Method = "GET"})
-            return response and response.Body or ""
-        end
-    elseif HttpService then
-        HttpGetFunction = function(url, noCache)
-            return HttpService:GetAsync(url, not noCache)
-        end
-    else
-        HttpGetFunction = function(url, noCache)
-            warn("RenHub | HttpGet is not supported in this executor")
-            return ""
-        end
-    end
-end
-
-Library.HttpGet = HttpGetFunction
-Library.HttpGetSupported = HttpGetSupported
-
 function cprint(value, color)
     if game:GetService("CoreGui"):FindFirstChild("DevConsoleMaster") then
         local printid = tostring(os.time())..'..'..tostring(math.random(100000000,999999999))
@@ -237,7 +207,7 @@ function DownloadFromGithub(assetname)
     local reasonoferror = ""
     
     local success, result = pcall(function()
-        local content = Library.HttpGet("https://raw.githubusercontent.com/Reyn7525/RenHub/refs/heads/main/assets/"..assetname, true)
+        local content = game:HttpGet("https://raw.githubusercontent.com/Reyn7525/RenHub/refs/heads/main/assets/"..assetname, true)
         if content:find("404: Not Found") or content:find("<!DOCTYPE html>") or content:len() < 100 then
             error("404: File not found on GitHub - "..assetname)
         end
@@ -266,7 +236,7 @@ function DownloadFromGithub(assetname)
         local startTime = tick()
         local startDate = os.date("%Y-%m-%d %H:%M:%S")
         local success, result = pcall(function()
-            local content = Library.HttpGet("https://raw.githubusercontent.com/Reyn7525/RenHub/refs/heads/main/assets/"..assetname, true)
+            local content = game:HttpGet("https://raw.githubusercontent.com/Reyn7525/RenHub/refs/heads/main/assets/"..assetname, true)
             if content:find("404: Not Found") or content:find("<!DOCTYPE html>") or content:len() < 100 then
                 error("404: File not found on GitHub - "..assetname)
             end
