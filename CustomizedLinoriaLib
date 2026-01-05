@@ -1,4 +1,4 @@
-print("Library version 0.6N2")
+print("Library version 0.6N3")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3968,7 +3968,11 @@ function Library:CreateWindow(...)
             local maxSize = Vector2.new(viewportSize.X - startPos.X, viewportSize.Y - startPos.Y);
             newSize = Vector2.new(math.min(newSize.X, maxSize.X), math.min(newSize.Y, maxSize.Y));
             
+            -- Сохраняем текущую позицию перед изменением размера
+            local currentPos = Outer.Position;
             Outer.Size = UDim2.new(0, newSize.X, 0, newSize.Y);
+            -- Восстанавливаем позицию (чтобы она не менялась)
+            Outer.Position = currentPos;
         end
     end);
 
@@ -4043,12 +4047,29 @@ function Library:CreateWindow(...)
         Parent = MainSectionInner;
     });
 
+    local TabAreaScrolling = Library:Create('ScrollingFrame', {
+        BackgroundTransparency = 1;
+        BorderSizePixel = 0;
+        Position = UDim2.new(0, 0, 0, 0);
+        Size = UDim2.new(1, 0, 1, 0);
+        CanvasSize = UDim2.new(0, 0, 0, 0);
+        ScrollBarThickness = 0;
+        ScrollingDirection = Enum.ScrollingDirection.X;
+        ZIndex = 1;
+        Parent = TabArea;
+    });
+
     local TabListLayout = Library:Create('UIListLayout', {
         Padding = UDim.new(0, Config.TabPadding);
         FillDirection = Enum.FillDirection.Horizontal;
         SortOrder = Enum.SortOrder.LayoutOrder;
-        Parent = TabArea;
+        Parent = TabAreaScrolling;
     });
+    
+    -- Обновляем размер CanvasSize при изменении размера табов
+    TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        TabAreaScrolling.CanvasSize = UDim2.new(0, TabListLayout.AbsoluteContentSize.X, 0, 0);
+    end);
 
     local TabContainer = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -4082,7 +4103,7 @@ function Library:CreateWindow(...)
             BorderColor3 = Library.OutlineColor;
             Size = UDim2.new(0, TabButtonWidth + 8 + 4, 1, 0);
             ZIndex = 1;
-            Parent = TabArea;
+            Parent = TabAreaScrolling;
         });
 
         Library:AddToRegistry(TabButton, {
