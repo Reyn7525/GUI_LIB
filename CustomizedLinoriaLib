@@ -1,4 +1,4 @@
-print("Library version 0.6N6")
+print("Library version 0.6N7")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3941,8 +3941,8 @@ function Library:CreateWindow(...)
     local startMousePos = nil;
     local startSize = nil;
     local startAbsolutePos = nil;
-    local startPosition = nil;
     local originalAnchorPoint = nil;
+    local originalPosition = nil;
 
     ResizeHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -3950,11 +3950,11 @@ function Library:CreateWindow(...)
             startMousePos = Vector2.new(input.Position.X, input.Position.Y);
             startSize = Outer.AbsoluteSize;
             startAbsolutePos = Outer.AbsolutePosition;
-            startPosition = Outer.Position;
             originalAnchorPoint = Outer.AnchorPoint;
+            originalPosition = Outer.Position;
             -- Временно устанавливаем AnchorPoint в (0, 0) чтобы позиция не менялась
             Outer.AnchorPoint = Vector2.new(0, 0);
-            -- Пересчитываем позицию в абсолютных координатах
+            -- Устанавливаем позицию в абсолютных координатах
             Outer.Position = UDim2.new(0, startAbsolutePos.X, 0, startAbsolutePos.Y);
             Outer:SetAttribute("Resizing", true);
         end
@@ -3985,28 +3985,34 @@ function Library:CreateWindow(...)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if resizing then
                 resizing = false;
-                -- Восстанавливаем AnchorPoint и позицию
-                if originalAnchorPoint then
-                    local currentAbsolutePos = Outer.AbsolutePosition;
-                    local currentSize = Outer.AbsoluteSize;
-                    Outer.AnchorPoint = originalAnchorPoint;
-                    -- Пересчитываем позицию в зависимости от AnchorPoint
-                    if originalAnchorPoint.X == 0.5 then
-                        Outer.Position = UDim2.new(0.5, -currentSize.X / 2, Outer.Position.Y.Scale, Outer.Position.Y.Offset);
-                    else
-                        Outer.Position = UDim2.new(0, currentAbsolutePos.X, Outer.Position.Y.Scale, Outer.Position.Y.Offset);
-                    end
-                    if originalAnchorPoint.Y == 0.5 then
-                        Outer.Position = UDim2.new(Outer.Position.X.Scale, Outer.Position.X.Offset, 0.5, -currentSize.Y / 2);
-                    else
-                        Outer.Position = UDim2.new(Outer.Position.X.Scale, Outer.Position.X.Offset, 0, currentAbsolutePos.Y);
-                    end
+                -- Сохраняем текущий размер
+                local currentSize = Outer.AbsoluteSize;
+                
+                -- Восстанавливаем оригинальный AnchorPoint
+                Outer.AnchorPoint = originalAnchorPoint;
+                
+                -- Восстанавливаем позицию используя начальную абсолютную позицию
+                -- startAbsolutePos - это позиция левого верхнего угла, которая не менялась
+                if originalAnchorPoint.X == 0.5 and originalAnchorPoint.Y == 0.5 then
+                    -- Центрированное окно - пересчитываем центр
+                    local viewportSize = workspace.CurrentCamera.ViewportSize;
+                    Outer.Position = UDim2.new(0.5, -currentSize.X / 2, 0.5, -currentSize.Y / 2);
+                elseif originalAnchorPoint.X == 0.5 then
+                    -- Центрировано по X, Y остается на месте
+                    Outer.Position = UDim2.new(0.5, -currentSize.X / 2, 0, startAbsolutePos.Y);
+                elseif originalAnchorPoint.Y == 0.5 then
+                    -- Центрировано по Y, X остается на месте
+                    Outer.Position = UDim2.new(0, startAbsolutePos.X, 0.5, -currentSize.Y / 2);
+                else
+                    -- Обычная позиция (AnchorPoint 0, 0) - используем начальную позицию
+                    Outer.Position = UDim2.new(0, startAbsolutePos.X, 0, startAbsolutePos.Y);
                 end
+                
                 startMousePos = nil;
                 startSize = nil;
                 startAbsolutePos = nil;
-                startPosition = nil;
                 originalAnchorPoint = nil;
+                originalPosition = nil;
                 Outer:SetAttribute("Resizing", false);
             end
         end
