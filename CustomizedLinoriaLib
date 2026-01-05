@@ -1,4 +1,4 @@
-print("Library version 0.6N4")
+print("Library version 0.6N6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3940,14 +3940,22 @@ function Library:CreateWindow(...)
     local minSize = Vector2.new(400, 350); -- минимальный размер окна
     local startMousePos = nil;
     local startSize = nil;
-    local startPos = nil;
+    local startAbsolutePos = nil;
+    local startPosition = nil;
+    local originalAnchorPoint = nil;
 
     ResizeHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             resizing = true;
             startMousePos = Vector2.new(input.Position.X, input.Position.Y);
             startSize = Outer.AbsoluteSize;
-            startPos = Outer.AbsolutePosition;
+            startAbsolutePos = Outer.AbsolutePosition;
+            startPosition = Outer.Position;
+            originalAnchorPoint = Outer.AnchorPoint;
+            -- Временно устанавливаем AnchorPoint в (0, 0) чтобы позиция не менялась
+            Outer.AnchorPoint = Vector2.new(0, 0);
+            -- Пересчитываем позицию в абсолютных координатах
+            Outer.Position = UDim2.new(0, startAbsolutePos.X, 0, startAbsolutePos.Y);
             Outer:SetAttribute("Resizing", true);
         end
     end);
@@ -3965,9 +3973,10 @@ function Library:CreateWindow(...)
             
             -- Ограничение максимального размера (не больше экрана)
             local viewportSize = workspace.CurrentCamera.ViewportSize;
-            local maxSize = Vector2.new(viewportSize.X - startPos.X, viewportSize.Y - startPos.Y);
+            local maxSize = Vector2.new(viewportSize.X - startAbsolutePos.X, viewportSize.Y - startAbsolutePos.Y);
             newSize = Vector2.new(math.min(newSize.X, maxSize.X), math.min(newSize.Y, maxSize.Y));
             
+            -- Изменяем только размер, позиция остается фиксированной
             Outer.Size = UDim2.new(0, newSize.X, 0, newSize.Y);
         end
     end);
@@ -3976,9 +3985,28 @@ function Library:CreateWindow(...)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if resizing then
                 resizing = false;
+                -- Восстанавливаем AnchorPoint и позицию
+                if originalAnchorPoint then
+                    local currentAbsolutePos = Outer.AbsolutePosition;
+                    local currentSize = Outer.AbsoluteSize;
+                    Outer.AnchorPoint = originalAnchorPoint;
+                    -- Пересчитываем позицию в зависимости от AnchorPoint
+                    if originalAnchorPoint.X == 0.5 then
+                        Outer.Position = UDim2.new(0.5, -currentSize.X / 2, Outer.Position.Y.Scale, Outer.Position.Y.Offset);
+                    else
+                        Outer.Position = UDim2.new(0, currentAbsolutePos.X, Outer.Position.Y.Scale, Outer.Position.Y.Offset);
+                    end
+                    if originalAnchorPoint.Y == 0.5 then
+                        Outer.Position = UDim2.new(Outer.Position.X.Scale, Outer.Position.X.Offset, 0.5, -currentSize.Y / 2);
+                    else
+                        Outer.Position = UDim2.new(Outer.Position.X.Scale, Outer.Position.X.Offset, 0, currentAbsolutePos.Y);
+                    end
+                end
                 startMousePos = nil;
                 startSize = nil;
-                startPos = nil;
+                startAbsolutePos = nil;
+                startPosition = nil;
+                originalAnchorPoint = nil;
                 Outer:SetAttribute("Resizing", false);
             end
         end
