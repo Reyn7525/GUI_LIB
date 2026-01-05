@@ -1,4 +1,4 @@
-print("Library version 0.6N8")
+print("Library version 0.6N9")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3985,32 +3985,8 @@ function Library:CreateWindow(...)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if resizing then
                 resizing = false;
-                -- Сохраняем текущий размер
-                local currentSize = Outer.AbsoluteSize;
-                
-                -- Если AnchorPoint был (0, 0), просто оставляем как есть - позиция уже правильная
-                if originalAnchorPoint.X == 0 and originalAnchorPoint.Y == 0 then
-                    -- Позиция уже правильная, просто восстанавливаем AnchorPoint
-                    Outer.AnchorPoint = originalAnchorPoint;
-                else
-                    -- Для центрированных окон нужно пересчитать позицию
-                    -- Сначала восстанавливаем AnchorPoint
-                    Outer.AnchorPoint = originalAnchorPoint;
-                    
-                    -- Потом пересчитываем позицию
-                    if originalAnchorPoint.X == 0.5 and originalAnchorPoint.Y == 0.5 then
-                        -- Центрированное окно - пересчитываем центр
-                        local viewportSize = workspace.CurrentCamera.ViewportSize;
-                        Outer.Position = UDim2.new(0.5, -currentSize.X / 2, 0.5, -currentSize.Y / 2);
-                    elseif originalAnchorPoint.X == 0.5 then
-                        -- Центрировано по X, Y остается на месте
-                        Outer.Position = UDim2.new(0.5, -currentSize.X / 2, 0, startAbsolutePos.Y);
-                    elseif originalAnchorPoint.Y == 0.5 then
-                        -- Центрировано по Y, X остается на месте
-                        Outer.Position = UDim2.new(0, startAbsolutePos.X, 0.5, -currentSize.Y / 2);
-                    end
-                end
-                
+                -- НЕ ТРОГАЕМ позицию и AnchorPoint - оставляем как есть
+                -- Позиция уже правильная в абсолютных координатах, AnchorPoint уже (0, 0)
                 startMousePos = nil;
                 startSize = nil;
                 startAbsolutePos = nil;
