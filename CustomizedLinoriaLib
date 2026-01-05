@@ -1,4 +1,4 @@
-print("Library version 0.6p")
+print("Library version 0.6p2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -812,6 +812,11 @@ do
             ZIndex = 6;
             Parent = ToggleLabel;
         });
+        
+        -- Обновляем размер DisplayFrame при изменении размера ToggleLabel
+        ToggleLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+            DisplayFrame.Size = UDim2.new(0, 28, 1, 0);
+        end);
 
         -- Transparency image taken from https://github.com/matas3535/SplixPrivateDrawingLibrary/blob/main/Library.lua cus i'm lazy
         local CheckerFrame = Library:Create('ImageLabel', {
@@ -2386,8 +2391,8 @@ do
         });
 
         local ToggleLabel = Library:CreateLabel({
-            Size = UDim2.new(1, -30, 1, 0);
-            Position = UDim2.new(1, 6, 0, 0);
+            Size = UDim2.new(1, -4, 1, 0);
+            Position = UDim2.new(0, 0, 0, 0);
             TextSize = 14;
             Text = Info.Text;
             TextXAlignment = Enum.TextXAlignment.Left;
