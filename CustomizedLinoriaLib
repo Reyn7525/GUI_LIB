@@ -1,4 +1,4 @@
-print("Library version 0.6N7")
+print("Library version 0.6N8")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3988,24 +3988,27 @@ function Library:CreateWindow(...)
                 -- Сохраняем текущий размер
                 local currentSize = Outer.AbsoluteSize;
                 
-                -- Восстанавливаем оригинальный AnchorPoint
-                Outer.AnchorPoint = originalAnchorPoint;
-                
-                -- Восстанавливаем позицию используя начальную абсолютную позицию
-                -- startAbsolutePos - это позиция левого верхнего угла, которая не менялась
-                if originalAnchorPoint.X == 0.5 and originalAnchorPoint.Y == 0.5 then
-                    -- Центрированное окно - пересчитываем центр
-                    local viewportSize = workspace.CurrentCamera.ViewportSize;
-                    Outer.Position = UDim2.new(0.5, -currentSize.X / 2, 0.5, -currentSize.Y / 2);
-                elseif originalAnchorPoint.X == 0.5 then
-                    -- Центрировано по X, Y остается на месте
-                    Outer.Position = UDim2.new(0.5, -currentSize.X / 2, 0, startAbsolutePos.Y);
-                elseif originalAnchorPoint.Y == 0.5 then
-                    -- Центрировано по Y, X остается на месте
-                    Outer.Position = UDim2.new(0, startAbsolutePos.X, 0.5, -currentSize.Y / 2);
+                -- Если AnchorPoint был (0, 0), просто оставляем как есть - позиция уже правильная
+                if originalAnchorPoint.X == 0 and originalAnchorPoint.Y == 0 then
+                    -- Позиция уже правильная, просто восстанавливаем AnchorPoint
+                    Outer.AnchorPoint = originalAnchorPoint;
                 else
-                    -- Обычная позиция (AnchorPoint 0, 0) - используем начальную позицию
-                    Outer.Position = UDim2.new(0, startAbsolutePos.X, 0, startAbsolutePos.Y);
+                    -- Для центрированных окон нужно пересчитать позицию
+                    -- Сначала восстанавливаем AnchorPoint
+                    Outer.AnchorPoint = originalAnchorPoint;
+                    
+                    -- Потом пересчитываем позицию
+                    if originalAnchorPoint.X == 0.5 and originalAnchorPoint.Y == 0.5 then
+                        -- Центрированное окно - пересчитываем центр
+                        local viewportSize = workspace.CurrentCamera.ViewportSize;
+                        Outer.Position = UDim2.new(0.5, -currentSize.X / 2, 0.5, -currentSize.Y / 2);
+                    elseif originalAnchorPoint.X == 0.5 then
+                        -- Центрировано по X, Y остается на месте
+                        Outer.Position = UDim2.new(0.5, -currentSize.X / 2, 0, startAbsolutePos.Y);
+                    elseif originalAnchorPoint.Y == 0.5 then
+                        -- Центрировано по Y, X остается на месте
+                        Outer.Position = UDim2.new(0, startAbsolutePos.X, 0.5, -currentSize.Y / 2);
+                    end
                 end
                 
                 startMousePos = nil;
