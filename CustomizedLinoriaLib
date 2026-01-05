@@ -1,4 +1,4 @@
-print("Library version 0.6N3")
+print("Library version 0.6N4")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3968,11 +3968,7 @@ function Library:CreateWindow(...)
             local maxSize = Vector2.new(viewportSize.X - startPos.X, viewportSize.Y - startPos.Y);
             newSize = Vector2.new(math.min(newSize.X, maxSize.X), math.min(newSize.Y, maxSize.Y));
             
-            -- Сохраняем текущую позицию перед изменением размера
-            local currentPos = Outer.Position;
             Outer.Size = UDim2.new(0, newSize.X, 0, newSize.Y);
-            -- Восстанавливаем позицию (чтобы она не менялась)
-            Outer.Position = currentPos;
         end
     end);
 
