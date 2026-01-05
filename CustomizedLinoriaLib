@@ -1,4 +1,4 @@
-print("Library version 0.6N1")
+print("Library version 0.6N2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3920,6 +3920,7 @@ function Library:CreateWindow(...)
 
     Library:MakeDraggable(Outer, 25);
 
+    -- ResizeHandle для изменения размера окна
     local ResizeHandle = Library:Create('Frame', {
         Name = "ResizeHandle";
         BackgroundColor3 = Color3.new(0, 0, 0);
@@ -3936,23 +3937,37 @@ function Library:CreateWindow(...)
     });
 
     local resizing = false;
-    local minSize = Vector2.new(400, 350);
+    local minSize = Vector2.new(400, 350); -- минимальный размер окна
+    local startMousePos = nil;
+    local startSize = nil;
+    local startPos = nil;
 
     ResizeHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             resizing = true;
+            startMousePos = Vector2.new(input.Position.X, input.Position.Y);
+            startSize = Outer.AbsoluteSize;
+            startPos = Outer.AbsolutePosition;
             Outer:SetAttribute("Resizing", true);
         end
     end);
 
     InputService.InputChanged:Connect(function(input)
         if resizing and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local mousePos = Vector2.new(input.Position.X, input.Position.Y);
-            local guiPos = Outer.AbsolutePosition;
-            local newSize = mousePos - Vector2.new(guiPos.X, guiPos.Y);
+            local currentMousePos = Vector2.new(input.Position.X, input.Position.Y);
+            local delta = currentMousePos - startMousePos;
+            
+            -- Вычисляем новый размер (только увеличиваем вправо и вниз)
+            local newSize = startSize + delta;
+            
+            -- Ограничение минимального размера
             newSize = Vector2.new(math.max(newSize.X, minSize.X), math.max(newSize.Y, minSize.Y));
+            
+            -- Ограничение максимального размера (не больше экрана)
             local viewportSize = workspace.CurrentCamera.ViewportSize;
-            newSize = Vector2.new(math.min(newSize.X, viewportSize.X - guiPos.X), math.min(newSize.Y, viewportSize.Y - guiPos.Y));
+            local maxSize = Vector2.new(viewportSize.X - startPos.X, viewportSize.Y - startPos.Y);
+            newSize = Vector2.new(math.min(newSize.X, maxSize.X), math.min(newSize.Y, maxSize.Y));
+            
             Outer.Size = UDim2.new(0, newSize.X, 0, newSize.Y);
         end
     end);
@@ -3961,6 +3976,9 @@ function Library:CreateWindow(...)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if resizing then
                 resizing = false;
+                startMousePos = nil;
+                startSize = nil;
+                startPos = nil;
                 Outer:SetAttribute("Resizing", false);
             end
         end
@@ -4876,7 +4894,7 @@ function Library:CreateWindow(...)
     MainShadow.Visible = true;
     MainShadow.Image = "rbxassetid://135199846610274";
     MainShadow.Position = UDim2.new(0, -50, 0, -50);
-    MainShadow.Size = UDim2.new(0, 650, 0, 700);
+    MainShadow.Size = UDim2.new(1, 100, 1, 100); -- Относительный размер для автоматического масштабирования
     MainShadow.ImageColor3 = Library.AccentColor
     MainShadow.BackgroundTransparency = 1;
     MainShadow.ImageTransparency = 1-ScreenGui:GetAttribute("GlowIntensivity");
