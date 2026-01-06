@@ -1,4 +1,4 @@
-print("Library version 0.6p2")
+print("Library version 0.6P3")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -855,6 +855,18 @@ do
         if ToggleLabel and ToggleLabel.Parent then
             ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
                 task.wait() -- Ждем обновления DisplayFrame
+                updatePickerPosition()
+            end)
+            ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+                task.wait()
+                updatePickerPosition()
+            end)
+        end
+        
+        -- Обновляем позицию при изменении размера окна
+        if ScreenGui then
+            ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+                task.wait()
                 updatePickerPosition()
             end)
         end
@@ -2056,20 +2068,28 @@ do
             SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
 
             SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
-            -- Используем относительный размер вместо AbsoluteSize, так как элемент может быть еще не отрендерен
-            SubButton.Outer.Size = UDim2.new(0.5, -2, 0, 20)
             SubButton.Outer.Parent = self.Outer
             
-            -- Обновляем размер после рендера, если нужно
-            task.spawn(function()
-                task.wait()
-                if SubButton.Outer and SubButton.Outer.Parent then
+            -- Функция для обновления размера SubButton
+            local function updateSubButtonSize()
+                if SubButton.Outer and SubButton.Outer.Parent and self.Outer and self.Outer.Parent then
                     local parentSize = self.Outer.AbsoluteSize
                     if parentSize.X > 0 and parentSize.Y > 0 then
                         SubButton.Outer.Size = UDim2.fromOffset(parentSize.X - 2, parentSize.Y)
                     end
                 end
+            end
+            
+            -- Обновляем размер после рендера
+            task.spawn(function()
+                task.wait()
+                updateSubButtonSize()
             end)
+            
+            -- Обновляем размер при изменении размера родителя
+            if self.Outer then
+                self.Outer:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateSubButtonSize)
+            end
 
             function SubButton:AddTooltip(tooltip)
                 if type(tooltip) == 'string' then
@@ -2544,7 +2564,7 @@ do
             Min = Info.Min;
             Max = Info.Max;
             Rounding = Info.Rounding;
-            MaxSize = 232;
+            MaxSize = 232; -- Будет обновлено после создания SliderOuter
             Type = 'Slider';
             Callback = Info.Callback or function(Value) end;
         };
@@ -2635,6 +2655,26 @@ do
         DisplayLabel.TextStrokeTransparency = ScreenGui:GetAttribute("TextOutline") and 0 or 1
         DisplayLabel.TextStrokeColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
     
+        -- Функция для обновления MaxSize слайдера
+        local function updateSliderMaxSize()
+            if SliderOuter and SliderOuter.Parent then
+                local absSize = SliderOuter.AbsoluteSize
+                if absSize.X > 0 then
+                    Slider.MaxSize = absSize.X - 4 -- Учитываем отступы
+                    Slider:Display() -- Обновляем отображение
+                end
+            end
+        end
+        
+        -- Обновляем MaxSize после рендера
+        task.spawn(function()
+            task.wait()
+            updateSliderMaxSize()
+        end)
+        
+        -- Обновляем MaxSize при изменении размера
+        SliderOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateSliderMaxSize)
+    
         Library:OnHighlight(SliderOuter, SliderOuter,
             { BorderColor3 = 'AccentColor' },
             { BorderColor3 = 'Black' }
@@ -2643,6 +2683,9 @@ do
         if type(Info.Tooltip) == 'string' then
             Library:AddToolTip(Info.Tooltip, SliderOuter)
         end
+    
+        -- Функция для обновления MaxSize слайдера (будет определена после Slider:Display)
+        local updateSliderMaxSize = nil
     
         local function OpenInputDialog()
             local CurrentValue = Slider.Value
@@ -2758,6 +2801,26 @@ do
     
             HideBorderRight.Visible = not (X == Slider.MaxSize or X == 0);
         end;
+        
+        -- Функция для обновления MaxSize слайдера (определена после Slider:Display)
+        updateSliderMaxSize = function()
+            if SliderOuter and SliderOuter.Parent then
+                local absSize = SliderOuter.AbsoluteSize
+                if absSize.X > 0 then
+                    Slider.MaxSize = absSize.X - 4 -- Учитываем отступы
+                    Slider:Display() -- Обновляем отображение
+                end
+            end
+        end
+        
+        -- Обновляем MaxSize после рендера
+        task.spawn(function()
+            task.wait()
+            updateSliderMaxSize()
+        end)
+        
+        -- Обновляем MaxSize при изменении размера
+        SliderOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateSliderMaxSize)
     
         function Slider:OnChanged(Func)
             Slider.Changed = Func;
@@ -3019,17 +3082,28 @@ do
         Dropdown.ListOuter = ListOuter;
 
         local function RecalculateListPosition()
-            ListOuter.Position = UDim2.fromOffset(DropdownOuter.AbsolutePosition.X, DropdownOuter.AbsolutePosition.Y + DropdownOuter.Size.Y.Offset + 1);
+            if DropdownOuter and DropdownOuter.Parent and ListOuter and ListOuter.Parent then
+                local absPos = DropdownOuter.AbsolutePosition
+                local absSize = DropdownOuter.AbsoluteSize
+                ListOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + absSize.Y + 1);
+            end
         end;
 
         local function RecalculateListSize(YSize)
-            ListOuter.Size = UDim2.fromOffset(DropdownOuter.AbsoluteSize.X, YSize or (MAX_DROPDOWN_ITEMS * 20 + 2))
+            if DropdownOuter and DropdownOuter.Parent and ListOuter and ListOuter.Parent then
+                local absSize = DropdownOuter.AbsoluteSize
+                ListOuter.Size = UDim2.fromOffset(absSize.X, YSize or (MAX_DROPDOWN_ITEMS * 20 + 2))
+            end
         end;
 
         RecalculateListPosition();
         RecalculateListSize();
 
         DropdownOuter:GetPropertyChangedSignal('AbsolutePosition'):Connect(RecalculateListPosition);
+        DropdownOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+            RecalculateListPosition()
+            RecalculateListSize()
+        end);
 
         local ListInner = Library:Create('Frame', {
             BackgroundColor3 = Library.MainColor;
@@ -3285,13 +3359,24 @@ do
 
         InputService.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                local AbsPos, AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize;
+                if ListOuter and ListOuter.Parent and ListOuter.Visible then
+                    local AbsPos, AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize;
 
-                if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X
-                    or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
+                    if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X
+                        or Mouse.Y < AbsPos.Y or Mouse.Y > AbsPos.Y + AbsSize.Y then
 
-                    Dropdown:CloseDropdown();
-                end;
+                        -- Проверяем, что клик не по самому DropdownOuter
+                        if DropdownOuter and DropdownOuter.Parent then
+                            local DropdownAbsPos, DropdownAbsSize = DropdownOuter.AbsolutePosition, DropdownOuter.AbsoluteSize
+                            if not (Mouse.X >= DropdownAbsPos.X and Mouse.X <= DropdownAbsPos.X + DropdownAbsSize.X
+                                and Mouse.Y >= DropdownAbsPos.Y and Mouse.Y <= DropdownAbsPos.Y + DropdownAbsSize.Y) then
+                                Dropdown:CloseDropdown();
+                            end
+                        else
+                            Dropdown:CloseDropdown();
+                        end
+                    end
+                end
             end;
         end);
 
@@ -3708,6 +3793,40 @@ do
         ZIndex = 100;
         Parent = ScreenGui;
     });
+    
+    -- Функция для обновления позиции KeybindFrame при изменении размера окна
+    local function updateKeybindPosition()
+        if KeybindOuter and KeybindOuter.Parent then
+            -- Позиция остается фиксированной относительно левого края и центра по вертикали
+            -- Но можно добавить ограничения, чтобы не выходил за границы экрана
+            local viewportSize = workspace.CurrentCamera.ViewportSize
+            local absSize = KeybindOuter.AbsoluteSize
+            local currentPos = KeybindOuter.AbsolutePosition
+            
+            -- Если KeybindFrame выходит за правый край, перемещаем его
+            if currentPos.X + absSize.X > viewportSize.X then
+                KeybindOuter.Position = UDim2.new(0, viewportSize.X - absSize.X - 10, 0.5, 0)
+            end
+            
+            -- Если KeybindFrame выходит за нижний или верхний край, корректируем
+            if currentPos.Y + absSize.Y / 2 > viewportSize.Y then
+                KeybindOuter.Position = UDim2.new(0, KeybindOuter.AbsolutePosition.X, 1, -absSize.Y / 2 - 10)
+            elseif currentPos.Y - absSize.Y / 2 < 0 then
+                KeybindOuter.Position = UDim2.new(0, KeybindOuter.AbsolutePosition.X, 0, absSize.Y / 2 + 10)
+            end
+        end
+    end
+    
+    -- Обновляем позицию при изменении размера экрана
+    if ScreenGui then
+        ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeybindPosition)
+    end
+    
+    -- Обновляем позицию после рендера
+    task.spawn(function()
+        task.wait()
+        updateKeybindPosition()
+    end)
 
     local KeybindInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -4090,25 +4209,11 @@ function Library:CreateWindow(...)
         Parent = MainSectionInner;
     });
 
-    -- Верхний контур для табов
-    local TabAreaTopBorder = Library:Create('Frame', {
-        BackgroundColor3 = Library.OutlineColor;
-        BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0, 0);
-        Size = UDim2.new(1, 0, 0, 1);
-        ZIndex = 2;
-        Parent = TabArea;
-    });
-
-    Library:AddToRegistry(TabAreaTopBorder, {
-        BackgroundColor3 = 'OutlineColor';
-    });
-
     local TabAreaScrolling = Library:Create('ScrollingFrame', {
         BackgroundTransparency = 1;
         BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0, 1); -- Смещаем вниз на 1 пиксель, чтобы не перекрывать контур
-        Size = UDim2.new(1, 0, 1, -1); -- Уменьшаем высоту на 1 пиксель
+        Position = UDim2.new(0, 0, 0, 0);
+        Size = UDim2.new(1, 0, 1, 0);
         CanvasSize = UDim2.new(0, 0, 0, 0);
         ScrollBarThickness = 0;
         ScrollingDirection = Enum.ScrollingDirection.X;
@@ -4158,6 +4263,7 @@ function Library:CreateWindow(...)
         local TabButton = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
             BorderColor3 = Library.OutlineColor;
+            BorderSizePixel = 1;
             Size = UDim2.new(0, TabButtonWidth + 8 + 4, 1, 0);
             ZIndex = 1;
             Parent = TabAreaScrolling;
@@ -4170,7 +4276,7 @@ function Library:CreateWindow(...)
 
         local TabButtonLabel = Library:CreateLabel({
             Position = UDim2.new(0, 0, 0, 0);
-            Size = UDim2.new(1, 0, 1, -1);
+            Size = UDim2.new(1, 0, 1, 0);
             Text = Name;
             ZIndex = 1;
             Parent = TabButton;
