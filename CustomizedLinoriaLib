@@ -1,4 +1,4 @@
-print("Library version 0.6P8")
+print("Library version 0.6P9")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -887,6 +887,13 @@ do
                 updatePickerPosition()
             end)
         end
+        
+        -- Обновляем позицию на каждом кадре, если ColorPicker виден
+        Library:GiveSignal(RenderStepped:Connect(function()
+            if PickerFrameOuter and PickerFrameOuter.Visible then
+                updatePickerPosition()
+            end
+        end))
         
         -- Обновляем позицию после рендера (несколько раз для надежности)
         task.spawn(function()
@@ -3850,11 +3857,11 @@ do
     };
 
     local KeybindOuter = Library:Create('Frame', {
-        AnchorPoint = Vector2.new(0, 0.5);
+        AnchorPoint = Vector2.new(1, 0.5);
         BackgroundColor3 = Color3.new(0, 0, 0);
         BorderColor3 = Library.OutlineColor;
         BorderSizePixel = 1;
-        Position = UDim2.new(0, 10, 0.5, 0);
+        Position = UDim2.new(1, -10, 0.5, 0);
         Size = UDim2.new(0, 210, 0, 20);
         Visible = false;
         ZIndex = 100;
@@ -3864,53 +3871,6 @@ do
     Library:AddToRegistry(KeybindOuter, {
         BorderColor3 = 'OutlineColor';
     });
-    
-    -- Функция для обновления позиции KeybindFrame при изменении размера окна
-    local function updateKeybindPosition()
-        if KeybindOuter and KeybindOuter.Parent then
-            local viewportSize = workspace.CurrentCamera.ViewportSize
-            local absSize = KeybindOuter.AbsoluteSize
-            local currentPos = KeybindOuter.AbsolutePosition
-            
-            if absSize.X > 0 and absSize.Y > 0 then
-                -- Если KeybindFrame выходит за правый край, перемещаем его
-                if currentPos.X + absSize.X > viewportSize.X then
-                    KeybindOuter.Position = UDim2.new(0, viewportSize.X - absSize.X - 10, 0.5, 0)
-                end
-                
-                -- Если KeybindFrame выходит за нижний или верхний край, корректируем
-                if currentPos.Y + absSize.Y / 2 > viewportSize.Y then
-                    KeybindOuter.Position = UDim2.new(0, KeybindOuter.AbsolutePosition.X, 1, -absSize.Y / 2 - 10)
-                elseif currentPos.Y - absSize.Y / 2 < 0 then
-                    KeybindOuter.Position = UDim2.new(0, KeybindOuter.AbsolutePosition.X, 0, absSize.Y / 2 + 10)
-                end
-            end
-        end
-    end
-    
-    -- Обновляем позицию при изменении размера экрана и окна
-    if ScreenGui then
-        ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-            task.wait(0.05)
-            updateKeybindPosition()
-        end)
-    end
-    
-    workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(updateKeybindPosition)
-    
-    -- Обновляем позицию после рендера
-    task.spawn(function()
-        for i = 1, 3 do
-            task.wait(0.1)
-            updateKeybindPosition()
-        end
-    end)
-
-    Library:GiveSignal(RenderStepped:Connect(function()
-        if KeybindOuter.Visible then
-            updateKeybindPosition()
-        end
-    end))
 
     local KeybindInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -4293,19 +4253,6 @@ function Library:CreateWindow(...)
         Parent = MainSectionInner;
     });
 
-    local TabAreaTopBorder = Library:Create('Frame', {
-        BackgroundColor3 = Library.OutlineColor;
-        BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0, 0);
-        Size = UDim2.new(1, 0, 0, 1);
-        ZIndex = 2;
-        Parent = TabArea;
-    });
-
-    TabAreaTopBorder:GetPropertyChangedSignal('Size'):Connect(function()
-        TabAreaTopBorder.Size = UDim2.new(1, 0, 0, 1);
-    end)
-
     local TabAreaScrolling = Library:Create('ScrollingFrame', {
         BackgroundTransparency = 1;
         BorderSizePixel = 0;
@@ -4365,7 +4312,7 @@ function Library:CreateWindow(...)
             ZIndex = 1;
             Parent = TabAreaScrolling;
         });
-
+        
         Library:AddToRegistry(TabButton, {
             BackgroundColor3 = 'BackgroundColor';
             BorderColor3 = 'OutlineColor';
@@ -4380,6 +4327,20 @@ function Library:CreateWindow(...)
             ZIndex = 2;
             Parent = TabButton;
         });
+        
+        -- Верхняя граница для каждого таба индивидуально (поверх внутреннего фрейма)
+        local TabButtonTopBorder = Library:Create('Frame', {
+            BackgroundColor3 = Library.OutlineColor;
+            BorderSizePixel = 0;
+            Position = UDim2.new(0, 0, 0, 0);
+            Size = UDim2.new(1, 0, 0, 1);
+            ZIndex = 3;
+            Parent = TabButton;
+        });
+        
+        Library:AddToRegistry(TabButtonTopBorder, {
+            BackgroundColor3 = 'OutlineColor';
+        });
 
         Library:AddToRegistry(TabButtonInner, {
             BackgroundColor3 = 'BackgroundColor';
@@ -4389,7 +4350,7 @@ function Library:CreateWindow(...)
             Position = UDim2.new(0, 4, 0, 0);
             Size = UDim2.new(1, -8, 1, 0);
             Text = Name;
-            ZIndex = 3;
+            ZIndex = 4;
             Parent = TabButtonInner;
         });
 
