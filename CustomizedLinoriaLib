@@ -1,4 +1,4 @@
-print("Library version 0.6N9")
+print("Library version 0.6p")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -828,19 +828,41 @@ do
         -- There was some issue which caused RelativeOffset to be way off
         -- Thus the color picker would never show
 
+        local function updatePickerPosition()
+            if DisplayFrame and DisplayFrame.Parent then
+                local absPos = DisplayFrame.AbsolutePosition
+                if absPos.X > 0 or absPos.Y > 0 then
+                    PickerFrameOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + 18)
+                end
+            end
+        end
+
         local PickerFrameOuter = Library:Create('Frame', {
             Name = 'Color';
             BackgroundColor3 = Color3.new(1, 1, 1);
             BorderColor3 = Color3.new(0, 0, 0);
-            Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18),
+            Position = UDim2.fromOffset(0, 0), -- Временная позиция, обновится после рендера
             Size = UDim2.fromOffset(230, Info.Transparency and 271 or 253);
             Visible = false;
             ZIndex = 15;
             Parent = ScreenGui,
         });
 
-        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-            PickerFrameOuter.Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18);
+        -- Обновляем позицию при изменении DisplayFrame
+        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updatePickerPosition)
+        
+        -- Также обновляем при изменении ToggleLabel (на случай, если ToggleLabel перемещается)
+        if ToggleLabel and ToggleLabel.Parent then
+            ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
+                task.wait() -- Ждем обновления DisplayFrame
+                updatePickerPosition()
+            end)
+        end
+        
+        -- Обновляем позицию после рендера
+        task.spawn(function()
+            task.wait()
+            updatePickerPosition()
         end)
 
         local PickerFrameInner = Library:Create('Frame', {
@@ -2034,8 +2056,20 @@ do
             SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
 
             SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
-            SubButton.Outer.Size = UDim2.fromOffset(self.Outer.AbsoluteSize.X - 2, self.Outer.AbsoluteSize.Y)
+            -- Используем относительный размер вместо AbsoluteSize, так как элемент может быть еще не отрендерен
+            SubButton.Outer.Size = UDim2.new(0.5, -2, 0, 20)
             SubButton.Outer.Parent = self.Outer
+            
+            -- Обновляем размер после рендера, если нужно
+            task.spawn(function()
+                task.wait()
+                if SubButton.Outer and SubButton.Outer.Parent then
+                    local parentSize = self.Outer.AbsoluteSize
+                    if parentSize.X > 0 and parentSize.Y > 0 then
+                        SubButton.Outer.Size = UDim2.fromOffset(parentSize.X - 2, parentSize.Y)
+                    end
+                end
+            end)
 
             function SubButton:AddTooltip(tooltip)
                 if type(tooltip) == 'string' then
