@@ -1,4 +1,4 @@
-print("Library version 0.6P7")
+print("Library version 0.6P8")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -895,6 +895,12 @@ do
                 updatePickerPosition()
             end
         end)
+
+        Library:GiveSignal(RenderStepped:Connect(function()
+            if PickerFrameOuter.Visible then
+                updatePickerPosition()
+            end
+        end))
 
         local PickerFrameInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
@@ -3900,6 +3906,12 @@ do
         end
     end)
 
+    Library:GiveSignal(RenderStepped:Connect(function()
+        if KeybindOuter.Visible then
+            updateKeybindPosition()
+        end
+    end))
+
     local KeybindInner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
         BorderColor3 = Library.OutlineColor;
@@ -4281,6 +4293,19 @@ function Library:CreateWindow(...)
         Parent = MainSectionInner;
     });
 
+    local TabAreaTopBorder = Library:Create('Frame', {
+        BackgroundColor3 = Library.OutlineColor;
+        BorderSizePixel = 0;
+        Position = UDim2.new(0, 0, 0, 0);
+        Size = UDim2.new(1, 0, 0, 1);
+        ZIndex = 2;
+        Parent = TabArea;
+    });
+
+    TabAreaTopBorder:GetPropertyChangedSignal('Size'):Connect(function()
+        TabAreaTopBorder.Size = UDim2.new(1, 0, 0, 1);
+    end)
+
     local TabAreaScrolling = Library:Create('ScrollingFrame', {
         BackgroundTransparency = 1;
         BorderSizePixel = 0;
@@ -4450,7 +4475,6 @@ function Library:CreateWindow(...)
             TabButtonInner.BackgroundColor3 = Library.MainColor;
             Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'MainColor';
             Library.RegistryMap[TabButtonInner].Properties.BackgroundColor3 = 'MainColor';
-            TabButtonLabel.TextColor3 = Library.AccentColor;
             TabFrame.Visible = true;
         end;
 
@@ -4460,7 +4484,6 @@ function Library:CreateWindow(...)
             TabButtonInner.BackgroundColor3 = Library.BackgroundColor;
             Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'BackgroundColor';
             Library.RegistryMap[TabButtonInner].Properties.BackgroundColor3 = 'BackgroundColor';
-            TabButtonLabel.TextColor3 = Library.FontColor;
             TabFrame.Visible = false;
         end;
 
