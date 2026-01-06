@@ -1,4 +1,4 @@
-print("Library version 0.6P4")
+print("Library version 0.6P5")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -866,15 +866,16 @@ do
 
         -- Обновляем позицию при изменении DisplayFrame
         DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updatePickerPosition)
+        DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updatePickerPosition)
         
         -- Также обновляем при изменении ToggleLabel (на случай, если ToggleLabel перемещается)
         if ToggleLabel and ToggleLabel.Parent then
             ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-                task.wait() -- Ждем обновления DisplayFrame
+                task.wait(0.05) -- Ждем обновления DisplayFrame
                 updatePickerPosition()
             end)
             ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.wait()
+                task.wait(0.05)
                 updatePickerPosition()
             end)
         end
@@ -882,15 +883,17 @@ do
         -- Обновляем позицию при изменении размера окна
         if ScreenGui then
             ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.wait()
+                task.wait(0.05)
                 updatePickerPosition()
             end)
         end
         
-        -- Обновляем позицию после рендера
+        -- Обновляем позицию после рендера (несколько раз для надежности)
         task.spawn(function()
-            task.wait()
-            updatePickerPosition()
+            for i = 1, 3 do
+                task.wait(0.1)
+                updatePickerPosition()
+            end
         end)
 
         local PickerFrameInner = Library:Create('Frame', {
@@ -2100,19 +2103,26 @@ do
                     local parentSize = self.Outer.AbsoluteSize
                     if parentSize.X > 0 and parentSize.Y > 0 then
                         SubButton.Outer.Size = UDim2.fromOffset(parentSize.X - 2, parentSize.Y)
+                    else
+                        -- Если размер еще не определен, используем относительный размер
+                        SubButton.Outer.Size = UDim2.new(0.5, -2, 0, 20)
                     end
                 end
             end
             
-            -- Обновляем размер после рендера
+            -- Обновляем размер сразу и после рендера
+            updateSubButtonSize()
             task.spawn(function()
-                task.wait()
-                updateSubButtonSize()
+                for i = 1, 3 do
+                    task.wait(0.1)
+                    updateSubButtonSize()
+                end
             end)
             
             -- Обновляем размер при изменении размера родителя
             if self.Outer then
                 self.Outer:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateSubButtonSize)
+                self.Outer:GetPropertyChangedSignal('Size'):Connect(updateSubButtonSize)
             end
 
             function SubButton:AddTooltip(tooltip)
@@ -2831,20 +2841,34 @@ do
             if SliderOuter and SliderOuter.Parent then
                 local absSize = SliderOuter.AbsoluteSize
                 if absSize.X > 0 then
-                    Slider.MaxSize = absSize.X - 4 -- Учитываем отступы
-                    Slider:Display() -- Обновляем отображение
+                    local newMaxSize = absSize.X - 4 -- Учитываем отступы
+                    if Slider.MaxSize ~= newMaxSize then
+                        Slider.MaxSize = newMaxSize
+                        Slider:Display() -- Обновляем отображение
+                    end
                 end
             end
         end
         
-        -- Обновляем MaxSize после рендера
+        -- Обновляем MaxSize сразу и после рендера
         task.spawn(function()
-            task.wait()
-            updateSliderMaxSize()
+            for i = 1, 5 do
+                task.wait(0.1)
+                updateSliderMaxSize()
+            end
         end)
         
         -- Обновляем MaxSize при изменении размера
         SliderOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateSliderMaxSize)
+        SliderOuter:GetPropertyChangedSignal('Size'):Connect(updateSliderMaxSize)
+        
+        -- Также обновляем при изменении размера родительского контейнера
+        if Container and Container.Parent then
+            Container:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+                task.wait(0.05)
+                updateSliderMaxSize()
+            end)
+        end
     
         function Slider:OnChanged(Func)
             Slider.Changed = Func;
@@ -3120,11 +3144,22 @@ do
             end
         end;
 
-        RecalculateListPosition();
-        RecalculateListSize();
+        -- Обновляем позицию и размер сразу и после рендера
+        task.spawn(function()
+            for i = 1, 3 do
+                task.wait(0.1)
+                RecalculateListPosition()
+                RecalculateListSize()
+            end
+        end)
 
         DropdownOuter:GetPropertyChangedSignal('AbsolutePosition'):Connect(RecalculateListPosition);
         DropdownOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+            RecalculateListPosition()
+            RecalculateListSize()
+        end);
+        DropdownOuter:GetPropertyChangedSignal('Size'):Connect(function()
+            task.wait(0.05)
             RecalculateListPosition()
             RecalculateListSize()
         end);
@@ -3827,35 +3862,42 @@ do
     -- Функция для обновления позиции KeybindFrame при изменении размера окна
     local function updateKeybindPosition()
         if KeybindOuter and KeybindOuter.Parent then
-            -- Позиция остается фиксированной относительно левого края и центра по вертикали
-            -- Но можно добавить ограничения, чтобы не выходил за границы экрана
             local viewportSize = workspace.CurrentCamera.ViewportSize
             local absSize = KeybindOuter.AbsoluteSize
             local currentPos = KeybindOuter.AbsolutePosition
             
-            -- Если KeybindFrame выходит за правый край, перемещаем его
-            if currentPos.X + absSize.X > viewportSize.X then
-                KeybindOuter.Position = UDim2.new(0, viewportSize.X - absSize.X - 10, 0.5, 0)
-            end
-            
-            -- Если KeybindFrame выходит за нижний или верхний край, корректируем
-            if currentPos.Y + absSize.Y / 2 > viewportSize.Y then
-                KeybindOuter.Position = UDim2.new(0, KeybindOuter.AbsolutePosition.X, 1, -absSize.Y / 2 - 10)
-            elseif currentPos.Y - absSize.Y / 2 < 0 then
-                KeybindOuter.Position = UDim2.new(0, KeybindOuter.AbsolutePosition.X, 0, absSize.Y / 2 + 10)
+            if absSize.X > 0 and absSize.Y > 0 then
+                -- Если KeybindFrame выходит за правый край, перемещаем его
+                if currentPos.X + absSize.X > viewportSize.X then
+                    KeybindOuter.Position = UDim2.new(0, viewportSize.X - absSize.X - 10, 0.5, 0)
+                end
+                
+                -- Если KeybindFrame выходит за нижний или верхний край, корректируем
+                if currentPos.Y + absSize.Y / 2 > viewportSize.Y then
+                    KeybindOuter.Position = UDim2.new(0, KeybindOuter.AbsolutePosition.X, 1, -absSize.Y / 2 - 10)
+                elseif currentPos.Y - absSize.Y / 2 < 0 then
+                    KeybindOuter.Position = UDim2.new(0, KeybindOuter.AbsolutePosition.X, 0, absSize.Y / 2 + 10)
+                end
             end
         end
     end
     
-    -- Обновляем позицию при изменении размера экрана
+    -- Обновляем позицию при изменении размера экрана и окна
     if ScreenGui then
-        ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeybindPosition)
+        ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+            task.wait(0.05)
+            updateKeybindPosition()
+        end)
     end
+    
+    workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(updateKeybindPosition)
     
     -- Обновляем позицию после рендера
     task.spawn(function()
-        task.wait()
-        updateKeybindPosition()
+        for i = 1, 3 do
+            task.wait(0.1)
+            updateKeybindPosition()
+        end
     end)
 
     local KeybindInner = Library:Create('Frame', {
