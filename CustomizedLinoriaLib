@@ -1,4 +1,4 @@
-print("Library version 0.6P3")
+print("Library version 0.6P4")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -806,21 +806,32 @@ do
 
         local DisplayFrame = Library:Create('Frame', {
             BackgroundColor3 = ColorPicker.Value;
-            BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
-            BorderMode = Enum.BorderMode.Inset;
+            BorderColor3 = Color3.new(0, 0, 0);
+            BorderSizePixel = 1;
             Size = UDim2.new(0, 28, 0, 14);
             ZIndex = 6;
             Parent = ToggleLabel;
+        });
+        
+        -- Внутренний фрейм для лучшего вида
+        local DisplayFrameInner = Library:Create('Frame', {
+            BackgroundColor3 = ColorPicker.Value;
+            BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
+            BorderMode = Enum.BorderMode.Inset;
+            Position = UDim2.new(0, 1, 0, 1);
+            Size = UDim2.new(1, -2, 1, -2);
+            ZIndex = 7;
+            Parent = DisplayFrame;
         });
 
         -- Transparency image taken from https://github.com/matas3535/SplixPrivateDrawingLibrary/blob/main/Library.lua cus i'm lazy
         local CheckerFrame = Library:Create('ImageLabel', {
             BorderSizePixel = 0;
-            Size = UDim2.new(0, 27, 0, 13);
+            Size = UDim2.new(1, 0, 1, 0);
             ZIndex = 5;
             Image = 'http://www.roblox.com/asset/?id=12977615774';
             Visible = not not Info.Transparency;
-            Parent = DisplayFrame;
+            Parent = DisplayFrameInner or DisplayFrame;
         });
 
         -- 1/16/23
@@ -830,13 +841,18 @@ do
 
         local PickerFrameOuter = Library:Create('Frame', {
             Name = 'Color';
-            BackgroundColor3 = Color3.new(1, 1, 1);
-            BorderColor3 = Color3.new(0, 0, 0);
+            BackgroundColor3 = Color3.new(0, 0, 0);
+            BorderColor3 = Library.OutlineColor;
+            BorderSizePixel = 1;
             Position = UDim2.fromOffset(0, 0), -- Временная позиция, обновится после рендера
             Size = UDim2.fromOffset(230, Info.Transparency and 271 or 253);
             Visible = false;
             ZIndex = 15;
             Parent = ScreenGui,
+        });
+        
+        Library:AddToRegistry(PickerFrameOuter, {
+            BorderColor3 = 'OutlineColor';
         });
 
         local function updatePickerPosition()
@@ -1252,6 +1268,14 @@ do
                 BackgroundTransparency = ColorPicker.Transparency;
                 BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
             });
+            
+            if DisplayFrameInner then
+                Library:Create(DisplayFrameInner, {
+                    BackgroundColor3 = ColorPicker.Value;
+                    BackgroundTransparency = ColorPicker.Transparency;
+                    BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
+                });
+            end
 
             if TransparencyBoxInner then
                 TransparencyBoxInner.BackgroundColor3 = ColorPicker.Value;
@@ -3786,12 +3810,18 @@ do
 
     local KeybindOuter = Library:Create('Frame', {
         AnchorPoint = Vector2.new(0, 0.5);
-        BorderColor3 = Color3.new(0, 0, 0);
+        BackgroundColor3 = Color3.new(0, 0, 0);
+        BorderColor3 = Library.OutlineColor;
+        BorderSizePixel = 1;
         Position = UDim2.new(0, 10, 0.5, 0);
         Size = UDim2.new(0, 210, 0, 20);
         Visible = false;
         ZIndex = 100;
         Parent = ScreenGui;
+    });
+    
+    Library:AddToRegistry(KeybindOuter, {
+        BorderColor3 = 'OutlineColor';
     });
     
     -- Функция для обновления позиции KeybindFrame при изменении размера окна
@@ -4274,12 +4304,26 @@ function Library:CreateWindow(...)
             BorderColor3 = 'OutlineColor';
         });
 
-        local TabButtonLabel = Library:CreateLabel({
-            Position = UDim2.new(0, 0, 0, 0);
-            Size = UDim2.new(1, 0, 1, 0);
-            Text = Name;
-            ZIndex = 1;
+        -- Внутренний фрейм для лучшего вида
+        local TabButtonInner = Library:Create('Frame', {
+            BackgroundColor3 = Library.BackgroundColor;
+            BorderSizePixel = 0;
+            Position = UDim2.new(0, 1, 0, 1);
+            Size = UDim2.new(1, -2, 1, -2);
+            ZIndex = 2;
             Parent = TabButton;
+        });
+
+        Library:AddToRegistry(TabButtonInner, {
+            BackgroundColor3 = 'BackgroundColor';
+        });
+
+        local TabButtonLabel = Library:CreateLabel({
+            Position = UDim2.new(0, 4, 0, 0);
+            Size = UDim2.new(1, -8, 1, 0);
+            Text = Name;
+            ZIndex = 3;
+            Parent = TabButtonInner;
         });
 
         local Blocker = Library:Create('Frame', {
@@ -4288,7 +4332,7 @@ function Library:CreateWindow(...)
             Position = UDim2.new(0, 0, 1, 0);
             Size = UDim2.new(1, 0, 0, 1);
             BackgroundTransparency = 1;
-            ZIndex = 3;
+            ZIndex = 4;
             Parent = TabButton;
         });
 
@@ -4361,14 +4405,20 @@ function Library:CreateWindow(...)
 
             Blocker.BackgroundTransparency = 0;
             TabButton.BackgroundColor3 = Library.MainColor;
+            TabButtonInner.BackgroundColor3 = Library.MainColor;
             Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'MainColor';
+            Library.RegistryMap[TabButtonInner].Properties.BackgroundColor3 = 'MainColor';
+            TabButtonLabel.TextColor3 = Library.AccentColor;
             TabFrame.Visible = true;
         end;
 
         function Tab:HideTab()
             Blocker.BackgroundTransparency = 1;
             TabButton.BackgroundColor3 = Library.BackgroundColor;
+            TabButtonInner.BackgroundColor3 = Library.BackgroundColor;
             Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'BackgroundColor';
+            Library.RegistryMap[TabButtonInner].Properties.BackgroundColor3 = 'BackgroundColor';
+            TabButtonLabel.TextColor3 = Library.FontColor;
             TabFrame.Visible = false;
         end;
 
