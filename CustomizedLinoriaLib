@@ -1,4 +1,4 @@
-print("Library version 0.6P9")
+print("Library version 0.6p4")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -806,32 +806,21 @@ do
 
         local DisplayFrame = Library:Create('Frame', {
             BackgroundColor3 = ColorPicker.Value;
-            BorderColor3 = Color3.new(0, 0, 0);
-            BorderSizePixel = 1;
+            BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
+            BorderMode = Enum.BorderMode.Inset;
             Size = UDim2.new(0, 28, 0, 14);
             ZIndex = 6;
             Parent = ToggleLabel;
-        });
-        
-        -- Внутренний фрейм для лучшего вида
-        local DisplayFrameInner = Library:Create('Frame', {
-            BackgroundColor3 = ColorPicker.Value;
-            BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
-            BorderMode = Enum.BorderMode.Inset;
-            Position = UDim2.new(0, 1, 0, 1);
-            Size = UDim2.new(1, -2, 1, -2);
-            ZIndex = 7;
-            Parent = DisplayFrame;
         });
 
         -- Transparency image taken from https://github.com/matas3535/SplixPrivateDrawingLibrary/blob/main/Library.lua cus i'm lazy
         local CheckerFrame = Library:Create('ImageLabel', {
             BorderSizePixel = 0;
-            Size = UDim2.new(1, 0, 1, 0);
+            Size = UDim2.new(0, 27, 0, 13);
             ZIndex = 5;
             Image = 'http://www.roblox.com/asset/?id=12977615774';
             Visible = not not Info.Transparency;
-            Parent = DisplayFrameInner or DisplayFrame;
+            Parent = DisplayFrame;
         });
 
         -- 1/16/23
@@ -841,73 +830,18 @@ do
 
         local PickerFrameOuter = Library:Create('Frame', {
             Name = 'Color';
-            BackgroundColor3 = Color3.new(0, 0, 0);
-            BorderColor3 = Library.OutlineColor;
-            BorderSizePixel = 1;
-            Position = UDim2.fromOffset(0, 0), -- Временная позиция, обновится после рендера
+            BackgroundColor3 = Color3.new(1, 1, 1);
+            BorderColor3 = Color3.new(0, 0, 0);
+            Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18),
             Size = UDim2.fromOffset(230, Info.Transparency and 271 or 253);
             Visible = false;
             ZIndex = 15;
             Parent = ScreenGui,
         });
-        
-        Library:AddToRegistry(PickerFrameOuter, {
-            BorderColor3 = 'OutlineColor';
-        });
 
-        local function updatePickerPosition()
-            if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent then
-                local absPos = DisplayFrame.AbsolutePosition
-                if absPos.X > 0 or absPos.Y > 0 then
-                    PickerFrameOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + 18)
-                end
-            end
-        end
-
-        -- Обновляем позицию при изменении DisplayFrame
-        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updatePickerPosition)
-        DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updatePickerPosition)
-        
-        -- Также обновляем при изменении ToggleLabel (на случай, если ToggleLabel перемещается)
-        if ToggleLabel and ToggleLabel.Parent then
-            ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-                task.wait(0.05) -- Ждем обновления DisplayFrame
-                updatePickerPosition()
-            end)
-            ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.wait(0.05)
-                updatePickerPosition()
-            end)
-        end
-        
-        -- Обновляем позицию при изменении размера окна
-        if ScreenGui then
-            ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.wait(0.05)
-                updatePickerPosition()
-            end)
-        end
-        
-        -- Обновляем позицию на каждом кадре, если ColorPicker виден
-        Library:GiveSignal(RenderStepped:Connect(function()
-            if PickerFrameOuter and PickerFrameOuter.Visible then
-                updatePickerPosition()
-            end
-        end))
-        
-        -- Обновляем позицию после рендера (несколько раз для надежности)
-        task.spawn(function()
-            for i = 1, 3 do
-                task.wait(0.1)
-                updatePickerPosition()
-            end
+        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
+            PickerFrameOuter.Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18);
         end)
-
-        Library:GiveSignal(RenderStepped:Connect(function()
-            if PickerFrameOuter.Visible then
-                updatePickerPosition()
-            end
-        end))
 
         local PickerFrameInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
@@ -1284,14 +1218,6 @@ do
                 BackgroundTransparency = ColorPicker.Transparency;
                 BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
             });
-            
-            if DisplayFrameInner then
-                Library:Create(DisplayFrameInner, {
-                    BackgroundColor3 = ColorPicker.Value;
-                    BackgroundTransparency = ColorPicker.Transparency;
-                    BorderColor3 = Library:GetDarkerColor(ColorPicker.Value);
-                });
-            end
 
             if TransparencyBoxInner then
                 TransparencyBoxInner.BackgroundColor3 = ColorPicker.Value;
@@ -1509,9 +1435,33 @@ do
             Parent = ScreenGui;
         });
 
-        ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-            ModeSelectOuter.Position = UDim2.fromOffset(ToggleLabel.AbsolutePosition.X + ToggleLabel.AbsoluteSize.X + 4, ToggleLabel.AbsolutePosition.Y + 1);
-        end);
+        local function updateKeyPickerPosition()
+            if ToggleLabel and ToggleLabel.Parent and ModeSelectOuter and ModeSelectOuter.Parent then
+                local absPos = ToggleLabel.AbsolutePosition
+                local absSize = ToggleLabel.AbsoluteSize
+                if absPos.X > 0 and absPos.Y > 0 then
+                    ModeSelectOuter.Position = UDim2.fromOffset(absPos.X + absSize.X + 4, absPos.Y + 1)
+                end
+            end
+        end
+
+        ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateKeyPickerPosition)
+        ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeyPickerPosition)
+        
+        -- Обновляем позицию при изменении размера окна
+        if ScreenGui then
+            ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+                task.wait(0.05)
+                updateKeyPickerPosition()
+            end)
+        end
+        
+        -- Обновляем позицию на каждом кадре, если KeyPicker виден
+        Library:GiveSignal(RenderStepped:Connect(function()
+            if ModeSelectOuter and ModeSelectOuter.Visible then
+                updateKeyPickerPosition()
+            end
+        end))
 
         local ModeSelectInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
@@ -3857,19 +3807,13 @@ do
     };
 
     local KeybindOuter = Library:Create('Frame', {
-        AnchorPoint = Vector2.new(1, 0.5);
-        BackgroundColor3 = Color3.new(0, 0, 0);
-        BorderColor3 = Library.OutlineColor;
-        BorderSizePixel = 1;
-        Position = UDim2.new(1, -10, 0.5, 0);
+        AnchorPoint = Vector2.new(0, 0.5);
+        BorderColor3 = Color3.new(0, 0, 0);
+        Position = UDim2.new(0, 10, 0.5, 0);
         Size = UDim2.new(0, 210, 0, 20);
         Visible = false;
         ZIndex = 100;
         Parent = ScreenGui;
-    });
-    
-    Library:AddToRegistry(KeybindOuter, {
-        BorderColor3 = 'OutlineColor';
     });
 
     local KeybindInner = Library:Create('Frame', {
@@ -4307,51 +4251,22 @@ function Library:CreateWindow(...)
         local TabButton = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
             BorderColor3 = Library.OutlineColor;
-            BorderSizePixel = 1;
             Size = UDim2.new(0, TabButtonWidth + 8 + 4, 1, 0);
             ZIndex = 1;
             Parent = TabAreaScrolling;
         });
-        
+
         Library:AddToRegistry(TabButton, {
             BackgroundColor3 = 'BackgroundColor';
             BorderColor3 = 'OutlineColor';
         });
 
-        -- Внутренний фрейм для лучшего вида
-        local TabButtonInner = Library:Create('Frame', {
-            BackgroundColor3 = Library.BackgroundColor;
-            BorderSizePixel = 0;
-            Position = UDim2.new(0, 1, 0, 1);
-            Size = UDim2.new(1, -2, 1, -2);
-            ZIndex = 2;
-            Parent = TabButton;
-        });
-        
-        -- Верхняя граница для каждого таба индивидуально (поверх внутреннего фрейма)
-        local TabButtonTopBorder = Library:Create('Frame', {
-            BackgroundColor3 = Library.OutlineColor;
-            BorderSizePixel = 0;
-            Position = UDim2.new(0, 0, 0, 0);
-            Size = UDim2.new(1, 0, 0, 1);
-            ZIndex = 3;
-            Parent = TabButton;
-        });
-        
-        Library:AddToRegistry(TabButtonTopBorder, {
-            BackgroundColor3 = 'OutlineColor';
-        });
-
-        Library:AddToRegistry(TabButtonInner, {
-            BackgroundColor3 = 'BackgroundColor';
-        });
-
         local TabButtonLabel = Library:CreateLabel({
-            Position = UDim2.new(0, 4, 0, 0);
-            Size = UDim2.new(1, -8, 1, 0);
+            Position = UDim2.new(0, 0, 0, 0);
+            Size = UDim2.new(1, 0, 1, -1);
             Text = Name;
-            ZIndex = 4;
-            Parent = TabButtonInner;
+            ZIndex = 1;
+            Parent = TabButton;
         });
 
         local Blocker = Library:Create('Frame', {
@@ -4433,18 +4348,14 @@ function Library:CreateWindow(...)
 
             Blocker.BackgroundTransparency = 0;
             TabButton.BackgroundColor3 = Library.MainColor;
-            TabButtonInner.BackgroundColor3 = Library.MainColor;
             Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'MainColor';
-            Library.RegistryMap[TabButtonInner].Properties.BackgroundColor3 = 'MainColor';
             TabFrame.Visible = true;
         end;
 
         function Tab:HideTab()
             Blocker.BackgroundTransparency = 1;
             TabButton.BackgroundColor3 = Library.BackgroundColor;
-            TabButtonInner.BackgroundColor3 = Library.BackgroundColor;
             Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'BackgroundColor';
-            Library.RegistryMap[TabButtonInner].Properties.BackgroundColor3 = 'BackgroundColor';
             TabFrame.Visible = false;
         end;
 
