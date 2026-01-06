@@ -1,4 +1,4 @@
-print("Library version 0.6p")
+print("Library version 0.6p2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -828,15 +828,6 @@ do
         -- There was some issue which caused RelativeOffset to be way off
         -- Thus the color picker would never show
 
-        local function updatePickerPosition()
-            if DisplayFrame and DisplayFrame.Parent then
-                local absPos = DisplayFrame.AbsolutePosition
-                if absPos.X > 0 or absPos.Y > 0 then
-                    PickerFrameOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + 18)
-                end
-            end
-        end
-
         local PickerFrameOuter = Library:Create('Frame', {
             Name = 'Color';
             BackgroundColor3 = Color3.new(1, 1, 1);
@@ -847,6 +838,15 @@ do
             ZIndex = 15;
             Parent = ScreenGui,
         });
+
+        local function updatePickerPosition()
+            if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent then
+                local absPos = DisplayFrame.AbsolutePosition
+                if absPos.X > 0 or absPos.Y > 0 then
+                    PickerFrameOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + 18)
+                end
+            end
+        end
 
         -- Обновляем позицию при изменении DisplayFrame
         DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updatePickerPosition)
@@ -4090,11 +4090,25 @@ function Library:CreateWindow(...)
         Parent = MainSectionInner;
     });
 
+    -- Верхний контур для табов
+    local TabAreaTopBorder = Library:Create('Frame', {
+        BackgroundColor3 = Library.OutlineColor;
+        BorderSizePixel = 0;
+        Position = UDim2.new(0, 0, 0, 0);
+        Size = UDim2.new(1, 0, 0, 1);
+        ZIndex = 2;
+        Parent = TabArea;
+    });
+
+    Library:AddToRegistry(TabAreaTopBorder, {
+        BackgroundColor3 = 'OutlineColor';
+    });
+
     local TabAreaScrolling = Library:Create('ScrollingFrame', {
         BackgroundTransparency = 1;
         BorderSizePixel = 0;
-        Position = UDim2.new(0, 0, 0, 0);
-        Size = UDim2.new(1, 0, 1, 0);
+        Position = UDim2.new(0, 0, 0, 1); -- Смещаем вниз на 1 пиксель, чтобы не перекрывать контур
+        Size = UDim2.new(1, 0, 1, -1); -- Уменьшаем высоту на 1 пиксель
         CanvasSize = UDim2.new(0, 0, 0, 0);
         ScrollBarThickness = 0;
         ScrollingDirection = Enum.ScrollingDirection.X;
