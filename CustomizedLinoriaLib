@@ -1,4 +1,4 @@
-print("Library version 0.6p5")
+print("Library version 0.6p6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -839,23 +839,42 @@ do
             Parent = ScreenGui,
         });
 
-        local function updateColorPickerPosition()
+        local function updateColorPickerPosition(forceHideCheck)
             if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent then
                 local absPos = DisplayFrame.AbsolutePosition
                 if absPos.X > 0 and absPos.Y > 0 then
-                    PickerFrameOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + 18);
+                    local viewportSize = workspace.CurrentCamera.ViewportSize
+                    local pickerSize = PickerFrameOuter.AbsoluteSize
+                    local newX = absPos.X
+                    local newY = absPos.Y + 18
+                    
+                    -- Проверяем, не выходит ли колорпикер за границы экрана
+                    local isOutOfBounds = newX < 0 or newY < 0 or 
+                                         (newX + pickerSize.X) > viewportSize.X or 
+                                         (newY + pickerSize.Y) > viewportSize.Y
+                    
+                    -- Если колорпикер виден и выходит за границы (и это принудительная проверка при изменении размера), скрываем его
+                    if forceHideCheck and PickerFrameOuter.Visible and isOutOfBounds then
+                        PickerFrameOuter.Visible = false
+                    end
+                    
+                    PickerFrameOuter.Position = UDim2.fromOffset(newX, newY);
                 end
             end
         end
 
-        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateColorPickerPosition)
-        DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateColorPickerPosition)
+        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
+            updateColorPickerPosition(false)
+        end)
+        DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+            updateColorPickerPosition(false)
+        end)
         
-        -- Обновляем позицию при изменении размера окна
+        -- Обновляем позицию при изменении размера окна и проверяем границы
         if ScreenGui then
             ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
                 task.wait(0.05)
-                updateColorPickerPosition()
+                updateColorPickerPosition(true) -- Принудительная проверка границ при изменении размера
             end)
         end
 
@@ -1385,7 +1404,7 @@ do
         -- Обновляем позицию на каждом кадре, если ColorPicker виден
         Library:GiveSignal(RenderStepped:Connect(function()
             if PickerFrameOuter and PickerFrameOuter.Visible then
-                updateColorPickerPosition()
+                updateColorPickerPosition(false) -- Не скрываем при обычном обновлении
             end
         end))
 
@@ -1458,31 +1477,50 @@ do
             Parent = ScreenGui;
         });
 
-        local function updateKeyPickerPosition()
+        local function updateKeyPickerPosition(forceHideCheck)
             if ToggleLabel and ToggleLabel.Parent and ModeSelectOuter and ModeSelectOuter.Parent then
                 local absPos = ToggleLabel.AbsolutePosition
                 local absSize = ToggleLabel.AbsoluteSize
                 if absPos.X > 0 and absPos.Y > 0 then
-                    ModeSelectOuter.Position = UDim2.fromOffset(absPos.X + absSize.X + 4, absPos.Y + 1)
+                    local viewportSize = workspace.CurrentCamera.ViewportSize
+                    local pickerSize = ModeSelectOuter.AbsoluteSize
+                    local newX = absPos.X + absSize.X + 4
+                    local newY = absPos.Y + 1
+                    
+                    -- Проверяем, не выходит ли кейпикер за границы экрана
+                    local isOutOfBounds = newX < 0 or newY < 0 or 
+                                         (newX + pickerSize.X) > viewportSize.X or 
+                                         (newY + pickerSize.Y) > viewportSize.Y
+                    
+                    -- Если кейпикер виден и выходит за границы (и это принудительная проверка при изменении размера), скрываем его
+                    if forceHideCheck and ModeSelectOuter.Visible and isOutOfBounds then
+                        ModeSelectOuter.Visible = false
+                    end
+                    
+                    ModeSelectOuter.Position = UDim2.fromOffset(newX, newY)
                 end
             end
         end
 
-        ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateKeyPickerPosition)
-        ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeyPickerPosition)
+        ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
+            updateKeyPickerPosition(false)
+        end)
+        ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+            updateKeyPickerPosition(false)
+        end)
         
-        -- Обновляем позицию при изменении размера окна
+        -- Обновляем позицию при изменении размера окна и проверяем границы
         if ScreenGui then
             ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
                 task.wait(0.05)
-                updateKeyPickerPosition()
+                updateKeyPickerPosition(true) -- Принудительная проверка границ при изменении размера
             end)
         end
         
         -- Обновляем позицию на каждом кадре, если KeyPicker виден
         Library:GiveSignal(RenderStepped:Connect(function()
             if ModeSelectOuter and ModeSelectOuter.Visible then
-                updateKeyPickerPosition()
+                updateKeyPickerPosition(false)
             end
         end))
 
