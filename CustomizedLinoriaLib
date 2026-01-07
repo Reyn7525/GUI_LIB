@@ -1,4 +1,4 @@
-print("Library version 0.6p6")
+print("Library version 0.6p4a")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -839,7 +839,7 @@ do
             Parent = ScreenGui,
         });
 
-        local function updateColorPickerPosition(forceHideCheck)
+        local function updateColorPickerPosition()
             if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent then
                 local absPos = DisplayFrame.AbsolutePosition
                 if absPos.X > 0 and absPos.Y > 0 then
@@ -853,8 +853,8 @@ do
                                          (newX + pickerSize.X) > viewportSize.X or 
                                          (newY + pickerSize.Y) > viewportSize.Y
                     
-                    -- Если колорпикер виден и выходит за границы (и это принудительная проверка при изменении размера), скрываем его
-                    if forceHideCheck and PickerFrameOuter.Visible and isOutOfBounds then
+                    -- Если колорпикер виден и выходит за границы, скрываем его
+                    if PickerFrameOuter.Visible and isOutOfBounds then
                         PickerFrameOuter.Visible = false
                     end
                     
@@ -863,18 +863,47 @@ do
             end
         end
 
-        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-            updateColorPickerPosition(false)
-        end)
-        DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-            updateColorPickerPosition(false)
-        end)
+        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateColorPickerPosition)
+        DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateColorPickerPosition)
         
-        -- Обновляем позицию при изменении размера окна и проверяем границы
+        -- Обновляем позицию при изменении размера окна и ViewportSize
         if ScreenGui then
             ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
                 task.wait(0.05)
-                updateColorPickerPosition(true) -- Принудительная проверка границ при изменении размера
+                updateColorPickerPosition()
+            end)
+        end
+        
+        -- Слушаем изменения ViewportSize камеры
+        if workspace.CurrentCamera then
+            workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
+                task.wait(0.05)
+                updateColorPickerPosition()
+            end)
+        end
+        
+        -- Слушаем изменения размера родительского окна (если есть)
+        local function findWindowFrame(frame)
+            if not frame then return nil end
+            local parent = frame.Parent
+            while parent do
+                if parent:IsA("Frame") and parent:FindFirstChild("ResizeHandle") then
+                    return parent
+                end
+                parent = parent.Parent
+            end
+            return nil
+        end
+        
+        local windowFrame = findWindowFrame(DisplayFrame)
+        if windowFrame then
+            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+                task.wait(0.05)
+                updateColorPickerPosition()
+            end)
+            windowFrame:GetPropertyChangedSignal('Size'):Connect(function()
+                task.wait(0.05)
+                updateColorPickerPosition()
             end)
         end
 
@@ -1401,10 +1430,10 @@ do
             end
         end))
 
-        -- Обновляем позицию на каждом кадре, если ColorPicker виден
+        -- Обновляем позицию и проверяем границы на каждом кадре, если ColorPicker виден
         Library:GiveSignal(RenderStepped:Connect(function()
             if PickerFrameOuter and PickerFrameOuter.Visible then
-                updateColorPickerPosition(false) -- Не скрываем при обычном обновлении
+                updateColorPickerPosition() -- Проверяем границы постоянно
             end
         end))
 
@@ -1477,7 +1506,7 @@ do
             Parent = ScreenGui;
         });
 
-        local function updateKeyPickerPosition(forceHideCheck)
+        local function updateKeyPickerPosition()
             if ToggleLabel and ToggleLabel.Parent and ModeSelectOuter and ModeSelectOuter.Parent then
                 local absPos = ToggleLabel.AbsolutePosition
                 local absSize = ToggleLabel.AbsoluteSize
@@ -1492,8 +1521,8 @@ do
                                          (newX + pickerSize.X) > viewportSize.X or 
                                          (newY + pickerSize.Y) > viewportSize.Y
                     
-                    -- Если кейпикер виден и выходит за границы (и это принудительная проверка при изменении размера), скрываем его
-                    if forceHideCheck and ModeSelectOuter.Visible and isOutOfBounds then
+                    -- Если кейпикер виден и выходит за границы, скрываем его
+                    if ModeSelectOuter.Visible and isOutOfBounds then
                         ModeSelectOuter.Visible = false
                     end
                     
@@ -1502,25 +1531,54 @@ do
             end
         end
 
-        ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-            updateKeyPickerPosition(false)
-        end)
-        ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-            updateKeyPickerPosition(false)
-        end)
+        ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateKeyPickerPosition)
+        ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeyPickerPosition)
         
-        -- Обновляем позицию при изменении размера окна и проверяем границы
+        -- Обновляем позицию при изменении размера окна и ViewportSize
         if ScreenGui then
             ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
                 task.wait(0.05)
-                updateKeyPickerPosition(true) -- Принудительная проверка границ при изменении размера
+                updateKeyPickerPosition()
             end)
         end
         
-        -- Обновляем позицию на каждом кадре, если KeyPicker виден
+        -- Слушаем изменения ViewportSize камеры
+        if workspace.CurrentCamera then
+            workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
+                task.wait(0.05)
+                updateKeyPickerPosition()
+            end)
+        end
+        
+        -- Слушаем изменения размера родительского окна (если есть)
+        local function findWindowFrame(frame)
+            if not frame then return nil end
+            local parent = frame.Parent
+            while parent do
+                if parent:IsA("Frame") and parent:FindFirstChild("ResizeHandle") then
+                    return parent
+                end
+                parent = parent.Parent
+            end
+            return nil
+        end
+        
+        local windowFrame = findWindowFrame(ToggleLabel)
+        if windowFrame then
+            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+                task.wait(0.05)
+                updateKeyPickerPosition()
+            end)
+            windowFrame:GetPropertyChangedSignal('Size'):Connect(function()
+                task.wait(0.05)
+                updateKeyPickerPosition()
+            end)
+        end
+        
+        -- Обновляем позицию и проверяем границы на каждом кадре, если KeyPicker виден
         Library:GiveSignal(RenderStepped:Connect(function()
             if ModeSelectOuter and ModeSelectOuter.Visible then
-                updateKeyPickerPosition(false)
+                updateKeyPickerPosition() -- Проверяем границы постоянно
             end
         end))
 
