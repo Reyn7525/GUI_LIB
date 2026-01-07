@@ -1,4 +1,4 @@
-print("Library version 0.6p4")
+print("Library version 0.6p5")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -839,9 +839,25 @@ do
             Parent = ScreenGui,
         });
 
-        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-            PickerFrameOuter.Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18);
-        end)
+        local function updateColorPickerPosition()
+            if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent then
+                local absPos = DisplayFrame.AbsolutePosition
+                if absPos.X > 0 and absPos.Y > 0 then
+                    PickerFrameOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + 18);
+                end
+            end
+        end
+
+        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateColorPickerPosition)
+        DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateColorPickerPosition)
+        
+        -- Обновляем позицию при изменении размера окна
+        if ScreenGui then
+            ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+                task.wait(0.05)
+                updateColorPickerPosition()
+            end)
+        end
 
         local PickerFrameInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
@@ -1363,6 +1379,13 @@ do
                 if not Library:IsMouseOverFrame(ContextMenu.Container) and not Library:IsMouseOverFrame(DisplayFrame) then
                     ContextMenu:Hide()
                 end
+            end
+        end))
+
+        -- Обновляем позицию на каждом кадре, если ColorPicker виден
+        Library:GiveSignal(RenderStepped:Connect(function()
+            if PickerFrameOuter and PickerFrameOuter.Visible then
+                updateColorPickerPosition()
             end
         end))
 
