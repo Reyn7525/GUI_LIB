@@ -1,4 +1,4 @@
-print("Library version 0.6p4a")
+print("Library version 0.6p4b")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -842,23 +842,22 @@ do
         local function updateColorPickerPosition()
             if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent then
                 local absPos = DisplayFrame.AbsolutePosition
-                if absPos.X > 0 and absPos.Y > 0 then
-                    local viewportSize = workspace.CurrentCamera.ViewportSize
-                    local pickerSize = PickerFrameOuter.AbsoluteSize
-                    local newX = absPos.X
-                    local newY = absPos.Y + 18
-                    
-                    -- Проверяем, не выходит ли колорпикер за границы экрана
-                    local isOutOfBounds = newX < 0 or newY < 0 or 
-                                         (newX + pickerSize.X) > viewportSize.X or 
-                                         (newY + pickerSize.Y) > viewportSize.Y
-                    
-                    -- Если колорпикер виден и выходит за границы, скрываем его
-                    if PickerFrameOuter.Visible and isOutOfBounds then
-                        PickerFrameOuter.Visible = false
-                    end
-                    
-                    PickerFrameOuter.Position = UDim2.fromOffset(newX, newY);
+                local viewportSize = workspace.CurrentCamera.ViewportSize
+                local pickerSize = PickerFrameOuter.AbsoluteSize
+                local newX = absPos.X
+                local newY = absPos.Y + 18
+                
+                -- Всегда обновляем позицию
+                PickerFrameOuter.Position = UDim2.fromOffset(newX, newY);
+                
+                -- Проверяем, не выходит ли колорпикер за границы экрана
+                local isOutOfBounds = newX < 0 or newY < 0 or 
+                                     (newX + pickerSize.X) > viewportSize.X or 
+                                     (newY + pickerSize.Y) > viewportSize.Y
+                
+                -- Если колорпикер виден и выходит за границы, скрываем его
+                if PickerFrameOuter.Visible and isOutOfBounds then
+                    PickerFrameOuter.Visible = false
                 end
             end
         end
@@ -898,11 +897,12 @@ do
         local windowFrame = findWindowFrame(DisplayFrame)
         if windowFrame then
             windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.wait(0.05)
                 updateColorPickerPosition()
             end)
             windowFrame:GetPropertyChangedSignal('Size'):Connect(function()
-                task.wait(0.05)
+                updateColorPickerPosition()
+            end)
+            windowFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
                 updateColorPickerPosition()
             end)
         end
@@ -1430,10 +1430,10 @@ do
             end
         end))
 
-        -- Обновляем позицию и проверяем границы на каждом кадре, если ColorPicker виден
+        -- Обновляем позицию и проверяем границы на каждом кадре
         Library:GiveSignal(RenderStepped:Connect(function()
-            if PickerFrameOuter and PickerFrameOuter.Visible then
-                updateColorPickerPosition() -- Проверяем границы постоянно
+            if PickerFrameOuter and PickerFrameOuter.Parent then
+                updateColorPickerPosition() -- Всегда обновляем позицию и проверяем границы
             end
         end))
 
@@ -1510,23 +1510,22 @@ do
             if ToggleLabel and ToggleLabel.Parent and ModeSelectOuter and ModeSelectOuter.Parent then
                 local absPos = ToggleLabel.AbsolutePosition
                 local absSize = ToggleLabel.AbsoluteSize
-                if absPos.X > 0 and absPos.Y > 0 then
-                    local viewportSize = workspace.CurrentCamera.ViewportSize
-                    local pickerSize = ModeSelectOuter.AbsoluteSize
-                    local newX = absPos.X + absSize.X + 4
-                    local newY = absPos.Y + 1
-                    
-                    -- Проверяем, не выходит ли кейпикер за границы экрана
-                    local isOutOfBounds = newX < 0 or newY < 0 or 
-                                         (newX + pickerSize.X) > viewportSize.X or 
-                                         (newY + pickerSize.Y) > viewportSize.Y
-                    
-                    -- Если кейпикер виден и выходит за границы, скрываем его
-                    if ModeSelectOuter.Visible and isOutOfBounds then
-                        ModeSelectOuter.Visible = false
-                    end
-                    
-                    ModeSelectOuter.Position = UDim2.fromOffset(newX, newY)
+                local viewportSize = workspace.CurrentCamera.ViewportSize
+                local pickerSize = ModeSelectOuter.AbsoluteSize
+                local newX = absPos.X + absSize.X + 4
+                local newY = absPos.Y + 1
+                
+                -- Всегда обновляем позицию
+                ModeSelectOuter.Position = UDim2.fromOffset(newX, newY)
+                
+                -- Проверяем, не выходит ли кейпикер за границы экрана
+                local isOutOfBounds = newX < 0 or newY < 0 or 
+                                     (newX + pickerSize.X) > viewportSize.X or 
+                                     (newY + pickerSize.Y) > viewportSize.Y
+                
+                -- Если кейпикер виден и выходит за границы, скрываем его
+                if ModeSelectOuter.Visible and isOutOfBounds then
+                    ModeSelectOuter.Visible = false
                 end
             end
         end
@@ -1566,19 +1565,28 @@ do
         local windowFrame = findWindowFrame(ToggleLabel)
         if windowFrame then
             windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.wait(0.05)
                 updateKeyPickerPosition()
             end)
             windowFrame:GetPropertyChangedSignal('Size'):Connect(function()
-                task.wait(0.05)
                 updateKeyPickerPosition()
             end)
+            windowFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
+                updateKeyPickerPosition()
+            end)
+            -- Также слушаем изменения во время изменения размера
+            if windowFrame:GetAttribute("Resizing") then
+                Library:GiveSignal(RenderStepped:Connect(function()
+                    if windowFrame:GetAttribute("Resizing") then
+                        updateKeyPickerPosition()
+                    end
+                end))
+            end
         end
         
-        -- Обновляем позицию и проверяем границы на каждом кадре, если KeyPicker виден
+        -- Обновляем позицию и проверяем границы на каждом кадре
         Library:GiveSignal(RenderStepped:Connect(function()
-            if ModeSelectOuter and ModeSelectOuter.Visible then
-                updateKeyPickerPosition() -- Проверяем границы постоянно
+            if ModeSelectOuter and ModeSelectOuter.Parent then
+                updateKeyPickerPosition() -- Всегда обновляем позицию и проверяем границы
             end
         end))
 
