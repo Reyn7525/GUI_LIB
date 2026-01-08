@@ -1,4 +1,4 @@
-print("Library version 0.6p6test2")
+print("Library version 0.6p6test3")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -1245,6 +1245,8 @@ do
             end;
 
             ColorPicker:Display();
+            -- Обновляем позицию колорпикера каждый раз при показе, так как ToggleLabel может изменить размер
+            PickerFrameOuter.Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18)
             PickerFrameOuter.Visible = true;
             Library.OpenedFrames[PickerFrameOuter] = true;
         end;
@@ -1709,6 +1711,8 @@ do
                     end;
                 end);
             elseif Input.UserInputType == Enum.UserInputType.MouseButton2 and not Library:MouseIsOverOpenedFrame() then
+                -- Обновляем позицию кейпикера каждый раз при показе, так как ToggleLabel может изменить размер
+                ModeSelectOuter.Position = UDim2.fromOffset(ToggleLabel.AbsolutePosition.X + ToggleLabel.AbsoluteSize.X + 4, ToggleLabel.AbsolutePosition.Y + 1)
                 ModeSelectOuter.Visible = true;
             end;
         end);
@@ -4072,13 +4076,11 @@ function Library:CreateWindow(...)
                                 -- Позиция ToggleLabel: Position = UDim2.new(1, 6, 0, 0) относительно ToggleInner
                                 -- Это означает левый край ToggleLabel находится на: ToggleInner.AbsolutePosition.X + ToggleInner.AbsoluteSize.X + 6
                                 local toggleLabelLeftAbs = toggleInner.AbsolutePosition.X + toggleInner.AbsoluteSize.X + 6
-                                -- Правый край контейнера минус отступ справа
-                                -- Контейнер имеет Size = UDim2.new(1, -4, 1, -20), так что правый отступ уже учтен
-                                -- Добавляем дополнительный отступ справа для ToggleLabel, чтобы он не "въезжал в край"
-                                -- Изначально был отступ 6 пикселей в Position, добавляем еще отступ справа
+                                -- Правый край контейнера
                                 local containerRightAbs = container.AbsolutePosition.X + container.AbsoluteSize.X
-                                -- Отступ справа от контейнера (учитывая, что контейнер уже имеет отступ -4)
-                                local rightOffset = 10
+                                -- Отступ справа от контейнера (контейнер уже имеет Size = UDim2.new(1, -4, ...), 
+                                -- что означает отступ по 4 пикселя с каждой стороны, плюс минимальный отступ для ToggleLabel)
+                                local rightOffset = 6
                                 local newWidth = math.max(216, containerRightAbs - toggleLabelLeftAbs - rightOffset)
                                 toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
                             end
