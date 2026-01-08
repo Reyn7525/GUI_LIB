@@ -1,4 +1,4 @@
-print("Library version 0.6p8d")
+print("Library version 0.6p8e")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4202,7 +4202,7 @@ function Library:CreateWindow(...)
 
     local TabArea = Library:Create('Frame', {
         BackgroundTransparency = 1;
-        Position = UDim2.new(0, 8, 0, 8);
+        Position = UDim2.new(0, 7, 0, 9);
         Size = UDim2.new(1, -16, 0, 21);
         ZIndex = 3;
         Parent = MainSectionInner;
