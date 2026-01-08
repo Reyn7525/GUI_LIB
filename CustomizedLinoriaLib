@@ -1,4 +1,4 @@
-print("Library version 0.6p5d")
+print("Library version 0.6p5e")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4058,6 +4058,27 @@ function Library:CreateWindow(...)
     local originalAnchorPoint = nil;
     local originalPosition = nil;
 
+    -- Функция для обновления размеров всех ToggleLabel
+    local function updateAllToggleLabelsSize()
+        if Library.ToggleLabels then
+            for _, toggleLabel in ipairs(Library.ToggleLabels) do
+                if toggleLabel and toggleLabel.Parent then
+                    local toggleInner = toggleLabel.Parent
+                    if toggleInner and toggleInner.Parent then
+                        local toggleOuter = toggleInner.Parent
+                        if toggleOuter then
+                            -- Используем размер ToggleOuter, который зависит от Container
+                            local outerSize = toggleOuter.AbsoluteSize.X
+                            -- Вычитаем отступ справа (6 пикселей)
+                            local newWidth = math.max(216, outerSize - 6)
+                            toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     ResizeHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             resizing = true;
@@ -4113,27 +4134,6 @@ function Library:CreateWindow(...)
             end
         end
     end);
-
-    -- Функция для обновления размеров всех ToggleLabel
-    local function updateAllToggleLabelsSize()
-        if Library.ToggleLabels then
-            for _, toggleLabel in ipairs(Library.ToggleLabels) do
-                if toggleLabel and toggleLabel.Parent then
-                    local toggleInner = toggleLabel.Parent
-                    if toggleInner and toggleInner.Parent then
-                        local toggleOuter = toggleInner.Parent
-                        if toggleOuter then
-                            -- Используем размер ToggleOuter, который зависит от Container
-                            local outerSize = toggleOuter.AbsoluteSize.X
-                            -- Вычитаем отступ справа (6 пикселей)
-                            local newWidth = math.max(216, outerSize - 6)
-                            toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
-                        end
-                    end
-                end
-            end
-        end
-    end
 
     -- Обновляем размеры ToggleLabel при изменении размера окна
     Outer:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
