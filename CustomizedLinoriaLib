@@ -1,4 +1,4 @@
-print("Library version 0.6p5с")
+print("Library version 0.6p6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -39,6 +39,7 @@ local Library = {
 
     OpenedFrames = {};
     DependencyBoxes = {};
+    ToggleLabels = {}; -- Таблица для хранения всех ToggleLabel
 
     Signals = {};
     ScreenGui = ScreenGui;
@@ -839,36 +840,6 @@ do
             Parent = ScreenGui,
         });
 
-        local function updateColorPickerPosition()
-            if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent then
-                local absPos = DisplayFrame.AbsolutePosition
-                PickerFrameOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + 18)
-            end
-        end
-
-        DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateColorPickerPosition)
-        DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateColorPickerPosition)
-
-        -- Обновляем позицию при изменении размера GUI
-        local function findWindowFrame(frame)
-            if not frame then return nil end
-            local parent = frame.Parent
-            while parent do
-                if parent:IsA("Frame") and parent:FindFirstChild("ResizeHandle") then
-                    return parent
-                end
-                parent = parent.Parent
-            end
-            return nil
-        end
-
-        local windowFrame = findWindowFrame(DisplayFrame)
-        if windowFrame then
-            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateColorPickerPosition)
-            windowFrame:GetPropertyChangedSignal('Size'):Connect(updateColorPickerPosition)
-            windowFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateColorPickerPosition)
-        end
-
         local PickerFrameInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
             BorderColor3 = Library.OutlineColor;
@@ -1461,37 +1432,6 @@ do
             ZIndex = 14;
             Parent = ScreenGui;
         });
-
-        local function updateKeyPickerPosition()
-            if ToggleLabel and ToggleLabel.Parent and ModeSelectOuter and ModeSelectOuter.Parent then
-                local absPos = ToggleLabel.AbsolutePosition
-                local absSize = ToggleLabel.AbsoluteSize
-                ModeSelectOuter.Position = UDim2.fromOffset(absPos.X + absSize.X + 4, absPos.Y + 1)
-            end
-        end
-
-        ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateKeyPickerPosition)
-        ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeyPickerPosition)
-
-        -- Обновляем позицию при изменении размера GUI
-        local function findWindowFrame(frame)
-            if not frame then return nil end
-            local parent = frame.Parent
-            while parent do
-                if parent:IsA("Frame") and parent:FindFirstChild("ResizeHandle") then
-                    return parent
-                end
-                parent = parent.Parent
-            end
-            return nil
-        end
-
-        local windowFrame = findWindowFrame(ToggleLabel)
-        if windowFrame then
-            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeyPickerPosition)
-            windowFrame:GetPropertyChangedSignal('Size'):Connect(updateKeyPickerPosition)
-            windowFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateKeyPickerPosition)
-        end
 
         local ModeSelectInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
@@ -2476,43 +2416,8 @@ do
             Parent = ToggleInner;
         });
 
-        -- Обновляем размер ToggleLabel при изменении размера GUI
-        local function updateToggleLabelSize()
-            if ToggleInner and ToggleInner.Parent and ToggleLabel then
-                local innerSize = ToggleInner.AbsoluteSize.X
-                -- Вычитаем отступ справа (6 пикселей)
-                local newWidth = math.max(216, innerSize - 6)
-                ToggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
-            end
-        end
-
-        ToggleInner:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateToggleLabelSize)
-        ToggleInner:GetPropertyChangedSignal('Size'):Connect(updateToggleLabelSize)
-
-        -- Также обновляем при изменении размера родительского окна
-        local function findWindowFrame(frame)
-            if not frame then return nil end
-            local parent = frame.Parent
-            while parent do
-                if parent:IsA("Frame") and parent:FindFirstChild("ResizeHandle") then
-                    return parent
-                end
-                parent = parent.Parent
-            end
-            return nil
-        end
-
-        local windowFrame = findWindowFrame(Container)
-        if windowFrame then
-            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateToggleLabelSize)
-            windowFrame:GetPropertyChangedSignal('Size'):Connect(updateToggleLabelSize)
-        end
-
-        -- Обновляем размер сразу после создания
-        task.spawn(function()
-            task.wait(0.1)
-            updateToggleLabelSize()
-        end)
+        -- Добавляем ToggleLabel в таблицу для обновления размера
+        table.insert(Library.ToggleLabels, ToggleLabel)
 
         Library:Create('UIListLayout', {
             Padding = UDim.new(0, 4);
@@ -4205,6 +4110,37 @@ function Library:CreateWindow(...)
             end
         end
     end);
+
+    -- Функция для обновления размеров всех ToggleLabel
+    local function updateAllToggleLabelsSize()
+        if Library.ToggleLabels then
+            for _, toggleLabel in ipairs(Library.ToggleLabels) do
+                if toggleLabel and toggleLabel.Parent then
+                    local toggleInner = toggleLabel.Parent
+                    if toggleInner and toggleInner.Parent then
+                        local innerSize = toggleInner.AbsoluteSize.X
+                        -- Вычитаем отступ справа (6 пикселей)
+                        local newWidth = math.max(216, innerSize - 6)
+                        toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
+                    end
+                end
+            end
+        end
+    end
+
+    -- Обновляем размеры ToggleLabel при изменении размера окна
+    Outer:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+        task.spawn(function()
+            task.wait(0.05)
+            updateAllToggleLabelsSize()
+        end)
+    end)
+    Outer:GetPropertyChangedSignal('Size'):Connect(function()
+        task.spawn(function()
+            task.wait(0.05)
+            updateAllToggleLabelsSize()
+        end)
+    end)
 
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
