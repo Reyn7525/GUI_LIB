@@ -1,4 +1,4 @@
-print("Library version 0.6p5f")
+print("Library version 0.6p6test")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4069,10 +4069,13 @@ function Library:CreateWindow(...)
                         if toggleOuter and toggleOuter.Parent then
                             local container = toggleOuter.Parent
                             if container then
-                                -- Используем размер Container, который изменяется с размером окна
-                                local containerSize = container.AbsoluteSize.X
-                                -- Вычитаем отступ справа (6 пикселей)
-                                local newWidth = math.max(216, containerSize - 6)
+                                -- Позиция ToggleLabel: Position = UDim2.new(1, 6, 0, 0) относительно ToggleInner
+                                -- Это означает левый край ToggleLabel находится на: ToggleInner.AbsolutePosition.X + ToggleInner.AbsoluteSize.X + 6
+                                local toggleLabelLeftAbs = toggleInner.AbsolutePosition.X + toggleInner.AbsoluteSize.X + 6
+                                -- Правый край контейнера минус отступ справа (6 пикселей)
+                                local containerRightAbs = container.AbsolutePosition.X + container.AbsoluteSize.X - 6
+                                -- Размер ToggleLabel = расстояние от его левого края до правого края контейнера
+                                local newWidth = math.max(216, containerRightAbs - toggleLabelLeftAbs)
                                 toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
                             end
                         end
