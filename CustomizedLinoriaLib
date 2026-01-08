@@ -1,4 +1,4 @@
-print("Library version 0.6p7a")
+print("Library version 0.6p7b")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -771,6 +771,9 @@ function Library:Unload()
     end
     if GirlScreenGui then
         GirlScreenGui:Destroy()
+    end
+    if Library.WatermarkCrossLines then
+        Library.WatermarkCrossLines:Destroy()
     end
 end
 
