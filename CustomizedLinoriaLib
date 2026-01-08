@@ -1,4 +1,4 @@
-print("Library version 0.6p8a")
+print("Library version 0.6p8b")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4211,7 +4211,7 @@ function Library:CreateWindow(...)
     local TabAreaScrolling = Library:Create('ScrollingFrame', {
         BackgroundTransparency = 1;
         BorderSizePixel = 0;
-        ClipsDescendants = false;
+        ClipsDescendants = true;
         Position = UDim2.new(0, 0, 0, 0);
         Size = UDim2.new(1, 0, 1, 0);
         CanvasSize = UDim2.new(0, 0, 0, 0);
