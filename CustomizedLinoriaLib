@@ -1,4 +1,4 @@
-print("Library version 0.6p4с")
+print("Library version 0.6p4d")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -858,13 +858,19 @@ do
                 local actualSize = PickerFrameOuter.AbsoluteSize
                 
                 -- Проверяем, не выходит ли колорпикер за границы экрана
-                local isOutOfBounds = actualPos.X < 0 or actualPos.Y < 0 or 
-                                     (actualPos.X + actualSize.X) > viewportSize.X or 
-                                     (actualPos.Y + actualSize.Y) > viewportSize.Y
+                -- Учитываем небольшой отступ для более точной проверки
+                local margin = 5
+                local isOutOfBounds = (actualPos.X + margin) < 0 or (actualPos.Y + margin) < 0 or 
+                                     (actualPos.X + actualSize.X - margin) > viewportSize.X or 
+                                     (actualPos.Y + actualSize.Y - margin) > viewportSize.Y
                 
                 -- Если колорпикер виден и выходит за границы, скрываем его
                 if isOutOfBounds then
                     PickerFrameOuter.Visible = false
+                    -- Также убираем из OpenedFrames
+                    if Library.OpenedFrames[PickerFrameOuter] then
+                        Library.OpenedFrames[PickerFrameOuter] = nil
+                    end
                 end
             end
         end
@@ -875,16 +881,22 @@ do
         -- Обновляем позицию при изменении размера окна и ViewportSize
         if ScreenGui then
             ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.wait(0.05)
-                updateColorPickerPosition()
+                task.spawn(function()
+                    task.wait(0.05)
+                    updateColorPickerPosition()
+                    checkColorPickerBounds()
+                end)
             end)
         end
         
         -- Слушаем изменения ViewportSize камеры
         if workspace.CurrentCamera then
             workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
-                task.wait(0.05)
-                updateColorPickerPosition()
+                task.spawn(function()
+                    task.wait(0.05)
+                    updateColorPickerPosition()
+                    checkColorPickerBounds()
+                end)
             end)
         end
         
@@ -1533,9 +1545,11 @@ do
                 local actualSize = ModeSelectOuter.AbsoluteSize
                 
                 -- Проверяем, не выходит ли кейпикер за границы экрана
-                local isOutOfBounds = actualPos.X < 0 or actualPos.Y < 0 or 
-                                     (actualPos.X + actualSize.X) > viewportSize.X or 
-                                     (actualPos.Y + actualSize.Y) > viewportSize.Y
+                -- Учитываем небольшой отступ для более точной проверки
+                local margin = 5
+                local isOutOfBounds = (actualPos.X + margin) < 0 or (actualPos.Y + margin) < 0 or 
+                                     (actualPos.X + actualSize.X - margin) > viewportSize.X or 
+                                     (actualPos.Y + actualSize.Y - margin) > viewportSize.Y
                 
                 -- Если кейпикер виден и выходит за границы, скрываем его
                 if isOutOfBounds then
@@ -1550,16 +1564,22 @@ do
         -- Обновляем позицию при изменении размера окна и ViewportSize
         if ScreenGui then
             ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.wait(0.05)
-                updateKeyPickerPosition()
+                task.spawn(function()
+                    task.wait(0.05)
+                    updateKeyPickerPosition()
+                    checkKeyPickerBounds()
+                end)
             end)
         end
         
         -- Слушаем изменения ViewportSize камеры
         if workspace.CurrentCamera then
             workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
-                task.wait(0.05)
-                updateKeyPickerPosition()
+                task.spawn(function()
+                    task.wait(0.05)
+                    updateKeyPickerPosition()
+                    checkKeyPickerBounds()
+                end)
             end)
         end
         
