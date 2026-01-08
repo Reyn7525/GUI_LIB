@@ -1,4 +1,4 @@
-print("Library version 0.6P61")
+print("Library version 0.6p6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4066,7 +4066,7 @@ function Library:CreateWindow(...)
                         local container = toggleOuter.Parent
                         if container then
                             local toggleLabelLeftAbs = toggleInner.AbsolutePosition.X + toggleInner.AbsoluteSize.X + 6
-                            local containerRightAbs = container.AbsolutePosition.X + container.AbsoluteSize.XinerWidth
+                            local containerRightAbs = container.AbsolutePosition.X + container.AbsoluteSize.X
                             local newWidth = containerRightAbs - toggleLabelLeftAbs - 3
                             
                             if newWidth > 0 then
