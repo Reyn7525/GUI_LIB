@@ -1,4 +1,4 @@
-print("Library version 0.6p6test4")
+print("Library version 0.6p6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -39,7 +39,7 @@ local Library = {
 
     OpenedFrames = {};
     DependencyBoxes = {};
-    ToggleLabels = {}; -- Таблица для хранения всех ToggleLabel
+    ToggleLabels = {};
 
     Signals = {};
     ScreenGui = ScreenGui;
@@ -1245,7 +1245,6 @@ do
             end;
 
             ColorPicker:Display();
-            -- Обновляем позицию колорпикера каждый раз при показе, так как ToggleLabel может изменить размер
             PickerFrameOuter.Position = UDim2.fromOffset(DisplayFrame.AbsolutePosition.X, DisplayFrame.AbsolutePosition.Y + 18)
             PickerFrameOuter.Visible = true;
             Library.OpenedFrames[PickerFrameOuter] = true;
@@ -1711,7 +1710,6 @@ do
                     end;
                 end);
             elseif Input.UserInputType == Enum.UserInputType.MouseButton2 and not Library:MouseIsOverOpenedFrame() then
-                -- Обновляем позицию кейпикера каждый раз при показе, так как ToggleLabel может изменить размер
                 ModeSelectOuter.Position = UDim2.fromOffset(ToggleLabel.AbsolutePosition.X + ToggleLabel.AbsoluteSize.X + 4, ToggleLabel.AbsolutePosition.Y + 1)
                 ModeSelectOuter.Visible = true;
             end;
@@ -2034,20 +2032,17 @@ do
             SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
             SubButton.Outer.Parent = self.Outer
             
-            -- Функция для обновления размера SubButton
             local function updateSubButtonSize()
                 if SubButton.Outer and SubButton.Outer.Parent and self.Outer and self.Outer.Parent then
                     local parentSize = self.Outer.AbsoluteSize
                     if parentSize.X > 0 and parentSize.Y > 0 then
                         SubButton.Outer.Size = UDim2.fromOffset(parentSize.X - 2, parentSize.Y)
                     else
-                        -- Если размер еще не определен, используем относительный размер
                         SubButton.Outer.Size = UDim2.new(0.5, -2, 0, 20)
                     end
                 end
             end
             
-            -- Обновляем размер сразу и после рендера
             updateSubButtonSize()
             task.spawn(function()
                 for i = 1, 3 do
@@ -2056,7 +2051,6 @@ do
                 end
             end)
             
-            -- Обновляем размер при изменении размера родителя
             if self.Outer then
                 self.Outer:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateSubButtonSize)
                 self.Outer:GetPropertyChangedSignal('Size'):Connect(updateSubButtonSize)
@@ -2420,7 +2414,6 @@ do
             Parent = ToggleInner;
         });
 
-        -- Добавляем ToggleLabel в таблицу для обновления размера
         table.insert(Library.ToggleLabels, ToggleLabel)
 
         Library:Create('UIListLayout', {
@@ -2538,7 +2531,7 @@ do
             Min = Info.Min;
             Max = Info.Max;
             Rounding = Info.Rounding;
-            MaxSize = 232; -- Будет обновлено после создания SliderOuter
+            MaxSize = 232;
             Type = 'Slider';
             Callback = Info.Callback or function(Value) end;
         };
@@ -2629,7 +2622,6 @@ do
         DisplayLabel.TextStrokeTransparency = ScreenGui:GetAttribute("TextOutline") and 0 or 1
         DisplayLabel.TextStrokeColor3 = ScreenGui:GetAttribute("TextOutlineColor") or Color3.new(0, 0, 0)
     
-        -- Функция для обновления MaxSize слайдера
         local function updateSliderMaxSize()
             if SliderOuter and SliderOuter.Parent then
                 local absSize = SliderOuter.AbsoluteSize
@@ -2640,13 +2632,11 @@ do
             end
         end
         
-        -- Обновляем MaxSize после рендера
         task.spawn(function()
             task.wait()
             updateSliderMaxSize()
         end)
         
-        -- Обновляем MaxSize при изменении размера
         SliderOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateSliderMaxSize)
     
         Library:OnHighlight(SliderOuter, SliderOuter,
@@ -2658,7 +2648,6 @@ do
             Library:AddToolTip(Info.Tooltip, SliderOuter)
         end
     
-        -- Функция для обновления MaxSize слайдера (будет определена после Slider:Display)
         local updateSliderMaxSize = nil
     
         local function OpenInputDialog()
@@ -2776,21 +2765,19 @@ do
             HideBorderRight.Visible = not (X == Slider.MaxSize or X == 0);
         end;
         
-        -- Функция для обновления MaxSize слайдера (определена после Slider:Display)
         updateSliderMaxSize = function()
             if SliderOuter and SliderOuter.Parent then
                 local absSize = SliderOuter.AbsoluteSize
                 if absSize.X > 0 then
-                    local newMaxSize = absSize.X - 4 -- Учитываем отступы
+                    local newMaxSize = absSize.X - 4
                     if Slider.MaxSize ~= newMaxSize then
                         Slider.MaxSize = newMaxSize
-                        Slider:Display() -- Обновляем отображение
+                        Slider:Display()
                     end
                 end
             end
         end
         
-        -- Обновляем MaxSize сразу и после рендера
         task.spawn(function()
             for i = 1, 5 do
                 task.wait(0.1)
@@ -2798,11 +2785,9 @@ do
             end
         end)
         
-        -- Обновляем MaxSize при изменении размера
         SliderOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateSliderMaxSize)
         SliderOuter:GetPropertyChangedSignal('Size'):Connect(updateSliderMaxSize)
         
-        -- Также обновляем при изменении размера родительского контейнера
         if Container and Container.Parent then
             Container:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
                 task.wait(0.05)
@@ -3084,7 +3069,6 @@ do
             end
         end;
 
-        -- Обновляем позицию и размер сразу и после рендера
         task.spawn(function()
             for i = 1, 3 do
                 task.wait(0.1)
@@ -3364,7 +3348,6 @@ do
                     if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X
                         or Mouse.Y < AbsPos.Y or Mouse.Y > AbsPos.Y + AbsSize.Y then
 
-                        -- Проверяем, что клик не по самому DropdownOuter
                         if DropdownOuter and DropdownOuter.Parent then
                             local DropdownAbsPos, DropdownAbsSize = DropdownOuter.AbsolutePosition, DropdownOuter.AbsoluteSize
                             if not (Mouse.X >= DropdownAbsPos.X and Mouse.X <= DropdownAbsPos.X + DropdownAbsSize.X
@@ -4055,33 +4038,38 @@ function Library:CreateWindow(...)
     });
 
     local resizing = false;
-    local minSize = Vector2.new(400, 350); -- минимальный размер окна
+    local minSize = Vector2.new(400, 350);
     local startMousePos = nil;
     local startSize = nil;
     local startAbsolutePos = nil;
     local originalAnchorPoint = nil;
     local originalPosition = nil;
 
-    -- Функция для обновления размеров всех ToggleLabel
+    local lastUpdateTime = 0
     local function updateAllToggleLabelsSize()
-        if Library.ToggleLabels then
-            for _, toggleLabel in ipairs(Library.ToggleLabels) do
-                if toggleLabel and toggleLabel.Parent then
-                    local toggleInner = toggleLabel.Parent
-                    if toggleInner and toggleInner.Parent then
-                        local toggleOuter = toggleInner.Parent
-                        if toggleOuter and toggleOuter.Parent then
-                            local container = toggleOuter.Parent
-                            if container then
-                                -- Позиция ToggleLabel: Position = UDim2.new(1, 6, 0, 0) относительно ToggleInner
-                                -- Это означает левый край ToggleLabel находится на: ToggleInner.AbsolutePosition.X + ToggleInner.AbsoluteSize.X + 6
-                                local toggleLabelLeftAbs = toggleInner.AbsolutePosition.X + toggleInner.AbsoluteSize.X + 6
-                                -- Правый край контейнера
-                                local containerRightAbs = container.AbsolutePosition.X + container.AbsoluteSize.X
-                                -- Отступ справа от контейнера (контейнер уже имеет Size = UDim2.new(1, -4, ...), 
-                                -- что означает отступ по 4 пикселя с каждой стороны, плюс минимальный отступ для ToggleLabel)
-                                local rightOffset = 3
-                                local newWidth = math.max(216, containerRightAbs - toggleLabelLeftAbs - rightOffset)
+        local currentTime = tick()
+        if currentTime - lastUpdateTime < 0.016 then
+            return
+        end
+        lastUpdateTime = currentTime
+        
+        local toggleLabels = Library.ToggleLabels
+        if not toggleLabels then return end
+        
+        for i = 1, #toggleLabels do
+            local toggleLabel = toggleLabels[i]
+            if toggleLabel and toggleLabel.Parent then
+                local toggleInner = toggleLabel.Parent
+                if toggleInner and toggleInner.Parent then
+                    local toggleOuter = toggleInner.Parent
+                    if toggleOuter and toggleOuter.Parent then
+                        local container = toggleOuter.Parent
+                        if container then
+                            local toggleLabelLeftAbs = toggleInner.AbsolutePosition.X + toggleInner.AbsoluteSize.X + 6
+                            local containerRightAbs = container.AbsolutePosition.X + contacontainer.AbsoluteSize.XinerWidth
+                            local newWidth = containerRightAbs - toggleLabelLeftAbs - 3
+                            
+                            if newWidth > 0 then
                                 toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
                             end
                         end
@@ -4099,9 +4087,7 @@ function Library:CreateWindow(...)
             startAbsolutePos = Outer.AbsolutePosition;
             originalAnchorPoint = Outer.AnchorPoint;
             originalPosition = Outer.Position;
-            -- Временно устанавливаем AnchorPoint в (0, 0) чтобы позиция не менялась
             Outer.AnchorPoint = Vector2.new(0, 0);
-            -- Устанавливаем позицию в абсолютных координатах
             Outer.Position = UDim2.new(0, startAbsolutePos.X, 0, startAbsolutePos.Y);
             Outer:SetAttribute("Resizing", true);
         end
@@ -4112,21 +4098,15 @@ function Library:CreateWindow(...)
             local currentMousePos = Vector2.new(input.Position.X, input.Position.Y);
             local delta = currentMousePos - startMousePos;
             
-            -- Вычисляем новый размер (только увеличиваем вправо и вниз)
             local newSize = startSize + delta;
             
-            -- Ограничение минимального размера
             newSize = Vector2.new(math.max(newSize.X, minSize.X), math.max(newSize.Y, minSize.Y));
             
-            -- Ограничение максимального размера (не больше экрана)
             local viewportSize = workspace.CurrentCamera.ViewportSize;
             local maxSize = Vector2.new(viewportSize.X - startAbsolutePos.X, viewportSize.Y - startAbsolutePos.Y);
             newSize = Vector2.new(math.min(newSize.X, maxSize.X), math.min(newSize.Y, maxSize.Y));
             
-            -- Изменяем только размер, позиция остается фиксированной
             Outer.Size = UDim2.new(0, newSize.X, 0, newSize.Y);
-            
-            -- Обновляем размеры всех ToggleLabel в реальном времени
             updateAllToggleLabelsSize()
         end
     end);
@@ -4135,8 +4115,6 @@ function Library:CreateWindow(...)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if resizing then
                 resizing = false;
-                -- НЕ ТРОГАЕМ позицию и AnchorPoint - оставляем как есть
-                -- Позиция уже правильная в абсолютных координатах, AnchorPoint уже (0, 0)
                 startMousePos = nil;
                 startSize = nil;
                 startAbsolutePos = nil;
@@ -4147,7 +4125,6 @@ function Library:CreateWindow(...)
         end
     end);
 
-    -- Обновляем размеры ToggleLabel при изменении размера окна
     Outer:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
         task.spawn(function()
             task.wait(0.05)
@@ -4239,7 +4216,6 @@ function Library:CreateWindow(...)
         Parent = TabAreaScrolling;
     });
     
-    -- Обновляем размер CanvasSize при изменении размера табов
     TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         TabAreaScrolling.CanvasSize = UDim2.new(0, TabListLayout.AbsoluteContentSize.X, 0, 0);
     end);
@@ -5088,7 +5064,7 @@ function Library:CreateWindow(...)
     MainShadow.Visible = true;
     MainShadow.Image = "rbxassetid://135199846610274";
     MainShadow.Position = UDim2.new(0, -50, 0, -50);
-    MainShadow.Size = UDim2.new(1, 100, 1, 100); -- Относительный размер для автоматического масштабирования
+    MainShadow.Size = UDim2.new(1, 100, 1, 100);
     MainShadow.ImageColor3 = Library.AccentColor
     MainShadow.BackgroundTransparency = 1;
     MainShadow.ImageTransparency = 1-ScreenGui:GetAttribute("GlowIntensivity");
