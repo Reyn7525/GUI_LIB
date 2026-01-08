@@ -1,4 +1,4 @@
-print("Library version 0.6p4d")
+print("Library version 0.6p4a")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -842,65 +842,14 @@ do
         local function updateColorPickerPosition()
             if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent then
                 local absPos = DisplayFrame.AbsolutePosition
-                local viewportSize = workspace.CurrentCamera.ViewportSize
-                local newX = absPos.X
-                local newY = absPos.Y + 18
-                
-                -- Всегда обновляем позицию
-                PickerFrameOuter.Position = UDim2.fromOffset(newX, newY);
-            end
-        end
-        
-        local function checkColorPickerBounds()
-            if DisplayFrame and DisplayFrame.Parent and PickerFrameOuter and PickerFrameOuter.Parent and PickerFrameOuter.Visible then
-                local viewportSize = workspace.CurrentCamera.ViewportSize
-                local actualPos = PickerFrameOuter.AbsolutePosition
-                local actualSize = PickerFrameOuter.AbsoluteSize
-                
-                -- Проверяем, не выходит ли колорпикер за границы экрана
-                -- Учитываем небольшой отступ для более точной проверки
-                local margin = 5
-                local isOutOfBounds = (actualPos.X + margin) < 0 or (actualPos.Y + margin) < 0 or 
-                                     (actualPos.X + actualSize.X - margin) > viewportSize.X or 
-                                     (actualPos.Y + actualSize.Y - margin) > viewportSize.Y
-                
-                -- Если колорпикер виден и выходит за границы, скрываем его
-                if isOutOfBounds then
-                    PickerFrameOuter.Visible = false
-                    -- Также убираем из OpenedFrames
-                    if Library.OpenedFrames[PickerFrameOuter] then
-                        Library.OpenedFrames[PickerFrameOuter] = nil
-                    end
-                end
+                PickerFrameOuter.Position = UDim2.fromOffset(absPos.X, absPos.Y + 18)
             end
         end
 
         DisplayFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateColorPickerPosition)
         DisplayFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateColorPickerPosition)
-        
-        -- Обновляем позицию при изменении размера окна и ViewportSize
-        if ScreenGui then
-            ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.spawn(function()
-                    task.wait(0.05)
-                    updateColorPickerPosition()
-                    checkColorPickerBounds()
-                end)
-            end)
-        end
-        
-        -- Слушаем изменения ViewportSize камеры
-        if workspace.CurrentCamera then
-            workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
-                task.spawn(function()
-                    task.wait(0.05)
-                    updateColorPickerPosition()
-                    checkColorPickerBounds()
-                end)
-            end)
-        end
-        
-        -- Слушаем изменения размера родительского окна (если есть)
+
+        -- Обновляем позицию при изменении размера GUI
         local function findWindowFrame(frame)
             if not frame then return nil end
             local parent = frame.Parent
@@ -912,18 +861,17 @@ do
             end
             return nil
         end
-        
+
         local windowFrame = findWindowFrame(DisplayFrame)
         if windowFrame then
-            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                updateColorPickerPosition()
-            end)
-            windowFrame:GetPropertyChangedSignal('Size'):Connect(function()
-                updateColorPickerPosition()
-            end)
-            windowFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-                updateColorPickerPosition()
-            end)
+            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateColorPickerPosition)
+            windowFrame:GetPropertyChangedSignal('Size'):Connect(updateColorPickerPosition)
+            windowFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateColorPickerPosition)
+        end
+
+        -- Обновляем позицию при изменении ViewportSize
+        if workspace.CurrentCamera then
+            workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(updateColorPickerPosition)
         end
 
         local PickerFrameInner = Library:Create('Frame', {
@@ -1449,13 +1397,6 @@ do
             end
         end))
 
-        -- Обновляем позицию и проверяем границы на каждом кадре
-        Library:GiveSignal(RenderStepped:Connect(function()
-            if PickerFrameOuter and PickerFrameOuter.Parent then
-                updateColorPickerPosition() -- Обновляем позицию
-                checkColorPickerBounds() -- Проверяем границы
-            end
-        end))
 
         ColorPicker:Display();
         ColorPicker.DisplayFrame = DisplayFrame
@@ -1530,60 +1471,14 @@ do
             if ToggleLabel and ToggleLabel.Parent and ModeSelectOuter and ModeSelectOuter.Parent then
                 local absPos = ToggleLabel.AbsolutePosition
                 local absSize = ToggleLabel.AbsoluteSize
-                local newX = absPos.X + absSize.X + 4
-                local newY = absPos.Y + 1
-                
-                -- Всегда обновляем позицию
-                ModeSelectOuter.Position = UDim2.fromOffset(newX, newY)
-            end
-        end
-        
-        local function checkKeyPickerBounds()
-            if ToggleLabel and ToggleLabel.Parent and ModeSelectOuter and ModeSelectOuter.Parent and ModeSelectOuter.Visible then
-                local viewportSize = workspace.CurrentCamera.ViewportSize
-                local actualPos = ModeSelectOuter.AbsolutePosition
-                local actualSize = ModeSelectOuter.AbsoluteSize
-                
-                -- Проверяем, не выходит ли кейпикер за границы экрана
-                -- Учитываем небольшой отступ для более точной проверки
-                local margin = 5
-                local isOutOfBounds = (actualPos.X + margin) < 0 or (actualPos.Y + margin) < 0 or 
-                                     (actualPos.X + actualSize.X - margin) > viewportSize.X or 
-                                     (actualPos.Y + actualSize.Y - margin) > viewportSize.Y
-                
-                -- Если кейпикер виден и выходит за границы, скрываем его
-                if isOutOfBounds then
-                    ModeSelectOuter.Visible = false
-                end
+                ModeSelectOuter.Position = UDim2.fromOffset(absPos.X + absSize.X + 4, absPos.Y + 1)
             end
         end
 
         ToggleLabel:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateKeyPickerPosition)
         ToggleLabel:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeyPickerPosition)
-        
-        -- Обновляем позицию при изменении размера окна и ViewportSize
-        if ScreenGui then
-            ScreenGui:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                task.spawn(function()
-                    task.wait(0.05)
-                    updateKeyPickerPosition()
-                    checkKeyPickerBounds()
-                end)
-            end)
-        end
-        
-        -- Слушаем изменения ViewportSize камеры
-        if workspace.CurrentCamera then
-            workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
-                task.spawn(function()
-                    task.wait(0.05)
-                    updateKeyPickerPosition()
-                    checkKeyPickerBounds()
-                end)
-            end)
-        end
-        
-        -- Слушаем изменения размера родительского окна (если есть)
+
+        -- Обновляем позицию при изменении размера GUI
         local function findWindowFrame(frame)
             if not frame then return nil end
             local parent = frame.Parent
@@ -1595,35 +1490,18 @@ do
             end
             return nil
         end
-        
+
         local windowFrame = findWindowFrame(ToggleLabel)
         if windowFrame then
-            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
-                updateKeyPickerPosition()
-            end)
-            windowFrame:GetPropertyChangedSignal('Size'):Connect(function()
-                updateKeyPickerPosition()
-            end)
-            windowFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
-                updateKeyPickerPosition()
-            end)
-            -- Также слушаем изменения во время изменения размера
-            if windowFrame:GetAttribute("Resizing") then
-                Library:GiveSignal(RenderStepped:Connect(function()
-                    if windowFrame:GetAttribute("Resizing") then
-                        updateKeyPickerPosition()
-                    end
-                end))
-            end
+            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateKeyPickerPosition)
+            windowFrame:GetPropertyChangedSignal('Size'):Connect(updateKeyPickerPosition)
+            windowFrame:GetPropertyChangedSignal('AbsolutePosition'):Connect(updateKeyPickerPosition)
         end
-        
-        -- Обновляем позицию и проверяем границы на каждом кадре
-        Library:GiveSignal(RenderStepped:Connect(function()
-            if ModeSelectOuter and ModeSelectOuter.Parent then
-                updateKeyPickerPosition() -- Обновляем позицию
-                checkKeyPickerBounds() -- Проверяем границы
-            end
-        end))
+
+        -- Обновляем позицию при изменении ViewportSize
+        if workspace.CurrentCamera then
+            workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(updateKeyPickerPosition)
+        end
 
         local ModeSelectInner = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
