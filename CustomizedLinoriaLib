@@ -1,4 +1,4 @@
-print("Library version 0.6p6test3")
+print("Library version 0.6p6test4")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4080,7 +4080,7 @@ function Library:CreateWindow(...)
                                 local containerRightAbs = container.AbsolutePosition.X + container.AbsoluteSize.X
                                 -- Отступ справа от контейнера (контейнер уже имеет Size = UDim2.new(1, -4, ...), 
                                 -- что означает отступ по 4 пикселя с каждой стороны, плюс минимальный отступ для ToggleLabel)
-                                local rightOffset = 6
+                                local rightOffset = 3
                                 local newWidth = math.max(216, containerRightAbs - toggleLabelLeftAbs - rightOffset)
                                 toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
                             end
