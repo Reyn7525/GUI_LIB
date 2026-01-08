@@ -1,4 +1,4 @@
-print("Library version 0.6p5b")
+print("Library version 0.6p5с")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -2475,6 +2475,44 @@ do
             ZIndex = 6;
             Parent = ToggleInner;
         });
+
+        -- Обновляем размер ToggleLabel при изменении размера GUI
+        local function updateToggleLabelSize()
+            if ToggleInner and ToggleInner.Parent and ToggleLabel then
+                local innerSize = ToggleInner.AbsoluteSize.X
+                -- Вычитаем отступ справа (6 пикселей)
+                local newWidth = math.max(216, innerSize - 6)
+                ToggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
+            end
+        end
+
+        ToggleInner:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateToggleLabelSize)
+        ToggleInner:GetPropertyChangedSignal('Size'):Connect(updateToggleLabelSize)
+
+        -- Также обновляем при изменении размера родительского окна
+        local function findWindowFrame(frame)
+            if not frame then return nil end
+            local parent = frame.Parent
+            while parent do
+                if parent:IsA("Frame") and parent:FindFirstChild("ResizeHandle") then
+                    return parent
+                end
+                parent = parent.Parent
+            end
+            return nil
+        end
+
+        local windowFrame = findWindowFrame(Container)
+        if windowFrame then
+            windowFrame:GetPropertyChangedSignal('AbsoluteSize'):Connect(updateToggleLabelSize)
+            windowFrame:GetPropertyChangedSignal('Size'):Connect(updateToggleLabelSize)
+        end
+
+        -- Обновляем размер сразу после создания
+        task.spawn(function()
+            task.wait(0.1)
+            updateToggleLabelSize()
+        end)
 
         Library:Create('UIListLayout', {
             Padding = UDim.new(0, 4);
