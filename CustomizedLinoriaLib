@@ -764,6 +764,7 @@ function Library:Unload()
     Blur:Destroy()
     BackgroundScreenGui:Destroy()
     GirlScreenGui:Destroy()
+    RenHubWatermarkCrossLines:Destroy()
 end
 
 function Library:OnUnload(Callback)
