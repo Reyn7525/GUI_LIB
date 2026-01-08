@@ -1,4 +1,4 @@
-print("Library version 0.6p7")
+print("Library version 0.6p7a")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -760,10 +760,18 @@ function Library:Unload()
         Library.OnUnload()
     end
 
-    ScreenGui:Destroy()
-    Blur:Destroy()
-    BackgroundScreenGui:Destroy()
-    GirlScreenGui:Destroy()
+    if ScreenGui then
+        ScreenGui:Destroy()
+    end
+    if Blur then
+        Blur:Destroy()
+    end
+    if BackgroundScreenGui then
+        BackgroundScreenGui:Destroy()
+    end
+    if GirlScreenGui then
+        GirlScreenGui:Destroy()
+    end
 end
 
 function Library:OnUnload(Callback)
