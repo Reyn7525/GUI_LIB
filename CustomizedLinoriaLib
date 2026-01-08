@@ -1,4 +1,4 @@
-print("Library version 0.6p6")
+print("Library version 0.6p5d")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4092,6 +4092,9 @@ function Library:CreateWindow(...)
             
             -- Изменяем только размер, позиция остается фиксированной
             Outer.Size = UDim2.new(0, newSize.X, 0, newSize.Y);
+            
+            -- Обновляем размеры всех ToggleLabel в реальном времени
+            updateAllToggleLabelsSize()
         end
     end);
 
@@ -4118,10 +4121,14 @@ function Library:CreateWindow(...)
                 if toggleLabel and toggleLabel.Parent then
                     local toggleInner = toggleLabel.Parent
                     if toggleInner and toggleInner.Parent then
-                        local innerSize = toggleInner.AbsoluteSize.X
-                        -- Вычитаем отступ справа (6 пикселей)
-                        local newWidth = math.max(216, innerSize - 6)
-                        toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
+                        local toggleOuter = toggleInner.Parent
+                        if toggleOuter then
+                            -- Используем размер ToggleOuter, который зависит от Container
+                            local outerSize = toggleOuter.AbsoluteSize.X
+                            -- Вычитаем отступ справа (6 пикселей)
+                            local newWidth = math.max(216, outerSize - 6)
+                            toggleLabel.Size = UDim2.new(0, newWidth, 1, 0)
+                        end
                     end
                 end
             end
