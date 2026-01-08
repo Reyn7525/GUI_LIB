@@ -1,4 +1,4 @@
-print("Library version 0.6p7b")
+print("Library version 0.6p6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4224,25 +4224,12 @@ function Library:CreateWindow(...)
         Padding = UDim.new(0, Config.TabPadding);
         FillDirection = Enum.FillDirection.Horizontal;
         SortOrder = Enum.SortOrder.LayoutOrder;
-        HorizontalAlignment = Enum.HorizontalAlignment.Right;
         Parent = TabAreaScrolling;
     });
     
-    local function updateTabAreaScrolling()
-        local contentSize = TabListLayout.AbsoluteContentSize.X
-        local areaSize = TabAreaScrolling.AbsoluteSize.X
-        
-        TabAreaScrolling.CanvasSize = UDim2.new(0, contentSize, 0, 0)
-        
-        if contentSize > areaSize then
-            TabAreaScrolling.CanvasPosition = Vector2.new(contentSize - areaSize, 0)
-        else
-            TabAreaScrolling.CanvasPosition = Vector2.new(0, 0)
-        end
-    end
-    
-    TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateTabAreaScrolling)
-    TabAreaScrolling:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateTabAreaScrolling)
+    TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        TabAreaScrolling.CanvasSize = UDim2.new(0, TabListLayout.AbsoluteContentSize.X, 0, 0);
+    end);
 
     local TabContainer = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
