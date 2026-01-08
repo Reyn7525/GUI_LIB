@@ -1,4 +1,4 @@
-print("Library version 0.6p8с")
+print("Library version 0.6p8d")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4262,7 +4262,7 @@ function Library:CreateWindow(...)
         local TabButton = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
             BorderColor3 = Library.OutlineColor;
-            BorderSizePixel = 1;
+            BorderMode = Enum.BorderMode.Inset;
             Size = UDim2.new(0, TabButtonWidth + 8 + 4, 1, 0);
             ZIndex = 3;
             Parent = TabAreaScrolling;
@@ -4274,8 +4274,8 @@ function Library:CreateWindow(...)
         });
 
         local TabButtonLabel = Library:CreateLabel({
-            Position = UDim2.new(0, 1, 0, 1);
-            Size = UDim2.new(1, -2, 1, -2);
+            Position = UDim2.new(0, 0, 0, 0);
+            Size = UDim2.new(1, 0, 1, -1);
             Text = Name;
             ZIndex = 3;
             Parent = TabButton;
