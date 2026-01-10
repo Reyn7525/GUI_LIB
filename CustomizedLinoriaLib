@@ -1,4 +1,4 @@
-print("Library version 0.6Q")
+print("Library version 0.6p9")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -55,32 +55,6 @@ ScreenGui:SetAttribute("GlowIntensivity",0.2)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
 ScreenGui:SetAttribute("TextOutlineColor",Color3.new(0,0,0))
--- DPI Scaling attributes
-ScreenGui:SetAttribute("DPIScale", 1)
-ScreenGui:SetAttribute("AutoDPIScale", true)
-ScreenGui:SetAttribute("BaseResolution", Vector2.new(1920, 1080))
-
--- DPI Detection function
-local function DetectDPIScale()
-    local baseResolution = ScreenGui:GetAttribute("BaseResolution") or Vector2.new(1920, 1080)
-    local currentResolution = workspace.CurrentCamera.ViewportSize
-
-    -- Calculate DPI scale based on resolution ratio
-    local scaleX = currentResolution.X / baseResolution.X
-    local scaleY = currentResolution.Y / baseResolution.Y
-    local dpiScale = math.min(scaleX, scaleY) -- Use the smaller ratio to prevent distortion
-
-    -- Clamp between 0.5 and 2.0 for reasonable scaling
-    dpiScale = math.clamp(dpiScale, 0.5, 2.0)
-
-    return dpiScale
-end
-
--- Auto DPI scaling
-if ScreenGui:GetAttribute("AutoDPIScale") then
-    local autoScale = DetectDPIScale()
-    ScreenGui:SetAttribute("DPIScale", autoScale)
-end
 
 local passes, fails = 0, 0
 
@@ -467,122 +441,12 @@ function Library:AttemptSave()
     end;
 end;
 
--- DPI Scaling function
-function Library:ApplyDPIScaling(Properties)
-    local dpiScale = ScreenGui:GetAttribute("DPIScale") or 1
-
-    if dpiScale == 1 then
-        return Properties
-    end
-
-    local scaledProperties = table.clone(Properties)
-
-    -- Scale Size
-    if scaledProperties.Size and typeof(scaledProperties.Size) == 'UDim2' then
-        scaledProperties.Size = UDim2.new(
-            scaledProperties.Size.X.Scale,
-            scaledProperties.Size.X.Offset * dpiScale,
-            scaledProperties.Size.Y.Scale,
-            scaledProperties.Size.Y.Offset * dpiScale
-        )
-    end
-
-    -- Scale Position offsets
-    if scaledProperties.Position and typeof(scaledProperties.Position) == 'UDim2' then
-        scaledProperties.Position = UDim2.new(
-            scaledProperties.Position.X.Scale,
-            scaledProperties.Position.X.Offset * dpiScale,
-            scaledProperties.Position.Y.Scale,
-            scaledProperties.Position.Y.Offset * dpiScale
-        )
-    end
-
-    -- Scale TextSize
-    if scaledProperties.TextSize and type(scaledProperties.TextSize) == 'number' then
-        scaledProperties.TextSize = scaledProperties.TextSize * dpiScale
-    end
-
-    -- Scale specific properties that should scale
-    local scaleableProperties = {
-        "BorderSizePixel",
-        "Thickness",
-        "CornerRadius"
-    }
-
-    for _, prop in ipairs(scaleableProperties) do
-        if scaledProperties[prop] and type(scaledProperties[prop]) == 'number' then
-            scaledProperties[prop] = scaledProperties[prop] * dpiScale
-        end
-    end
-
-    return scaledProperties
-end
-
--- Function to update scaling for all existing GUI elements
-function Library:UpdateAllElementsScaling()
-    local dpiScale = ScreenGui:GetAttribute("DPIScale") or 1
-
-    -- Update all GUI elements that support scaling
-    for _, instance in ipairs(ScreenGui:GetDescendants()) do
-        if instance:IsA("GuiObject") then
-            -- Update TextSize for TextLabels and TextButtons
-            if (instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox")) and instance:GetAttribute("OriginalTextSize") then
-                instance.TextSize = instance:GetAttribute("OriginalTextSize") * dpiScale
-            elseif (instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox")) then
-                instance:SetAttribute("OriginalTextSize", instance.TextSize)
-                instance.TextSize = instance.TextSize * dpiScale
-            end
-
-            -- Update Size for frames and other elements
-            if instance:GetAttribute("OriginalSize") then
-                local origSize = instance:GetAttribute("OriginalSize")
-                instance.Size = UDim2.new(
-                    origSize.X.Scale,
-                    origSize.X.Offset * dpiScale,
-                    origSize.Y.Scale,
-                    origSize.Y.Offset * dpiScale
-                )
-            elseif instance.Size and typeof(instance.Size) == 'UDim2' then
-                instance:SetAttribute("OriginalSize", instance.Size)
-                instance.Size = UDim2.new(
-                    instance.Size.X.Scale,
-                    instance.Size.X.Offset * dpiScale,
-                    instance.Size.Y.Scale,
-                    instance.Size.Y.Offset * dpiScale
-                )
-            end
-
-            -- Update Position offsets
-            if instance:GetAttribute("OriginalPosition") then
-                local origPos = instance:GetAttribute("OriginalPosition")
-                instance.Position = UDim2.new(
-                    origPos.X.Scale,
-                    origPos.X.Offset * dpiScale,
-                    origPos.Y.Scale,
-                    origPos.Y.Offset * dpiScale
-                )
-            elseif instance.Position and typeof(instance.Position) == 'UDim2' then
-                instance:SetAttribute("OriginalPosition", instance.Position)
-                instance.Position = UDim2.new(
-                    instance.Position.X.Scale,
-                    instance.Position.X.Offset * dpiScale,
-                    instance.Position.Y.Scale,
-                    instance.Position.Y.Offset * dpiScale
-                )
-            end
-        end
-    end
-end
-
 function Library:Create(Class, Properties)
     local _Instance = Class;
 
     if type(Class) == 'string' then
         _Instance = Instance.new(Class);
     end;
-
-    -- Apply DPI scaling to properties
-    Properties = Library:ApplyDPIScaling(Properties)
 
     for Property, Value in next, Properties do
         _Instance[Property] = Value;
@@ -5263,11 +5127,6 @@ end;
 
 Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange));
 Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
-
--- Initialize DPI scaling for existing elements
-task.defer(function()
-    Library:UpdateAllElementsScaling()
-end)
 
 getgenv().Library = Library
 return Library
