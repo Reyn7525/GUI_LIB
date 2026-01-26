@@ -1,4 +1,4 @@
-print("Library version 0.6p9K1")
+print("Library version 0.6p9")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -5114,94 +5114,6 @@ function Library:CreateWindow(...)
 
     return Window;
 end;
-
--- Rating System
-function Library:ShowRating()
-    if Library.RatingShown then return end
-    Library.RatingShown = true
-    
-    local RatingFrame = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        Size = UDim2.new(0, 300, 0, 150),
-        Position = UDim2.new(0.5, -150, 0.5, -75),
-        ZIndex = 1000,
-        Parent = ScreenGui
-    })
-    
-    local Title = Library:CreateLabel({
-        Size = UDim2.new(1, 0, 0, 25),
-        Position = UDim2.new(0, 0, 0, 10),
-        Text = 'Rate RenHub Script',
-        TextSize = 16,
-        ZIndex = 1001,
-        Parent = RatingFrame
-    })
-    
-    local Description = Library:CreateLabel({
-        Size = UDim2.new(1, -20, 0, 30),
-        Position = UDim2.new(0, 10, 0, 40),
-        Text = 'How would you rate this script?',
-        TextSize = 14,
-        ZIndex = 1001,
-        Parent = RatingFrame
-    })
-    
-    -- Simple star buttons
-    for i = 1, 5 do
-        local star = Library:Create('TextButton', {
-            BackgroundColor3 = Library.BackgroundColor,
-            BorderColor3 = Library.OutlineColor,
-            Size = UDim2.new(0, 40, 0, 25),
-            Position = UDim2.new(0, 20 + (i-1) * 50, 0, 80),
-            Text = i .. '★',
-            TextSize = 14,
-            TextColor3 = Library.FontColor,
-            Font = Library.Font,
-            ZIndex = 1002,
-            Parent = RatingFrame
-        })
-        
-        star.MouseButton1Click:Connect(function()
-            Library:Notify('Thanks for ' .. i .. '/5 stars! ⭐', 3)
-            RatingFrame:Destroy()
-        end)
-        
-        Library:AddToRegistry(star, {
-            BackgroundColor3 = 'BackgroundColor',
-            BorderColor3 = 'OutlineColor',
-            TextColor3 = 'FontColor'
-        })
-    end
-    
-    local CloseButton = Library:Create('TextButton', {
-        BackgroundColor3 = Library.BackgroundColor,
-        BorderColor3 = Library.OutlineColor,
-        Size = UDim2.new(0, 60, 0, 25),
-        Position = UDim2.new(0.5, -30, 0, 115),
-        Text = 'Close',
-        TextSize = 12,
-        TextColor3 = Library.FontColor,
-        Font = Library.Font,
-        ZIndex = 1002,
-        Parent = RatingFrame
-    })
-    
-    CloseButton.MouseButton1Click:Connect(function()
-        RatingFrame:Destroy()
-    end)
-    
-    Library:AddToRegistry(RatingFrame, {
-        BackgroundColor3 = 'MainColor',
-        BorderColor3 = 'OutlineColor'
-    })
-    
-    Library:AddToRegistry(CloseButton, {
-        BackgroundColor3 = 'BackgroundColor',
-        BorderColor3 = 'OutlineColor',
-        TextColor3 = 'FontColor'
-    })
-end
 
 local function OnPlayerChange()
     local PlayerList = GetPlayersString();
