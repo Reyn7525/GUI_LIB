@@ -1,4 +1,4 @@
-print("Library version 0.6p9K")
+print("Library version 0.6p9K1")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -5143,52 +5143,36 @@ function Library:ShowRating()
         Position = UDim2.new(0, 10, 0, 40),
         Text = 'How would you rate this script?',
         TextSize = 14,
-        TextWrapped = true,
         ZIndex = 1001,
         Parent = RatingFrame
     })
     
-    local StarContainer = Library:Create('Frame', {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(0, 250, 0, 30),
-        Position = UDim2.new(0.5, -125, 0, 75),
-        ZIndex = 1001,
-        Parent = RatingFrame
-    })
-    
-    local stars = {}
+    -- Simple star buttons
     for i = 1, 5 do
         local star = Library:Create('TextButton', {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(0, 40, 0, 30),
-            Position = UDim2.new(0, (i-1) * 50, 0, 0),
-            Text = '★',
-            TextSize = 24,
-            TextColor3 = Color3.fromRGB(100, 100, 100),
+            BackgroundColor3 = Library.BackgroundColor,
+            BorderColor3 = Library.OutlineColor,
+            Size = UDim2.new(0, 40, 0, 25),
+            Position = UDim2.new(0, 20 + (i-1) * 50, 0, 80),
+            Text = i .. '★',
+            TextSize = 14,
+            TextColor3 = Library.FontColor,
             Font = Library.Font,
             ZIndex = 1002,
-            Parent = StarContainer
+            Parent = RatingFrame
         })
         
-        star.MouseEnter:Connect(function()
-            for j = 1, 5 do
-                stars[j].TextColor3 = j <= i and Library.AccentColor or Color3.fromRGB(100, 100, 100)
-            end
-        end)
-        
         star.MouseButton1Click:Connect(function()
-            Library:Notify('Thanks for rating! ' .. i .. '/5 stars ⭐', 3)
+            Library:Notify('Thanks for ' .. i .. '/5 stars! ⭐', 3)
             RatingFrame:Destroy()
         end)
         
-        stars[i] = star
+        Library:AddToRegistry(star, {
+            BackgroundColor3 = 'BackgroundColor',
+            BorderColor3 = 'OutlineColor',
+            TextColor3 = 'FontColor'
+        })
     end
-    
-    StarContainer.MouseLeave:Connect(function()
-        for j = 1, 5 do
-            stars[j].TextColor3 = Color3.fromRGB(100, 100, 100)
-        end
-    end)
     
     local CloseButton = Library:Create('TextButton', {
         BackgroundColor3 = Library.BackgroundColor,
