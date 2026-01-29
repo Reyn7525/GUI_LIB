@@ -1,4 +1,4 @@
-print("Library version 0.6p9")
+print("Library version 0.6Q")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -3065,6 +3065,14 @@ do
         });
         Dropdown.ListOuter = ListOuter;
 
+        local function GetDropdownItemCount()
+            local n = 0;
+            for _ in next, Dropdown.Values do
+                n = n + 1;
+            end;
+            return n;
+        end;
+
         local function RecalculateListPosition()
             if DropdownOuter and DropdownOuter.Parent and ListOuter and ListOuter.Parent then
                 local absPos = DropdownOuter.AbsolutePosition
@@ -3076,7 +3084,14 @@ do
         local function RecalculateListSize(YSize)
             if DropdownOuter and DropdownOuter.Parent and ListOuter and ListOuter.Parent then
                 local absSize = DropdownOuter.AbsoluteSize
-                ListOuter.Size = UDim2.fromOffset(absSize.X, YSize or (MAX_DROPDOWN_ITEMS * 20 + 2))
+                local h;
+                if type(YSize) == 'number' then
+                    h = YSize;
+                else
+                    local count = GetDropdownItemCount();
+                    h = math.min(count * 20, MAX_DROPDOWN_ITEMS * 20) + 1;
+                end;
+                ListOuter.Size = UDim2.fromOffset(absSize.X, h);
             end
         end;
 
