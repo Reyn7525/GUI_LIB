@@ -1,4 +1,4 @@
-print("Library version 0.6Q1")
+print("Library version 0.6Q2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -45,8 +45,10 @@ local Library = {
     ScreenGui = ScreenGui;
     Unloaded = false;
 
-    ESPPreviewGui = nil;
     ESPPreviewMainFrame = nil;
+    ESPPreviewWarnLabel = nil;
+    ESPPreviewPositionConnection = nil;
+    ESPPreviewSizeConnection = nil;
     ESPPreviewTransparency = 0;
     ESPPreviewVisible = false;
 };
@@ -780,10 +782,13 @@ function Library:Unload()
     if Library.WatermarkCrossLines then
         Library.WatermarkCrossLines:Destroy()
     end
-    if Library.ESPPreviewGui then
-        Library.ESPPreviewGui:Destroy()
-        Library.ESPPreviewGui = nil
+    if Library.ESPPreviewMainFrame then
+        Library.ESPPreviewMainFrame:Destroy()
         Library.ESPPreviewMainFrame = nil
+    end
+    if Library.ESPPreviewWarnLabel and Library.ESPPreviewWarnLabel.Parent then
+        Library.ESPPreviewWarnLabel:Destroy()
+        Library.ESPPreviewWarnLabel = nil
     end
 end
 
@@ -4280,6 +4285,7 @@ function Library:CreateWindow(...)
         local Tab = {
             Groupboxes = {};
             Tabboxes = {};
+            Name = Name;
         };
 
         local TabButtonWidth = Library:GetTextBounds(Name, Library.Font, 16);
@@ -4387,9 +4393,15 @@ function Library:CreateWindow(...)
             TabButton.BackgroundColor3 = Library.MainColor;
             Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'MainColor';
             TabFrame.Visible = true;
+            if self.Name == "ESP" and Library.ShowESPPreview then
+                Library:ShowESPPreview()
+            end
         end;
 
         function Tab:HideTab()
+            if self.Name == "ESP" and Library.HideESPPreview then
+                Library:HideESPPreview()
+            end
             Blocker.BackgroundTransparency = 1;
             TabButton.BackgroundColor3 = Library.BackgroundColor;
             Library.RegistryMap[TabButton].Properties.BackgroundColor3 = 'BackgroundColor';
@@ -4879,6 +4891,7 @@ function Library:CreateWindow(...)
                 CursorOutline:Remove();
             end);
         else
+            if Library.HideESPPreview then Library:HideESPPreview() end
             local startTime = tick()
             local startTransparency = Outer.BackgroundTransparency
             local targetTransparency = 1
@@ -5137,6 +5150,9 @@ function Library:CreateWindow(...)
     Blur.Enabled = true
     BackgroundScreenGui.Enabled = true
 
+    Library.MainWindowOuter = Outer
+    Library.MainWindow = Window
+
     return Window;
 end;
 
@@ -5153,29 +5169,25 @@ end;
 Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange));
 Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
 
--- ESP Preview (Interactive ESP Preview)
+-- ESP Preview (Interactive ESP Preview) — справа от окна, привязан к позиции
+local ESPPreviewPositionGap = 8
+
 function Library:CreateESPPreview()
-    if self.ESPPreviewGui and self.ESPPreviewGui.Parent then
-        return self.ESPPreviewGui, self.ESPPreviewMainFrame
+    if self.ESPPreviewMainFrame and self.ESPPreviewMainFrame.Parent then
+        return self.ESPPreviewMainFrame
     end
-    local parent = LocalPlayer:WaitForChild("PlayerGui")
-    local sg = Instance.new("ScreenGui")
-    sg.Name = "RenHub_ESPPreview"
-    sg.Parent = parent
-    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    sg.ResetOnSpawn = false
-    sg.DisplayOrder = 2
-    sg.Enabled = false
-    ProtectGui(sg)
+    local parent = self.ScreenGui
 
     local mf = Instance.new("Frame")
-    mf.Name = "MainFrame"
-    mf.Parent = sg
+    mf.Name = "RenHub_ESPPreview"
+    mf.Parent = parent
+    mf.AnchorPoint = Vector2.new(0, 0)
     mf.BackgroundColor3 = self.MainColor
     mf.BorderColor3 = self.OutlineColor
     mf.BorderSizePixel = 0
-    mf.Position = UDim2.new(0.616867542, 0, 0.115384616, 0)
+    mf.Position = UDim2.new(0, 0, 0, 0)
     mf.Size = UDim2.new(0, 330, 0, 440)
+    mf.Visible = false
     mf.BackgroundTransparency = self.ESPPreviewTransparency
 
     local title = Instance.new("TextLabel")
@@ -5364,7 +5376,7 @@ function Library:CreateESPPreview()
 
     local warnLbl = Instance.new("TextLabel")
     warnLbl.Name = "TextElementWarning"
-    warnLbl.Parent = sg
+    warnLbl.Parent = parent
     warnLbl.BackgroundTransparency = 1
     warnLbl.BorderSizePixel = 0
     warnLbl.Position = UDim2.new(0.5, -380, 0, 0)
@@ -5403,22 +5415,55 @@ function Library:CreateESPPreview()
     self:AddToRegistry(itemEx, { TextColor3 = 'FontColor' })
     self:AddToRegistry(warnLbl, { TextColor3 = 'FontColor' })
 
-    self.ESPPreviewGui = sg
     self.ESPPreviewMainFrame = mf
-    return sg, mf
+    self.ESPPreviewWarnLabel = warnLbl
+    return mf
+end
+
+function Library:UpdateESPPreviewPosition()
+    local outer = self.MainWindowOuter
+    local mf = self.ESPPreviewMainFrame
+    if not outer or not outer.Parent or not mf or not mf.Parent then return end
+    local absPos = outer.AbsolutePosition
+    local absSize = outer.AbsoluteSize
+    local parent = mf.Parent
+    local parentPos = parent and parent.AbsolutePosition or Vector2.zero
+    mf.Position = UDim2.new(0, absPos.X + absSize.X + ESPPreviewPositionGap - parentPos.X, 0, absPos.Y - parentPos.Y)
 end
 
 function Library:ShowESPPreview()
     self:CreateESPPreview()
-    self.ESPPreviewGui.Enabled = true
+    self:UpdateESPPreviewPosition()
+    self.ESPPreviewMainFrame.Visible = true
     self.ESPPreviewMainFrame.BackgroundTransparency = self.ESPPreviewTransparency
     self.ESPPreviewVisible = true
+    if self.ESPPreviewPositionConnection then
+        self.ESPPreviewPositionConnection:Disconnect()
+    end
+    local outer = self.MainWindowOuter
+    if outer then
+        local function update()
+            self:UpdateESPPreviewPosition()
+        end
+        self.ESPPreviewPositionConnection = outer:GetPropertyChangedSignal("Position"):Connect(update)
+        self.ESPPreviewSizeConnection = outer:GetPropertyChangedSignal("Size"):Connect(update)
+        self:GiveSignal(self.ESPPreviewPositionConnection)
+        self:GiveSignal(self.ESPPreviewSizeConnection)
+    end
 end
 
 function Library:HideESPPreview()
-    if self.ESPPreviewGui then
-        self.ESPPreviewGui.Enabled = false
+    if self.ESPPreviewMainFrame then
+        self.ESPPreviewMainFrame.Visible = false
         self.ESPPreviewVisible = false
+    end
+    if self.ESPPreviewPositionConnection then
+        self.ESPPreviewPositionConnection:Disconnect()
+        self.ESPPreviewPositionConnection = nil
+    end
+    if self.ESPPreviewSizeConnection then
+        self.ESPPreviewSizeConnection:Disconnect()
+        self.ESPPreviewSizeConnection = nil
     end
 end
 
