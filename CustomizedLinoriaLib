@@ -1,4 +1,4 @@
-print("Library version 0.6Q")
+print("Library version 0.6Q1")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -44,6 +44,11 @@ local Library = {
     Signals = {};
     ScreenGui = ScreenGui;
     Unloaded = false;
+
+    ESPPreviewGui = nil;
+    ESPPreviewMainFrame = nil;
+    ESPPreviewTransparency = 0;
+    ESPPreviewVisible = false;
 };
 
 ScreenGui:SetAttribute("Font",Library.Font)
@@ -774,6 +779,11 @@ function Library:Unload()
     end
     if Library.WatermarkCrossLines then
         Library.WatermarkCrossLines:Destroy()
+    end
+    if Library.ESPPreviewGui then
+        Library.ESPPreviewGui:Destroy()
+        Library.ESPPreviewGui = nil
+        Library.ESPPreviewMainFrame = nil
     end
 end
 
@@ -5142,6 +5152,298 @@ end;
 
 Library:GiveSignal(Players.PlayerAdded:Connect(OnPlayerChange));
 Library:GiveSignal(Players.PlayerRemoving:Connect(OnPlayerChange));
+
+-- ESP Preview (Interactive ESP Preview)
+function Library:CreateESPPreview()
+    if self.ESPPreviewGui and self.ESPPreviewGui.Parent then
+        return self.ESPPreviewGui, self.ESPPreviewMainFrame
+    end
+    local parent = LocalPlayer:WaitForChild("PlayerGui")
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "RenHub_ESPPreview"
+    sg.Parent = parent
+    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.ResetOnSpawn = false
+    sg.DisplayOrder = 2
+    sg.Enabled = false
+    ProtectGui(sg)
+
+    local mf = Instance.new("Frame")
+    mf.Name = "MainFrame"
+    mf.Parent = sg
+    mf.BackgroundColor3 = self.MainColor
+    mf.BorderColor3 = self.OutlineColor
+    mf.BorderSizePixel = 0
+    mf.Position = UDim2.new(0.616867542, 0, 0.115384616, 0)
+    mf.Size = UDim2.new(0, 330, 0, 440)
+    mf.BackgroundTransparency = self.ESPPreviewTransparency
+
+    local title = Instance.new("TextLabel")
+    title.Name = "InteractiveEspPreview"
+    title.Parent = mf
+    title.BackgroundColor3 = self.BackgroundColor
+    title.BorderSizePixel = 0
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.Size = UDim2.new(0, 330, 0, 15)
+    title.Font = self.Font
+    title.Text = "Interactive ESP Preview"
+    title.TextColor3 = self.FontColor
+    title.TextSize = 14
+    title.TextYAlignment = Enum.TextYAlignment.Top
+
+    local elemFrame = Instance.new("Frame")
+    elemFrame.Name = "ElementsFrame"
+    elemFrame.Parent = mf
+    elemFrame.BackgroundColor3 = self.BackgroundColor
+    elemFrame.BorderSizePixel = 0
+    elemFrame.Position = UDim2.new(0, 0, 0, 366)
+    elemFrame.Size = UDim2.new(0, 330, 0, 74)
+    do
+        local gl = Instance.new("UIGridLayout", elemFrame)
+        gl.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        gl.CellSize = UDim2.new(0, 70, 0, 20)
+        gl.FillDirectionMaxCells = 10
+    end
+    local pad = Instance.new("UIPadding", elemFrame)
+    pad.PaddingTop = UDim.new(0, 5)
+    Instance.new("Folder", elemFrame).Name = "Storage"
+
+    local function mkLabel(name, txt)
+        local lbl = Instance.new("TextLabel")
+        lbl.Name = name
+        lbl.Parent = elemFrame
+        lbl.BackgroundColor3 = self.BackgroundColor
+        lbl.BorderSizePixel = 0
+        lbl.Size = UDim2.new(0, 70, 0, 20)
+        lbl.ZIndex = 69
+        lbl.Font = self.Font
+        lbl.Text = txt
+        lbl.TextColor3 = self.FontColor
+        lbl.TextSize = 14
+        local c = Instance.new("UICorner", lbl)
+        c.CornerRadius = UDim.new(0, 4)
+        return lbl
+    end
+    mkLabel("Box", "Box")
+    mkLabel("Distance", "Distance")
+    mkLabel("HPBar", "HP Bar")
+    mkLabel("Health", "Health")
+    mkLabel("Item", "Item")
+    mkLabel("NName", "Name")
+
+    local drag = Instance.new("TextLabel")
+    drag.Name = "DragAndDrop"
+    drag.Parent = mf
+    drag.BackgroundColor3 = self.BackgroundColor
+    drag.BorderColor3 = self.OutlineColor
+    drag.BorderSizePixel = 0
+    drag.Position = UDim2.new(0, 0, 0, 350)
+    drag.Size = UDim2.new(0, 330, 0, 15)
+    drag.Font = self.Font
+    drag.Text = "Drag & Drop Elements"
+    drag.TextColor3 = self.FontColor
+    drag.TextSize = 14
+    drag.TextYAlignment = Enum.TextYAlignment.Top
+
+    local playerImg = Instance.new("ImageLabel")
+    playerImg.Name = "PlayerExample"
+    playerImg.Parent = mf
+    playerImg.BackgroundTransparency = 1
+    playerImg.BorderSizePixel = 0
+    playerImg.Position = UDim2.new(0, 5, 0, 45)
+    playerImg.Size = UDim2.new(0, 300, 0, 300)
+    playerImg.ZIndex = 4
+    playerImg.Image = "rbxassetid://5275307036"
+
+    local itemEx = Instance.new("TextLabel")
+    itemEx.Name = "ItemExample"
+    itemEx.Parent = mf
+    itemEx.BackgroundTransparency = 1
+    itemEx.BorderSizePixel = 0
+    itemEx.Position = UDim2.new(0, 130, 0, 325)
+    itemEx.Size = UDim2.new(0, 50, 0, 25)
+    itemEx.Visible = false
+    itemEx.ZIndex = 4
+    itemEx.Font = self.Font
+    itemEx.Text = "Item"
+    itemEx.TextColor3 = self.FontColor
+    itemEx.TextSize = 14
+
+    local function mkHitbox(n, pos, size, col)
+        local h = Instance.new("Frame")
+        h.Name = n
+        h.Parent = mf
+        h.BackgroundColor3 = col or self.AccentColor
+        h.BackgroundTransparency = 0.9
+        h.BorderSizePixel = 0
+        h.Position = pos
+        h.Size = size
+        h.ZIndex = 69
+        return h
+    end
+    mkHitbox("LeftUpHitbox", UDim2.new(0,0,0,0), UDim2.new(0,100,0,110), Color3.fromRGB(0,200,0))
+    mkHitbox("RightUpHitbox", UDim2.new(0,230,0,0), UDim2.new(0,100,0,110), Color3.fromRGB(0,200,0))
+    mkHitbox("LeftDownHitbox", UDim2.new(0,0,0,240), UDim2.new(0,100,0,110), Color3.fromRGB(0,200,0))
+    mkHitbox("RightDownHitbox", UDim2.new(0,230,0,240), UDim2.new(0,100,0,110), Color3.fromRGB(0,200,0))
+    mkHitbox("LeftHitbox", UDim2.new(0,0,0,110), UDim2.new(0,165,0,130))
+    mkHitbox("RightHitbox", UDim2.new(0,165,0,110), UDim2.new(0,165,0,130), self.RiskColor or Color3.fromRGB(255,50,50))
+    mkHitbox("UpHitbox", UDim2.new(0,100,0,0), UDim2.new(0,130,0,110))
+    mkHitbox("DownHitbox", UDim2.new(0,100,0,240), UDim2.new(0,130,0,110))
+
+    local boxEx = Instance.new("Frame")
+    boxEx.Name = "BoxExample"
+    boxEx.Parent = mf
+    boxEx.Active = true
+    boxEx.BackgroundTransparency = 1
+    boxEx.BorderSizePixel = 0
+    boxEx.Position = UDim2.new(0, 65, 0, 60)
+    boxEx.Size = UDim2.new(0, 200, 0, 245)
+    boxEx.Visible = false
+    boxEx.ZIndex = 5
+    local boxStroke = Instance.new("UIStroke", boxEx)
+    boxStroke.Color = self.AccentColor
+    boxStroke.Thickness = 2
+
+    local nnEx = Instance.new("TextLabel")
+    nnEx.Name = "NNameExample"
+    nnEx.Parent = mf
+    nnEx.BackgroundTransparency = 1
+    nnEx.BorderSizePixel = 0
+    nnEx.Position = UDim2.new(0, 130, 0, 15)
+    nnEx.Size = UDim2.new(0, 50, 0, 25)
+    nnEx.Visible = false
+    nnEx.ZIndex = 4
+    nnEx.Font = self.Font
+    nnEx.Text = "Name"
+    nnEx.TextColor3 = self.FontColor
+    nnEx.TextSize = 14
+
+    local hpBarEx = Instance.new("Frame")
+    hpBarEx.Name = "HPBarExample"
+    hpBarEx.Parent = mf
+    hpBarEx.BackgroundColor3 = self.OutlineColor
+    hpBarEx.BorderSizePixel = 0
+    hpBarEx.Position = UDim2.new(0, 50, 0, 45)
+    hpBarEx.Size = UDim2.new(0, 10, 0, 245)
+    hpBarEx.Visible = false
+    hpBarEx.ZIndex = 4
+    local curHP = Instance.new("Frame", hpBarEx)
+    curHP.Name = "CurrentHP"
+    curHP.BackgroundColor3 = self.AccentColor
+    curHP.BorderSizePixel = 0
+    curHP.Size = UDim2.new(0, 10, 0, 245)
+    curHP.ZIndex = 4
+
+    local healthEx = Instance.new("TextLabel")
+    healthEx.Name = "HealthExample"
+    healthEx.Parent = mf
+    healthEx.BackgroundTransparency = 1
+    healthEx.BorderSizePixel = 0
+    healthEx.Position = UDim2.new(0, 5, 0, 30)
+    healthEx.Size = UDim2.new(0, 50, 0, 25)
+    healthEx.Visible = false
+    healthEx.ZIndex = 4
+    healthEx.Font = self.Font
+    healthEx.Text = "100 HP"
+    healthEx.TextColor3 = self.FontColor
+    healthEx.TextSize = 14
+
+    local distEx = Instance.new("TextLabel")
+    distEx.Name = "DistanceExample"
+    distEx.Parent = mf
+    distEx.BackgroundTransparency = 1
+    distEx.BorderSizePixel = 0
+    distEx.Position = UDim2.new(0, 275, 0, 30)
+    distEx.Size = UDim2.new(0, 50, 0, 25)
+    distEx.Visible = false
+    distEx.ZIndex = 4
+    distEx.Font = self.Font
+    distEx.Text = "500 su"
+    distEx.TextColor3 = self.FontColor
+    distEx.TextSize = 14
+
+    local warnLbl = Instance.new("TextLabel")
+    warnLbl.Name = "TextElementWarning"
+    warnLbl.Parent = sg
+    warnLbl.BackgroundTransparency = 1
+    warnLbl.BorderSizePixel = 0
+    warnLbl.Position = UDim2.new(0.5, -380, 0, 0)
+    warnLbl.Size = UDim2.new(0, 760, 0, 50)
+    warnLbl.Font = self.Font
+    warnLbl.Text = "Only one Text Element can be placed in one location!"
+    warnLbl.TextColor3 = self.FontColor
+    warnLbl.TextSize = 28
+    warnLbl.TextTransparency = 1
+    Instance.new("UICorner", warnLbl).CornerRadius = UDim.new(0, 8)
+    local li = Instance.new("ImageLabel", warnLbl)
+    li.Name = "LeftImage"
+    li.BackgroundTransparency = 1
+    li.Position = UDim2.new(0, 10, 0, 10)
+    li.Size = UDim2.new(0, 30, 0, 30)
+    li.Image = "rbxassetid://1764960410"
+    li.ImageTransparency = 1
+    local ri = Instance.new("ImageLabel", warnLbl)
+    ri.Name = "RightImage"
+    ri.BackgroundTransparency = 1
+    ri.Position = UDim2.new(0, 720, 0, 10)
+    ri.Size = UDim2.new(0, 30, 0, 30)
+    ri.Image = "rbxassetid://1764960410"
+    ri.ImageTransparency = 1
+
+    self:AddToRegistry(mf, { BackgroundColor3 = 'MainColor', BorderColor3 = 'OutlineColor' })
+    self:AddToRegistry(title, { BackgroundColor3 = 'BackgroundColor', TextColor3 = 'FontColor' })
+    self:AddToRegistry(elemFrame, { BackgroundColor3 = 'BackgroundColor' })
+    self:AddToRegistry(drag, { BackgroundColor3 = 'BackgroundColor', BorderColor3 = 'OutlineColor', TextColor3 = 'FontColor' })
+    self:AddToRegistry(boxStroke, { Color = 'AccentColor' })
+    self:AddToRegistry(hpBarEx, { BackgroundColor3 = 'OutlineColor' })
+    self:AddToRegistry(curHP, { BackgroundColor3 = 'AccentColor' })
+    self:AddToRegistry(nnEx, { TextColor3 = 'FontColor' })
+    self:AddToRegistry(healthEx, { TextColor3 = 'FontColor' })
+    self:AddToRegistry(distEx, { TextColor3 = 'FontColor' })
+    self:AddToRegistry(itemEx, { TextColor3 = 'FontColor' })
+    self:AddToRegistry(warnLbl, { TextColor3 = 'FontColor' })
+
+    self.ESPPreviewGui = sg
+    self.ESPPreviewMainFrame = mf
+    return sg, mf
+end
+
+function Library:ShowESPPreview()
+    self:CreateESPPreview()
+    self.ESPPreviewGui.Enabled = true
+    self.ESPPreviewMainFrame.BackgroundTransparency = self.ESPPreviewTransparency
+    self.ESPPreviewVisible = true
+end
+
+function Library:HideESPPreview()
+    if self.ESPPreviewGui then
+        self.ESPPreviewGui.Enabled = false
+        self.ESPPreviewVisible = false
+    end
+end
+
+function Library:ToggleESPPreview()
+    if self.ESPPreviewVisible then
+        self:HideESPPreview()
+    else
+        self:ShowESPPreview()
+    end
+    return self.ESPPreviewVisible
+end
+
+function Library:SetESPPreviewTransparency(value)
+    self.ESPPreviewTransparency = math.clamp(tonumber(value) or 0, 0, 1)
+    if self.ESPPreviewMainFrame then
+        local t = self.ESPPreviewTransparency
+        self.ESPPreviewMainFrame.BackgroundTransparency = t
+        local title = self.ESPPreviewMainFrame:FindFirstChild("InteractiveEspPreview")
+        if title then title.BackgroundTransparency = t end
+        local elem = self.ESPPreviewMainFrame:FindFirstChild("ElementsFrame")
+        if elem then elem.BackgroundTransparency = t end
+        local drag = self.ESPPreviewMainFrame:FindFirstChild("DragAndDrop")
+        if drag then drag.BackgroundTransparency = t end
+    end
+end
 
 getgenv().Library = Library
 return Library
