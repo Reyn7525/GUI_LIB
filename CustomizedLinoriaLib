@@ -1,4 +1,4 @@
-print("Library version 0.6Q2TEST6")
+print("Library version 0.6Q2TEST7")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -382,10 +382,7 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         local anchor = instance.AnchorPoint
         local parentAbs = instance.Parent.AbsolutePosition
 
-        local viewportSize = workspace.CurrentCamera.ViewportSize
-        local insetTL, insetBR = GuiService:GetGuiInset()
-        local screenCenterAbsX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2
-        local screenCenterAbsY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2
+        local screenCenterAbsX, screenCenterAbsY = Library:GetScreenCenterAbs()
 
         local instanceCenterAbsX = instance.AbsolutePosition.X + size.X / 2
         local instanceCenterAbsY = instance.AbsolutePosition.Y + size.Y / 2
@@ -515,6 +512,20 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
+function Library:GetScreenCenterAbs()
+    if Library.CenterYLine and Library.CenterYLine.Parent and Library.CenterXLine and Library.CenterXLine.Parent then
+        local centerX = Library.CenterYLine.AbsolutePosition.X + (Library.CenterYLine.AbsoluteSize.X / 2)
+        local centerY = Library.CenterXLine.AbsolutePosition.Y + (Library.CenterXLine.AbsoluteSize.Y / 2)
+        return centerX, centerY
+    end
+
+    local viewportSize = workspace.CurrentCamera.ViewportSize
+    local insetTL, insetBR = GuiService:GetGuiInset()
+    local centerX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2
+    local centerY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2
+    return centerX, centerY
+end
+
 function Library:MakeDraggable(Instance, Cutoff, Options)
     if not Instance or not Instance.Parent then
         return;
@@ -598,11 +609,7 @@ function Library:MakeDraggable(Instance, Cutoff, Options)
                     local size = Instance.AbsoluteSize
                     local anchor = Instance.AnchorPoint
                     local parentAbs = Instance.Parent.AbsolutePosition
-
-                    local viewportSize = workspace.CurrentCamera.ViewportSize
-                    local insetTL, insetBR = GuiService:GetGuiInset()
-                    local screenCenterAbsX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2
-                    local screenCenterAbsY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2
+                    local screenCenterAbsX, screenCenterAbsY = Library:GetScreenCenterAbs()
 
                     local anchorAbsX = parentAbs.X + newX
                     local anchorAbsY = parentAbs.Y + newY
@@ -3811,6 +3818,8 @@ do
     Library.WatermarkCrossLinesFrame = CrossLines;
     Library.WatermarkXLine = XLine;
     Library.WatermarkYLine = YLine;
+    Library.CenterXLine = XLine;
+    Library.CenterYLine = YLine;
 
     local isHoldingWatermark = false;
     local lastWatermarkWidth = 0;
@@ -4040,6 +4049,8 @@ do
     });
 
     Library.KeybindCrossLines = RenHubKeybindCrossLines;
+    Library.CenterXLine = KeybindXLine;
+    Library.CenterYLine = KeybindYLine;
 
     local isHoldingKeybind = false;
     local lastKeybindWidth = 0;
