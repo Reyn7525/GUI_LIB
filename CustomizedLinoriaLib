@@ -1,4 +1,4 @@
-print("Library version 0.6Q2")
+print("Library version 0.6Q2TEST")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -394,6 +394,40 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         end
     end
 
+    if Library.KeybindFrame and Library.KeybindFrame.Parent and Library.KeybindFrame.Visible and Library.KeybindCentering then
+        local keybind = Library.KeybindFrame;
+        local currentWidth = keybind.AbsoluteSize.X;
+        local lastWidth = Library.KeybindCentering.lastWidth();
+
+        if currentWidth ~= lastWidth then
+            Library.KeybindCentering.setLastWidth(currentWidth);
+        end
+
+        local windowCenterX = keybind.AbsolutePosition.X + keybind.AbsoluteSize.X / 2;
+        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
+        local distanceFromCenter = math.abs(windowCenterX - screenCenterX);
+
+        if distanceFromCenter <= 10 and not Library.KeybindCentering.isHolding() then
+            keybind.Position = UDim2.new(
+                0.5, -currentWidth / 2,
+                keybind.Position.Y.Scale,
+                keybind.Position.Y.Offset
+            );
+        elseif currentWidth ~= lastWidth and lastWidth > 0 and not Library.KeybindCentering.isHolding() then
+            local widthDifference = currentWidth - lastWidth;
+            local currentWindowCenterX = keybind.AbsolutePosition.X + keybind.AbsoluteSize.X / 2;
+
+            if currentWindowCenterX > screenCenterX then
+                keybind.Position = UDim2.new(
+                    keybind.Position.X.Scale,
+                    keybind.Position.X.Offset - widthDifference,
+                    keybind.Position.Y.Scale,
+                    keybind.Position.Y.Offset
+                );
+            end
+        end
+    end
+
 end))
 
 local function GetPlayersString()
@@ -781,6 +815,9 @@ function Library:Unload()
     end
     if Library.WatermarkCrossLines then
         Library.WatermarkCrossLines:Destroy()
+    end
+    if Library.KeybindCrossLines then
+        Library.KeybindCrossLines:Destroy()
     end
     if Library.ESPPreviewMainFrame then
         Library.ESPPreviewMainFrame:Destroy()
@@ -3891,6 +3928,149 @@ do
     Library.KeybindFrame = KeybindOuter;
     Library.KeybindContainer = KeybindContainer;
     Library:MakeDraggable(KeybindOuter);
+
+    local RenHubKeybindCrossLines = Library:Create('ScreenGui', {
+        Name = "RenHubKeybindCrossLines";
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
+        DisplayOrder = 0;
+        Parent = CoreGui;
+    });
+
+    local KeybindCrossLines = Library:Create('Frame', {
+        Name = "CrossLines";
+        BackgroundColor3 = Color3.new(0, 0, 0);
+        BackgroundTransparency = 1.000;
+        BorderColor3 = Color3.new(0, 0, 0);
+        BorderSizePixel = 0;
+        Position = UDim2.new(0, 0, -0.1, 0);
+        Size = UDim2.new(1, 0, 1.1, 0);
+        Parent = RenHubKeybindCrossLines;
+    });
+
+    local KeybindXLine = Library:Create('Frame', {
+        Name = "XLine";
+        BackgroundColor3 = Color3.new(255, 255, 255);
+        BackgroundTransparency = 1.000;
+        BorderColor3 = Color3.new(0, 0, 0);
+        BorderSizePixel = 0;
+        Position = UDim2.new(0, 0, 0.5, 0);
+        Size = UDim2.new(1, 0, 0, 2);
+        Parent = KeybindCrossLines;
+    });
+
+    local KeybindYLine = Library:Create('Frame', {
+        Name = "YLine";
+        BackgroundColor3 = Color3.new(255, 255, 255);
+        BackgroundTransparency = 1.000;
+        BorderColor3 = Color3.new(0, 0, 0);
+        BorderSizePixel = 0;
+        Position = UDim2.new(0.5, 0, -0.1, 0);
+        Size = UDim2.new(0, 2, 1.1, 0);
+        Parent = KeybindCrossLines;
+    });
+
+    Library.KeybindCrossLines = RenHubKeybindCrossLines;
+
+    local isHoldingKeybind = false;
+    local lastKeybindWidth = 0;
+
+    local function showKeybindCrossLines()
+        if not RenHubKeybindCrossLines or not RenHubKeybindCrossLines.Parent then return end;
+
+        TweenService:Create(
+            KeybindCrossLines,
+            TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {BackgroundTransparency = 0.95}
+        ):Play();
+        TweenService:Create(
+            KeybindXLine,
+            TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {BackgroundTransparency = 0}
+        ):Play();
+        TweenService:Create(
+            KeybindYLine,
+            TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {BackgroundTransparency = 0}
+        ):Play();
+    end;
+
+    local function hideKeybindCrossLines()
+        if not RenHubKeybindCrossLines or not RenHubKeybindCrossLines.Parent then return end;
+
+        TweenService:Create(
+            KeybindCrossLines,
+            TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {BackgroundTransparency = 1}
+        ):Play();
+        TweenService:Create(
+            KeybindXLine,
+            TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {BackgroundTransparency = 1}
+        ):Play();
+        TweenService:Create(
+            KeybindYLine,
+            TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {BackgroundTransparency = 1}
+        ):Play();
+    end;
+
+    local function mouseWithinDragArea(frame)
+        local mouse = LocalPlayer:GetMouse();
+        local mousePosition = Vector2.new(mouse.X, mouse.Y);
+        local windowPosition = frame.AbsolutePosition;
+        local windowSize = frame.AbsoluteSize;
+
+        if mousePosition.X < windowPosition.X or mousePosition.X > windowPosition.X + windowSize.X then
+            return false;
+        end
+        if mousePosition.Y < windowPosition.Y or mousePosition.Y > windowPosition.Y + windowSize.Y then
+            return false;
+        end
+
+        local relativeY = mousePosition.Y - windowPosition.Y;
+        return relativeY <= 40;
+    end
+
+    KeybindOuter.MouseEnter:Connect(function()
+        if InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) and mouseWithinDragArea(KeybindOuter) then
+            isHoldingKeybind = true;
+            showKeybindCrossLines();
+        end;
+    end);
+
+    KeybindOuter.MouseLeave:Connect(function()
+        if isHoldingKeybind then
+            isHoldingKeybind = false;
+            hideKeybindCrossLines();
+        end;
+    end);
+
+    InputService.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if Library.KeybindFrame and Library.KeybindFrame.Parent and mouseWithinDragArea(Library.KeybindFrame) then
+                isHoldingKeybind = true;
+                showKeybindCrossLines();
+            end;
+        end;
+    end);
+
+    InputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if isHoldingKeybind then
+                isHoldingKeybind = false;
+                hideKeybindCrossLines();
+            end;
+        end;
+    end);
+
+    lastKeybindWidth = KeybindOuter.AbsoluteSize.X;
+
+    Library.KeybindCentering = {
+        isHolding = function() return isHoldingKeybind end;
+        lastWidth = function() return lastKeybindWidth end;
+        setLastWidth = function(width) lastKeybindWidth = width end;
+        setIsHolding = function(value) isHoldingKeybind = value end;
+    };
 end;
 
 function Library:SetWatermarkVisibility(Bool)
