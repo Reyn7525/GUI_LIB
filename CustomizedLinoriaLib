@@ -1,4 +1,4 @@
-print("Library version 0.6Q2TEST")
+print("Library version 0.6Q2TEST2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -397,33 +397,61 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
     if Library.KeybindFrame and Library.KeybindFrame.Parent and Library.KeybindFrame.Visible and Library.KeybindCentering then
         local keybind = Library.KeybindFrame;
         local currentWidth = keybind.AbsoluteSize.X;
+        local currentHeight = keybind.AbsoluteSize.Y;
         local lastWidth = Library.KeybindCentering.lastWidth();
 
         if currentWidth ~= lastWidth then
             Library.KeybindCentering.setLastWidth(currentWidth);
         end
 
-        local windowCenterX = keybind.AbsolutePosition.X + keybind.AbsoluteSize.X / 2;
-        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
-        local distanceFromCenter = math.abs(windowCenterX - screenCenterX);
+        local viewportSize = workspace.CurrentCamera.ViewportSize;
+        local screenCenterX = viewportSize.X / 2;
+        local screenCenterY = viewportSize.Y / 2;
 
-        if distanceFromCenter <= 10 and not Library.KeybindCentering.isHolding() then
+        local windowCenterX = keybind.AbsolutePosition.X + currentWidth / 2;
+        local windowCenterY = keybind.AbsolutePosition.Y + currentHeight / 2;
+
+        local distanceFromCenterX = math.abs(windowCenterX - screenCenterX);
+        local distanceFromCenterY = math.abs(windowCenterY - screenCenterY);
+
+        local snapDistance = 25;
+        local isHolding = Library.KeybindCentering.isHolding();
+        local lockedX = Library.KeybindCentering.isLockedX and Library.KeybindCentering.isLockedX() or false;
+        local lockedY = Library.KeybindCentering.isLockedY and Library.KeybindCentering.isLockedY() or false;
+
+        local desiredOffsetX = currentWidth * (keybind.AnchorPoint.X - 0.5);
+        local desiredOffsetY = currentHeight * (keybind.AnchorPoint.Y - 0.5);
+
+        if (lockedX or distanceFromCenterX <= snapDistance) and not isHolding then
             keybind.Position = UDim2.new(
-                0.5, -currentWidth / 2,
+                0.5, desiredOffsetX,
                 keybind.Position.Y.Scale,
                 keybind.Position.Y.Offset
             );
-        elseif currentWidth ~= lastWidth and lastWidth > 0 and not Library.KeybindCentering.isHolding() then
+            if Library.KeybindCentering.setIsLockedX then
+                Library.KeybindCentering.setIsLockedX(true);
+            end
+        elseif currentWidth ~= lastWidth and lastWidth > 0 and not isHolding then
             local widthDifference = currentWidth - lastWidth;
-            local currentWindowCenterX = keybind.AbsolutePosition.X + keybind.AbsoluteSize.X / 2;
 
-            if currentWindowCenterX > screenCenterX then
+            if windowCenterX > screenCenterX then
                 keybind.Position = UDim2.new(
                     keybind.Position.X.Scale,
                     keybind.Position.X.Offset - widthDifference,
                     keybind.Position.Y.Scale,
                     keybind.Position.Y.Offset
                 );
+            end
+        end
+
+        if (lockedY or distanceFromCenterY <= snapDistance) and not isHolding then
+            keybind.Position = UDim2.new(
+                keybind.Position.X.Scale,
+                keybind.Position.X.Offset,
+                0.5, desiredOffsetY
+            );
+            if Library.KeybindCentering.setIsLockedY then
+                Library.KeybindCentering.setIsLockedY(true);
             end
         end
     end
@@ -3973,6 +4001,8 @@ do
 
     local isHoldingKeybind = false;
     local lastKeybindWidth = 0;
+    local isKeybindLockedX = false;
+    local isKeybindLockedY = false;
 
     local function showKeybindCrossLines()
         if not RenHubKeybindCrossLines or not RenHubKeybindCrossLines.Parent then return end;
@@ -4034,6 +4064,8 @@ do
     KeybindOuter.MouseEnter:Connect(function()
         if InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) and mouseWithinDragArea(KeybindOuter) then
             isHoldingKeybind = true;
+            isKeybindLockedX = false;
+            isKeybindLockedY = false;
             showKeybindCrossLines();
         end;
     end);
@@ -4049,6 +4081,8 @@ do
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if Library.KeybindFrame and Library.KeybindFrame.Parent and mouseWithinDragArea(Library.KeybindFrame) then
                 isHoldingKeybind = true;
+                isKeybindLockedX = false;
+                isKeybindLockedY = false;
                 showKeybindCrossLines();
             end;
         end;
@@ -4070,6 +4104,10 @@ do
         lastWidth = function() return lastKeybindWidth end;
         setLastWidth = function(width) lastKeybindWidth = width end;
         setIsHolding = function(value) isHoldingKeybind = value end;
+        isLockedX = function() return isKeybindLockedX end;
+        isLockedY = function() return isKeybindLockedY end;
+        setIsLockedX = function(value) isKeybindLockedX = value end;
+        setIsLockedY = function(value) isKeybindLockedY = value end;
     };
 end;
 
