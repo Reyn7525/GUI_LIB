@@ -1,4 +1,4 @@
-print("Library version 0.6R1")
+print("Library version 0.6R2")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -70,8 +70,7 @@ ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
 ScreenGui:SetAttribute("TextOutlineColor",Color3.new(0,0,0))
 ScreenGui:SetAttribute("DPIScale", 1)
-
-Library:SetDPIScale(ScreenGui:GetAttribute("DPIScale") or 1)
+UIScale.Scale = ScreenGui:GetAttribute("DPIScale") or 1
 
 local passes, fails = 0, 0
 
