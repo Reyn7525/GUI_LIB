@@ -1,4 +1,4 @@
-print("Library version 0.6Q2TEST7")
+print("Library version 0.6R")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -4162,12 +4162,42 @@ end;
 function Library:SetWatermark(Text)
     local X, Y = Library:GetTextBounds(Text, ScreenGui:GetAttribute("Font"), 14);
     local newWidth = X + 15;
+    local watermark = Library.Watermark
+
+    if not watermark or not watermark.Parent then
+        return
+    end
+
+    local oldWidth = watermark.AbsoluteSize.X
+    local oldAbsLeftX = watermark.AbsolutePosition.X
+    local oldAbsCenterX = oldAbsLeftX + (oldWidth / 2)
+    local screenCenterAbsX = select(1, Library:GetScreenCenterAbs())
+
+    local snapState = Library.DragSnapStates and Library.DragSnapStates[watermark]
+    local acquire = (snapState and snapState.Snap and snapState.Snap.Distance) or 8
+    local isCentered = (snapState and snapState.LockedX) or (math.abs(oldAbsCenterX - screenCenterAbsX) <= acquire)
+
+    local newAbsLeftX
+    if isCentered then
+        newAbsLeftX = screenCenterAbsX - (newWidth / 2)
+    elseif oldAbsCenterX < screenCenterAbsX then
+        -- left side: grow to the right (keep left edge)
+        newAbsLeftX = oldAbsLeftX
+    else
+        -- right side: grow to the left (keep right edge)
+        newAbsLeftX = oldAbsLeftX + oldWidth - newWidth
+    end
     
     if Library.WatermarkCentering then
-        Library.WatermarkCentering.setLastWidth(Library.Watermark.AbsoluteSize.X);
+        Library.WatermarkCentering.setLastWidth(oldWidth);
     end;
     
-    Library.Watermark.Size = UDim2.new(0, newWidth, 0, (Y * 1.5) + 3);
+    watermark.Size = UDim2.new(0, newWidth, 0, (Y * 1.5) + 3);
+
+    local parentAbs = watermark.Parent.AbsolutePosition
+    local anchor = watermark.AnchorPoint
+    local anchorAbsX = newAbsLeftX + newWidth * anchor.X
+    watermark.Position = UDim2.new(0, anchorAbsX - parentAbs.X, watermark.Position.Y.Scale, watermark.Position.Y.Offset);
 
     Library.WatermarkText.Text = Text;
 end;
