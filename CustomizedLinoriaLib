@@ -1,8 +1,9 @@
-print("Library version 0.6Q2TEST4")
+print("Library version 0.6Q2TEST5")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
 local CoreGui = game:GetService('CoreGui');
+local GuiService = game:GetService('GuiService');
 local Teams = game:GetService('Teams');
 local Players = game:GetService('Players');
 local RunService = game:GetService('RunService')
@@ -365,30 +366,25 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         local currentWidth = watermark.AbsoluteSize.X;
         local currentHeight = watermark.AbsoluteSize.Y;
         local lastWidth = Library.WatermarkCentering.lastWidth();
-        local lockedX = Library.WatermarkCentering.isLockedX and Library.WatermarkCentering.isLockedX() or false;
-        local lockedY = Library.WatermarkCentering.isLockedY and Library.WatermarkCentering.isLockedY() or false;
         
         local windowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
         local windowCenterY = watermark.AbsolutePosition.Y + watermark.AbsoluteSize.Y / 2;
-        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
-        local screenCenterY = workspace.CurrentCamera.ViewportSize.Y / 2;
+        local viewportSize = workspace.CurrentCamera.ViewportSize;
+        local insetTL, insetBR = GuiService:GetGuiInset();
+        local screenCenterX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2;
+        local screenCenterY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2;
 
         local distanceFromCenterX = math.abs(windowCenterX - screenCenterX);
         local distanceFromCenterY = math.abs(windowCenterY - screenCenterY);
 
-        local snapDistance = 35;
-
         if not Library.WatermarkCentering.isHolding() then
-            if lockedX or distanceFromCenterX <= snapDistance then
+            local snapDistance = 14;
+            if distanceFromCenterX <= snapDistance then
                 watermark.Position = UDim2.new(
                     0.5, -currentWidth / 2,
                     watermark.Position.Y.Scale,
                     watermark.Position.Y.Offset
                 );
-                if Library.WatermarkCentering.setIsLockedX then
-                    Library.WatermarkCentering.setIsLockedX(true);
-                    lockedX = true;
-                end
             elseif currentWidth ~= lastWidth and lastWidth > 0 then
                 local widthDifference = currentWidth - lastWidth;
                 local currentWindowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
@@ -403,16 +399,12 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
                 end
             end
 
-            if lockedY or distanceFromCenterY <= snapDistance then
+            if distanceFromCenterY <= snapDistance then
                 watermark.Position = UDim2.new(
                     watermark.Position.X.Scale,
                     watermark.Position.X.Offset,
                     0.5, -currentHeight / 2
                 );
-                if Library.WatermarkCentering.setIsLockedY then
-                    Library.WatermarkCentering.setIsLockedY(true);
-                    lockedY = true;
-                end
             end
         end
 
@@ -426,32 +418,28 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         local currentWidth = keybind.AbsoluteSize.X;
         local currentHeight = keybind.AbsoluteSize.Y;
         local lastWidth = Library.KeybindCentering.lastWidth();
-        local lockedX = Library.KeybindCentering.isLockedX and Library.KeybindCentering.isLockedX() or false;
-        local lockedY = Library.KeybindCentering.isLockedY and Library.KeybindCentering.isLockedY() or false;
 
         local windowCenterX = keybind.AbsolutePosition.X + currentWidth / 2;
         local windowCenterY = keybind.AbsolutePosition.Y + currentHeight / 2;
-        local screenCenterX = workspace.CurrentCamera.ViewportSize.X / 2;
-        local screenCenterY = workspace.CurrentCamera.ViewportSize.Y / 2;
+        local viewportSize = workspace.CurrentCamera.ViewportSize;
+        local insetTL, insetBR = GuiService:GetGuiInset();
+        local screenCenterX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2;
+        local screenCenterY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2;
 
         local distanceFromCenterX = math.abs(windowCenterX - screenCenterX);
         local distanceFromCenterY = math.abs(windowCenterY - screenCenterY);
 
-        local snapDistance = 35;
         local desiredOffsetX = currentWidth * (keybind.AnchorPoint.X - 0.5);
         local desiredOffsetY = currentHeight * (keybind.AnchorPoint.Y - 0.5);
 
         if not Library.KeybindCentering.isHolding() then
-            if lockedX or distanceFromCenterX <= snapDistance then
+            local snapDistance = 14;
+            if distanceFromCenterX <= snapDistance then
                 keybind.Position = UDim2.new(
                     0.5, desiredOffsetX,
                     keybind.Position.Y.Scale,
                     keybind.Position.Y.Offset
                 );
-                if Library.KeybindCentering.setIsLockedX then
-                    Library.KeybindCentering.setIsLockedX(true);
-                    lockedX = true;
-                end
             elseif currentWidth ~= lastWidth and lastWidth > 0 then
                 local widthDifference = currentWidth - lastWidth;
                 if windowCenterX > screenCenterX then
@@ -464,16 +452,12 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
                 end
             end
 
-            if lockedY or distanceFromCenterY <= snapDistance then
+            if distanceFromCenterY <= snapDistance then
                 keybind.Position = UDim2.new(
                     keybind.Position.X.Scale,
                     keybind.Position.X.Offset,
                     0.5, desiredOffsetY
                 );
-                if Library.KeybindCentering.setIsLockedY then
-                    Library.KeybindCentering.setIsLockedY(true);
-                    lockedY = true;
-                end
             end
         end
 
@@ -3808,8 +3792,6 @@ do
 
     local isHoldingWatermark = false;
     local lastWatermarkWidth = 0;
-    local isWatermarkLockedX = false;
-    local isWatermarkLockedY = false;
 
     local function showCrossLines()
         if not RenHubWatermarkCrossLines or not RenHubWatermarkCrossLines.Parent then return end;
@@ -3884,8 +3866,6 @@ do
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if Library.Watermark and Library.Watermark.Parent and mouseWithinWatermarkDragArea(Library.Watermark) then
                 isHoldingWatermark = true;
-                isWatermarkLockedX = false;
-                isWatermarkLockedY = false;
                 showCrossLines();
             end;
         end;
@@ -3907,10 +3887,6 @@ do
         lastWidth = function() return lastWatermarkWidth end;
         setLastWidth = function(width) lastWatermarkWidth = width end;
         setIsHolding = function(value) isHoldingWatermark = value end;
-        isLockedX = function() return isWatermarkLockedX end;
-        isLockedY = function() return isWatermarkLockedY end;
-        setIsLockedX = function(value) isWatermarkLockedX = value end;
-        setIsLockedY = function(value) isWatermarkLockedY = value end;
     };
 
     local KeybindOuter = Library:Create('Frame', {
@@ -4042,8 +4018,6 @@ do
 
     local isHoldingKeybind = false;
     local lastKeybindWidth = 0;
-    local isKeybindLockedX = false;
-    local isKeybindLockedY = false;
 
     local function showKeybindCrossLines()
         if not RenHubKeybindCrossLines or not RenHubKeybindCrossLines.Parent then return end;
@@ -4118,8 +4092,6 @@ do
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if Library.KeybindFrame and Library.KeybindFrame.Parent and mouseWithinDragArea(Library.KeybindFrame) then
                 isHoldingKeybind = true;
-                isKeybindLockedX = false;
-                isKeybindLockedY = false;
                 showKeybindCrossLines();
             end;
         end;
@@ -4141,10 +4113,6 @@ do
         lastWidth = function() return lastKeybindWidth end;
         setLastWidth = function(width) lastKeybindWidth = width end;
         setIsHolding = function(value) isHoldingKeybind = value end;
-        isLockedX = function() return isKeybindLockedX end;
-        isLockedY = function() return isKeybindLockedY end;
-        setIsLockedX = function(value) isKeybindLockedX = value end;
-        setIsLockedY = function(value) isKeybindLockedY = value end;
     };
 end;
 
