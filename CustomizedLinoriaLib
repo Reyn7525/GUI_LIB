@@ -1,4 +1,4 @@
-print("Library version 0.6Q2TEST2")
+print("Library version 0.6Q2TEST3")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -414,7 +414,11 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         local distanceFromCenterX = math.abs(windowCenterX - screenCenterX);
         local distanceFromCenterY = math.abs(windowCenterY - screenCenterY);
 
-        local snapDistance = 25;
+        -- более "жесткое" закрепление: как только попали в радиус, держим по центру,
+        -- пока юзер не утащит заметно дальше (гистерезис).
+        local snapDistance = 35;
+        local unsnapDistance = 55;
+
         local isHolding = Library.KeybindCentering.isHolding();
         local lockedX = Library.KeybindCentering.isLockedX and Library.KeybindCentering.isLockedX() or false;
         local lockedY = Library.KeybindCentering.isLockedY and Library.KeybindCentering.isLockedY() or false;
@@ -422,18 +426,39 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         local desiredOffsetX = currentWidth * (keybind.AnchorPoint.X - 0.5);
         local desiredOffsetY = currentHeight * (keybind.AnchorPoint.Y - 0.5);
 
-        if (lockedX or distanceFromCenterX <= snapDistance) and not isHolding then
-            keybind.Position = UDim2.new(
-                0.5, desiredOffsetX,
-                keybind.Position.Y.Scale,
-                keybind.Position.Y.Offset
-            );
+        if not lockedX and distanceFromCenterX <= snapDistance then
             if Library.KeybindCentering.setIsLockedX then
                 Library.KeybindCentering.setIsLockedX(true);
             end
-        elseif currentWidth ~= lastWidth and lastWidth > 0 and not isHolding then
-            local widthDifference = currentWidth - lastWidth;
+            lockedX = true;
+        elseif lockedX and distanceFromCenterX >= unsnapDistance and isHolding then
+            if Library.KeybindCentering.setIsLockedX then
+                Library.KeybindCentering.setIsLockedX(false);
+            end
+            lockedX = false;
+        end
 
+        if not lockedY and distanceFromCenterY <= snapDistance then
+            if Library.KeybindCentering.setIsLockedY then
+                Library.KeybindCentering.setIsLockedY(true);
+            end
+            lockedY = true;
+        elseif lockedY and distanceFromCenterY >= unsnapDistance and isHolding then
+            if Library.KeybindCentering.setIsLockedY then
+                Library.KeybindCentering.setIsLockedY(false);
+            end
+            lockedY = false;
+        end
+
+        if lockedX then
+            keybind.Position = UDim2.new(
+                0, screenCenterX + desiredOffsetX,
+                keybind.Position.Y.Scale,
+                keybind.Position.Y.Offset
+            );
+        elseif currentWidth ~= lastWidth and lastWidth > 0 and not isHolding then
+            -- если ширина выросла, компенсируем "уезд" вправо (как у watermark)
+            local widthDifference = currentWidth - lastWidth;
             if windowCenterX > screenCenterX then
                 keybind.Position = UDim2.new(
                     keybind.Position.X.Scale,
@@ -444,15 +469,12 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
             end
         end
 
-        if (lockedY or distanceFromCenterY <= snapDistance) and not isHolding then
+        if lockedY then
             keybind.Position = UDim2.new(
                 keybind.Position.X.Scale,
                 keybind.Position.X.Offset,
-                0.5, desiredOffsetY
+                0, screenCenterY + desiredOffsetY
             );
-            if Library.KeybindCentering.setIsLockedY then
-                Library.KeybindCentering.setIsLockedY(true);
-            end
         end
     end
 
