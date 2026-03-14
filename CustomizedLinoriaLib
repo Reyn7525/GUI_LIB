@@ -1,4 +1,4 @@
-print("Library version 0.6Q2TEST5")
+print("Library version 0.6Q2TEST6")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -345,6 +345,8 @@ getgenv().Options = Options;
 local RainbowStep = 0
 local Hue = 0
 
+Library.DragSnapStates = Library.DragSnapStates or {}
+
 table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
     RainbowStep = RainbowStep + Delta
 
@@ -361,108 +363,58 @@ table.insert(Library.Signals, RenderStepped:Connect(function(Delta)
         Library.CurrentRainbowColor = Color3.fromHSV(Hue, 0.8, 1);
     end
 
-    if Library.Watermark and Library.Watermark.Parent and Library.Watermark.Visible then
-        local watermark = Library.Watermark;
-        local currentWidth = watermark.AbsoluteSize.X;
-        local currentHeight = watermark.AbsoluteSize.Y;
-        local lastWidth = Library.WatermarkCentering.lastWidth();
-        
-        local windowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
-        local windowCenterY = watermark.AbsolutePosition.Y + watermark.AbsoluteSize.Y / 2;
-        local viewportSize = workspace.CurrentCamera.ViewportSize;
-        local insetTL, insetBR = GuiService:GetGuiInset();
-        local screenCenterX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2;
-        local screenCenterY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2;
+    for instance, state in next, Library.DragSnapStates do
+        if not instance or not instance.Parent then
+            Library.DragSnapStates[instance] = nil
+            continue
+        end
 
-        local distanceFromCenterX = math.abs(windowCenterX - screenCenterX);
-        local distanceFromCenterY = math.abs(windowCenterY - screenCenterY);
+        local snap = state and state.Snap
+        if not snap or not snap.Enabled then
+            continue
+        end
 
-        if not Library.WatermarkCentering.isHolding() then
-            local snapDistance = 14;
-            if distanceFromCenterX <= snapDistance then
-                watermark.Position = UDim2.new(
-                    0.5, -currentWidth / 2,
-                    watermark.Position.Y.Scale,
-                    watermark.Position.Y.Offset
-                );
-            elseif currentWidth ~= lastWidth and lastWidth > 0 then
-                local widthDifference = currentWidth - lastWidth;
-                local currentWindowCenterX = watermark.AbsolutePosition.X + watermark.AbsoluteSize.X / 2;
-                
-                if currentWindowCenterX > screenCenterX then
-                    watermark.Position = UDim2.new(
-                        watermark.Position.X.Scale,
-                        watermark.Position.X.Offset - widthDifference,
-                        watermark.Position.Y.Scale,
-                        watermark.Position.Y.Offset
-                    );
-                end
-            end
+        if instance.Visible == false then
+            continue
+        end
 
-            if distanceFromCenterY <= snapDistance then
-                watermark.Position = UDim2.new(
-                    watermark.Position.X.Scale,
-                    watermark.Position.X.Offset,
-                    0.5, -currentHeight / 2
-                );
+        local size = instance.AbsoluteSize
+        local anchor = instance.AnchorPoint
+        local parentAbs = instance.Parent.AbsolutePosition
+
+        local viewportSize = workspace.CurrentCamera.ViewportSize
+        local insetTL, insetBR = GuiService:GetGuiInset()
+        local screenCenterAbsX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2
+        local screenCenterAbsY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2
+
+        local instanceCenterAbsX = instance.AbsolutePosition.X + size.X / 2
+        local instanceCenterAbsY = instance.AbsolutePosition.Y + size.Y / 2
+
+        local dx = instanceCenterAbsX - screenCenterAbsX
+        local dy = instanceCenterAbsY - screenCenterAbsY
+
+        local acquire = snap.Distance or 8
+        local release = snap.ReleaseDistance or (acquire + 4)
+
+        local allowX = snap.X ~= false
+        local allowY = snap.Y ~= false
+
+        if allowX and not state.IsDragging then
+            if state.LockedX or math.abs(dx) <= acquire then
+                state.LockedX = true
+                local targetCenterRelX = screenCenterAbsX - parentAbs.X
+                local targetPosX = targetCenterRelX - size.X / 2 + size.X * anchor.X
+                instance.Position = UDim2.new(0, targetPosX, instance.Position.Y.Scale, instance.Position.Y.Offset)
             end
         end
 
-        if currentWidth ~= lastWidth then
-            Library.WatermarkCentering.setLastWidth(currentWidth);
-        end
-    end
-
-    if Library.KeybindFrame and Library.KeybindFrame.Parent and Library.KeybindFrame.Visible and Library.KeybindCentering then
-        local keybind = Library.KeybindFrame;
-        local currentWidth = keybind.AbsoluteSize.X;
-        local currentHeight = keybind.AbsoluteSize.Y;
-        local lastWidth = Library.KeybindCentering.lastWidth();
-
-        local windowCenterX = keybind.AbsolutePosition.X + currentWidth / 2;
-        local windowCenterY = keybind.AbsolutePosition.Y + currentHeight / 2;
-        local viewportSize = workspace.CurrentCamera.ViewportSize;
-        local insetTL, insetBR = GuiService:GetGuiInset();
-        local screenCenterX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2;
-        local screenCenterY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2;
-
-        local distanceFromCenterX = math.abs(windowCenterX - screenCenterX);
-        local distanceFromCenterY = math.abs(windowCenterY - screenCenterY);
-
-        local desiredOffsetX = currentWidth * (keybind.AnchorPoint.X - 0.5);
-        local desiredOffsetY = currentHeight * (keybind.AnchorPoint.Y - 0.5);
-
-        if not Library.KeybindCentering.isHolding() then
-            local snapDistance = 14;
-            if distanceFromCenterX <= snapDistance then
-                keybind.Position = UDim2.new(
-                    0.5, desiredOffsetX,
-                    keybind.Position.Y.Scale,
-                    keybind.Position.Y.Offset
-                );
-            elseif currentWidth ~= lastWidth and lastWidth > 0 then
-                local widthDifference = currentWidth - lastWidth;
-                if windowCenterX > screenCenterX then
-                    keybind.Position = UDim2.new(
-                        keybind.Position.X.Scale,
-                        keybind.Position.X.Offset - widthDifference,
-                        keybind.Position.Y.Scale,
-                        keybind.Position.Y.Offset
-                    );
-                end
+        if allowY and not state.IsDragging then
+            if state.LockedY or math.abs(dy) <= acquire then
+                state.LockedY = true
+                local targetCenterRelY = screenCenterAbsY - parentAbs.Y
+                local targetPosY = targetCenterRelY - size.Y / 2 + size.Y * anchor.Y
+                instance.Position = UDim2.new(instance.Position.X.Scale, instance.Position.X.Offset, 0, targetPosY)
             end
-
-            if distanceFromCenterY <= snapDistance then
-                keybind.Position = UDim2.new(
-                    keybind.Position.X.Scale,
-                    keybind.Position.X.Offset,
-                    0.5, desiredOffsetY
-                );
-            end
-        end
-
-        if currentWidth ~= lastWidth then
-            Library.KeybindCentering.setLastWidth(currentWidth);
         end
     end
 
@@ -563,7 +515,7 @@ function Library:CreateLabel(Properties, IsHud)
     return Library:Create(_Instance, Properties);
 end;
 
-function Library:MakeDraggable(Instance, Cutoff)
+function Library:MakeDraggable(Instance, Cutoff, Options)
     if not Instance or not Instance.Parent then
         return;
     end;
@@ -572,6 +524,19 @@ function Library:MakeDraggable(Instance, Cutoff)
     
     local connection;
     local isDragging = false;
+    local state = Library.DragSnapStates[Instance] or { IsDragging = false, LockedX = false, LockedY = false, Snap = nil }
+    Library.DragSnapStates[Instance] = state
+
+    local cutoffValue = Cutoff
+    local opts = Options
+    if type(Cutoff) == 'table' then
+        opts = Cutoff
+        cutoffValue = opts.Cutoff
+    end
+
+    if type(opts) == 'table' and type(opts.Snap) == 'table' then
+        state.Snap = opts.Snap
+    end
     
     Instance.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -580,7 +545,7 @@ function Library:MakeDraggable(Instance, Cutoff)
                 game.Players.LocalPlayer:GetMouse().Y - Instance.AbsolutePosition.Y
             );
             
-            if ObjPos.Y > (Cutoff or 40) then
+            if ObjPos.Y > (cutoffValue or 40) then
                 return;
             end;
             
@@ -589,6 +554,9 @@ function Library:MakeDraggable(Instance, Cutoff)
             end;
             
             isDragging = true;
+            state.IsDragging = true;
+            state.LockedX = false;
+            state.LockedY = false;
 
             connection = game:GetService("RunService").Heartbeat:Connect(function()
                 if Library.Unloaded or not ScreenGui or not ScreenGui.Parent then
@@ -597,6 +565,7 @@ function Library:MakeDraggable(Instance, Cutoff)
                         connection = nil;
                     end;
                     isDragging = false;
+                    state.IsDragging = false;
                     return;
                 end;
                 
@@ -606,6 +575,7 @@ function Library:MakeDraggable(Instance, Cutoff)
                         connection = nil;
                     end;
                     isDragging = false;
+                    state.IsDragging = false;
                     return;
                 end;
                 
@@ -615,15 +585,62 @@ function Library:MakeDraggable(Instance, Cutoff)
                         connection = nil;
                     end;
                     isDragging = false;
+                    state.IsDragging = false;
                     return;
                 end;
-                
-                Instance.Position = UDim2.new(
-                   0,
-                   game.Players.LocalPlayer:GetMouse().X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X),
-                   0,
-                   game.Players.LocalPlayer:GetMouse().Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
-                );
+
+                local mouse = game.Players.LocalPlayer:GetMouse()
+                local newX = mouse.X - ObjPos.X + (Instance.Size.X.Offset * Instance.AnchorPoint.X)
+                local newY = mouse.Y - ObjPos.Y + (Instance.Size.Y.Offset * Instance.AnchorPoint.Y)
+
+                local snap = state.Snap
+                if snap and snap.Enabled then
+                    local size = Instance.AbsoluteSize
+                    local anchor = Instance.AnchorPoint
+                    local parentAbs = Instance.Parent.AbsolutePosition
+
+                    local viewportSize = workspace.CurrentCamera.ViewportSize
+                    local insetTL, insetBR = GuiService:GetGuiInset()
+                    local screenCenterAbsX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2
+                    local screenCenterAbsY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2
+
+                    local anchorAbsX = parentAbs.X + newX
+                    local anchorAbsY = parentAbs.Y + newY
+                    local topLeftAbsX = anchorAbsX - size.X * anchor.X
+                    local topLeftAbsY = anchorAbsY - size.Y * anchor.Y
+                    local centerAbsX = topLeftAbsX + size.X / 2
+                    local centerAbsY = topLeftAbsY + size.Y / 2
+
+                    local dx = centerAbsX - screenCenterAbsX
+                    local dy = centerAbsY - screenCenterAbsY
+
+                    local acquire = snap.Distance or 8
+                    local release = snap.ReleaseDistance or (acquire + 4)
+                    local allowX = snap.X ~= false
+                    local allowY = snap.Y ~= false
+
+                    if allowX then
+                        if (state.LockedX and math.abs(dx) <= release) or (not state.LockedX and math.abs(dx) <= acquire) then
+                            state.LockedX = true
+                            local targetCenterRelX = screenCenterAbsX - parentAbs.X
+                            newX = targetCenterRelX - size.X / 2 + size.X * anchor.X
+                        else
+                            state.LockedX = false
+                        end
+                    end
+
+                    if allowY then
+                        if (state.LockedY and math.abs(dy) <= release) or (not state.LockedY and math.abs(dy) <= acquire) then
+                            state.LockedY = true
+                            local targetCenterRelY = screenCenterAbsY - parentAbs.Y
+                            newY = targetCenterRelY - size.Y / 2 + size.Y * anchor.Y
+                        else
+                            state.LockedY = false
+                        end
+                    end
+                end
+
+                Instance.Position = UDim2.new(0, newX, 0, newY);
             end);
         end;
     end);
@@ -635,6 +652,8 @@ function Library:MakeDraggable(Instance, Cutoff)
                 connection = nil;
             end;
             isDragging = false;
+            state.IsDragging = false;
+            Library.DragSnapStates[Instance] = nil
         end;
     end);
 end;
@@ -3743,7 +3762,10 @@ do
 
     Library.Watermark = WatermarkOuter;
     Library.WatermarkText = WatermarkLabel;
-    Library:MakeDraggable(Library.Watermark);
+    Library:MakeDraggable(Library.Watermark, {
+        Cutoff = 40;
+        Snap = { Enabled = true, X = true, Y = true, Distance = 8, ReleaseDistance = 12 };
+    });
 
     local RenHubWatermarkCrossLines = Library:Create('ScreenGui', {
         Name = "RenHubWatermarkCrossLines";
@@ -3972,7 +3994,10 @@ do
 
     Library.KeybindFrame = KeybindOuter;
     Library.KeybindContainer = KeybindContainer;
-    Library:MakeDraggable(KeybindOuter);
+    Library:MakeDraggable(KeybindOuter, {
+        Cutoff = 40;
+        Snap = { Enabled = true, X = true, Y = true, Distance = 8, ReleaseDistance = 12 };
+    });
 
     local RenHubKeybindCrossLines = Library:Create('ScreenGui', {
         Name = "RenHubKeybindCrossLines";
