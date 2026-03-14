@@ -1,4 +1,4 @@
-print("Library version 0.6R")
+print("Library version 0.6R1")
 
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
@@ -54,6 +54,12 @@ local Library = {
     ESPPreviewVisible = false;
 };
 
+local UIScale = Instance.new("UIScale")
+UIScale.Name = "RenHubUIScale"
+UIScale.Scale = 1
+UIScale.Parent = ScreenGui
+Library.UIScale = UIScale
+
 ScreenGui:SetAttribute("Font",Library.Font)
 ScreenGui:SetAttribute("NotifyScale", 1)
 ScreenGui:SetAttribute("NotifyPaddingX", 12)
@@ -63,6 +69,9 @@ ScreenGui:SetAttribute("GlowIntensivity",0.2)
 ScreenGui:SetAttribute("GlowColor",Library.AccentColor)
 ScreenGui:SetAttribute("TextOutline",true)
 ScreenGui:SetAttribute("TextOutlineColor",Color3.new(0,0,0))
+ScreenGui:SetAttribute("DPIScale", 1)
+
+Library:SetDPIScale(ScreenGui:GetAttribute("DPIScale") or 1)
 
 local passes, fails = 0, 0
 
@@ -524,6 +533,30 @@ function Library:GetScreenCenterAbs()
     local centerX = insetTL.X + (viewportSize.X - insetTL.X - insetBR.X) / 2
     local centerY = insetTL.Y + (viewportSize.Y - insetTL.Y - insetBR.Y) / 2
     return centerX, centerY
+end
+
+function Library:GetDPIScale()
+    if Library.UIScale and Library.UIScale.Parent then
+        return Library.UIScale.Scale
+    end
+    return ScreenGui:GetAttribute("DPIScale") or 1
+end
+
+function Library:SetDPIScale(scale)
+    local value = tonumber(scale) or 1
+    value = math.clamp(value, 0.5, 2.0)
+
+    ScreenGui:SetAttribute("DPIScale", value)
+
+    if not Library.UIScale or not Library.UIScale.Parent then
+        local scaleInstance = Instance.new("UIScale")
+        scaleInstance.Name = "RenHubUIScale"
+        scaleInstance.Parent = ScreenGui
+        Library.UIScale = scaleInstance
+    end
+
+    Library.UIScale.Scale = value
+    return value
 end
 
 function Library:MakeDraggable(Instance, Cutoff, Options)
